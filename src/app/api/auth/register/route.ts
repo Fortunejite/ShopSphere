@@ -18,7 +18,7 @@ export const POST = errorHandler(async (request) => {
     );
   }
   const user = await User.create({ ...credentials as UserAttributes, password_hash });
-  await signIn('credentials', {...credentials, redirect: false})
+  await signIn('credentials', {...credentials, password, redirect: false})
 
   return NextResponse.json(user, { status: 201 });
 });

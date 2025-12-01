@@ -1,21 +1,17 @@
-import Shop from "@/models/Shop.model";
-import dbConnect from "./mongodb";
-import { ShopWithOwner } from "@/types/shop";
+import { Shop } from "@/models/Shop";
 
 export const getShopBySubdomain = async (subdomain: string) => {
-  await dbConnect();
-  const shop = await Shop.findOne({ subdomain }).populate('ownerId');
+  const shop = await Shop.findByDomain(subdomain);
   if (!shop) {
     throw Object.assign(new Error('Shop not found'), { status: 404 });
   }
-  return shop as ShopWithOwner;
+  return shop;
 }
 
 export const getShopById = async (shopId: string) => {
-  await dbConnect();
-  const shop = await Shop.findById(shopId).populate('ownerId');
+  const shop = await Shop.findById(shopId);
   if (!shop) {
     throw Object.assign(new Error('Shop not found'), { status: 404 });
   }
-  return shop as ShopWithOwner;
+  return shop;
 }

@@ -1,1 +1,1 @@
-type tParams = Promise<{ id?: string, subdomain?: string, slug?: string, trackingId?: string }>;
+type tParams = Promise<{ id?: string, domain?: string, slug?: string, trackingId?: string }>;
