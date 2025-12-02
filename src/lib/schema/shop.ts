@@ -11,10 +11,8 @@ export const createShopSchema = z.object({
       /^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/,
       'Subdomain must contain only lowercase letters, numbers, and hyphens',
     ),
-  category: z.string(),
-  description: z
-    .string()
-    .min(10, 'Description must be at least 10 characters long'),
+  category_id: z.number().min(1, 'Category is required'),
+  description: z.string().optional(),
   currency: z.enum(Object.keys(currencySymbols) as [string, ...string[]], {
     required_error: 'Currency is required',
   }),

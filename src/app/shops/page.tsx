@@ -1,0 +1,674 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
+import { 
+  Plus, 
+  Search, 
+  Edit, 
+  Trash2, 
+  Store, 
+  Globe, 
+  DollarSign,
+  Package,
+  Loader2,
+  AlertCircle,
+  CheckCircle2,
+  ExternalLink
+} from 'lucide-react';
+import { createShopSchema } from '@/lib/schema/shop';
+import { currencySymbols } from '@/lib/currency';
+import { z } from 'zod';
+import axios from 'axios';
+import { useAppSelector } from '@/hooks/redux.hook';
+import { ShopWithOwner } from '@/models/Shop';
+
+interface ShopFormProps {
+  onSubmit: (e: React.FormEvent) => Promise<void>;
+  mode: 'create' | 'update'
+  submitLabel: string;
+  isSubmitting: boolean;
+  formData: {
+    name: string;
+    domain: string;
+    category_id: number | undefined;
+    description: string | undefined;
+    currency: string;
+  };
+  formErrors: Record<string, string>;
+  error: string;
+  categories: Array<{ id: number; name: string }>;
+  handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  handleSelectChange: (name: string, value: string) => void;
+}
+
+const ShopForm: React.FC<ShopFormProps> = ({
+  onSubmit,
+  mode,
+  submitLabel,
+  isSubmitting,
+  formData,
+  formErrors,
+  error,
+  categories,
+  handleInputChange,
+  handleSelectChange,
+}) => (
+  <form onSubmit={onSubmit} className="space-y-4">
+    {error && (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
+    )}
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="space-y-2">
+        <Label htmlFor="name">Shop Name</Label>
+        <Input
+          id="name"
+          name="name"
+          placeholder="Enter shop name"
+          value={formData.name}
+          onChange={handleInputChange}
+          className={formErrors.name ? 'border-red-500' : ''}
+          disabled={isSubmitting}
+        />
+        {formErrors.name && <p className="text-sm text-red-500">{formErrors.name}</p>}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="domain">Domain</Label>
+        <Input
+          id="domain"
+          name="domain"
+          placeholder="Enter domain (e.g., myshop)"
+          value={formData.domain}
+          onChange={handleInputChange}
+          className={formErrors.domain ? 'border-red-500' : ''}
+          disabled={isSubmitting}
+        />
+        {formErrors.domain && <p className="text-sm text-red-500">{formErrors.domain}</p>}
+      </div>
+    </div>
+
+    {mode === 'create' && <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="space-y-2">
+        <Label htmlFor="category">Category</Label>
+        <Select
+          value={formData.category_id?.toString() || ""}
+          onValueChange={(value) => handleSelectChange('category_id', value)}
+          disabled={isSubmitting}
+        >
+          <SelectTrigger className={formErrors.category_id ? 'border-red-500' : ''}>
+            <SelectValue placeholder="Select category" />
+          </SelectTrigger>
+          <SelectContent>
+            {categories.map(category => (
+              <SelectItem key={category.id} value={category.id.toString()}>{category.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {formErrors.category_id && <p className="text-sm text-red-500">{formErrors.category_id}</p>}
+      </div>
+
+      {mode === 'create' && <div className="space-y-2">
+        <Label htmlFor="currency">Currency</Label>
+        <Select
+          value={formData.currency}
+          onValueChange={(value) => handleSelectChange('currency', value)}
+          disabled={isSubmitting}
+        >
+          <SelectTrigger className={formErrors.currency ? 'border-red-500' : ''}>
+            <SelectValue placeholder="Select currency" />
+          </SelectTrigger>
+          <SelectContent>
+            {Object.entries(currencySymbols).map(([code, symbol]) => (
+              <SelectItem key={code} value={code}>{code} ({symbol})</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {formErrors.currency && <p className="text-sm text-red-500">{formErrors.currency}</p>}
+      </div>}
+    </div>}
+
+    <div className="space-y-2">
+      <Label htmlFor="description">Description</Label>
+      <Textarea
+        id="description"
+        name="description"
+        placeholder="Enter shop description"
+        value={formData.description || ""}
+        onChange={handleInputChange}
+        className={formErrors.description ? 'border-red-500' : ''}
+        disabled={isSubmitting}
+        rows={3}
+      />
+      {formErrors.description && <p className="text-sm text-red-500">{formErrors.description}</p>}
+    </div>
+
+    <DialogFooter>
+      <Button
+        type="submit"
+        disabled={isSubmitting}
+        className="w-full md:w-auto"
+      >
+        {isSubmitting ? (
+          <>
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            {submitLabel}...
+          </>
+        ) : (
+          submitLabel
+        )}
+      </Button>
+    </DialogFooter>
+  </form>
+);
+
+export default function ShopsPage() {
+  const [shops, setShops] = useState<ShopWithOwner[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [selectedShop, setSelectedShop] = useState<ShopWithOwner | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const router = useRouter();
+
+  const [formData, setFormData] = useState({
+    name: '',
+    domain: '',
+    category_id: undefined as number | undefined,
+    description: '' as string | undefined,
+    currency: 'USD',
+  });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  const categoriesState = useAppSelector(state => state.category.categories);
+  const categories = categoriesState.filter(cat => cat.parent_id === null);
+
+  useEffect(() => {
+    const fetchShops = async () => {
+      try {
+        setIsLoading(true);
+        const response = await axios.get('/api/shops');
+        setShops(response.data);
+      } catch (error) {
+        console.error('Error fetching shops:', error);
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+          router.push('/login');
+        } else {
+          setError('Failed to fetch shops. Please try again.');
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchShops();
+  }, [router]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    // Clear error when user starts typing
+    if (formErrors[name]) {
+      setFormErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData(prev => ({ ...prev, [name]: Number(value) }));
+    if (formErrors[name]) {
+      setFormErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      domain: '',
+      category_id: undefined,
+      description: '',
+      currency: 'USD',
+    });
+    setFormErrors({});
+    setError('');
+    setSuccess('');
+  };
+
+  const handleCreateShop = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError('');
+
+    try {
+      const validatedData = createShopSchema.parse(formData);
+      const response = await axios.post('/api/shops', validatedData);
+      
+      const category = categories.find(cat => cat.id === response.data.category_id);
+      setShops(prev => [...prev, { ...response.data, category : category ? category.name : '' }]);
+      setSuccess('Shop created successfully!');
+      resetForm();
+      setIsCreateOpen(false);
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const fieldErrors: Record<string, string> = {};
+        error.errors.forEach((err) => {
+          if (err.path[0]) {
+            fieldErrors[err.path[0] as string] = err.message;
+          }
+        });
+        setFormErrors(fieldErrors);
+      } else if (axios.isAxiosError(error)) {
+        setError(error.response?.data?.message || 'Failed to create shop. Please try again.');
+      } else {
+        setError('An unexpected error occurred. Please try again.');
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleEditShop = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedShop) return;
+
+    setIsSubmitting(true);
+    setError('');
+
+    try {
+      const validatedData = createShopSchema.parse(formData);
+      
+      // API call to update shop
+      const response = await axios.put(`/api/shops/${selectedShop.domain}`, validatedData);
+      
+      const category = categories.find(cat => cat.id === response.data.category_id);
+      // Update local state with the response data
+      setShops(prev => prev.map(shop =>
+        shop.id === selectedShop.id
+          ? { ...response.data, category: category ? category.name : '' }
+          : shop
+      ));
+      
+      setSuccess('Shop updated successfully!');
+      resetForm();
+      setIsEditOpen(false);
+      setSelectedShop(null);
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const fieldErrors: Record<string, string> = {};
+        error.errors.forEach((err) => {
+          if (err.path[0]) {
+            fieldErrors[err.path[0] as string] = err.message;
+          }
+        });
+        setFormErrors(fieldErrors);
+      } else if (axios.isAxiosError(error)) {
+        setError(error.response?.data?.message || 'Failed to update shop. Please try again.');
+      } else {
+        setError('Failed to update shop. Please try again.');
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteShop = async () => {
+    if (!selectedShop) return;
+
+    setIsSubmitting(true);
+    setError('');
+
+    try {
+      // API call to delete shop
+      await axios.delete(`/api/shops/${selectedShop.domain}`);
+      
+      // Update local state
+      setShops(prev => prev.filter(shop => shop.id !== selectedShop.id));
+      
+      setSuccess('Shop deleted successfully!');
+      setIsDeleteOpen(false);
+      setSelectedShop(null);
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (error) {
+      console.error('Error deleting shop:', error);
+      if (axios.isAxiosError(error)) {
+        setError(error.response?.data?.message || 'Failed to delete shop. Please try again.');
+      } else {
+        setError('Failed to delete shop. Please try again.');
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const openEditModal = (shop: ShopWithOwner) => {
+    setSelectedShop(shop);
+    setFormData({
+      name: shop.name,
+      domain: shop.domain,
+      category_id: shop.category_id,
+      description: shop.description,
+      currency: shop.currency,
+    });
+    setFormErrors({});
+    setError('');
+    setIsEditOpen(true);
+  };
+
+  const openDeleteModal = (shop: ShopWithOwner) => {
+    setSelectedShop(shop);
+    setError('');
+    setIsDeleteOpen(true);
+  };
+
+  // Filter shops based on search term and category
+  const filteredShops = shops.filter(shop => {
+    const matchesSearch = shop.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         shop.domain.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         shop.description?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || shop.category_id.toString() === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  return (
+    <div className="min-h-screen bg-linear-to-br from-neutral-50 to-neutral-100 p-4 md:p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-neutral-900 flex items-center gap-2">
+              <Store className="w-8 h-8 text-neutral-700" />
+              My Shops
+            </h1>
+            <p className="text-neutral-600 mt-1">Manage your online stores</p>
+          </div>
+          
+          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={resetForm} className="flex items-center gap-2">
+                <Plus className="w-4 h-4" />
+                Create Shop
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Create New Shop</DialogTitle>
+                <DialogDescription>
+                  Fill in the details to create your new online shop
+                </DialogDescription>
+              </DialogHeader>
+              <ShopForm 
+                onSubmit={handleCreateShop}
+                mode='create'
+                submitLabel="Create Shop"
+                isSubmitting={isSubmitting}
+                formData={formData}
+                formErrors={formErrors}
+                error={error}
+                categories={categories}
+                handleInputChange={handleInputChange}
+                handleSelectChange={handleSelectChange}
+              />
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        {/* Success Message */}
+        {success && (
+          <Alert className="border-green-500 bg-green-50">
+            <CheckCircle2 className="h-4 w-4 text-green-600" />
+            <AlertDescription className="text-green-700">{success}</AlertDescription>
+          </Alert>
+        )}
+
+        {/* Filters */}
+        <div className="flex flex-col sm:flex-row gap-4 bg-white p-4 rounded-lg shadow-sm border">
+          <div className="flex-1">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 w-4 h-4" />
+              <Input
+                placeholder="Search shops..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+          
+          <div className="w-full sm:w-48">
+            <Select value={selectedCategory.toString()} onValueChange={setSelectedCategory}>
+              <SelectTrigger>
+                <SelectValue placeholder="All Categories" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {categories.map(category => (
+                  <SelectItem key={category.id} value={category.id.toString()}>{category.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* Content */}
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center space-y-4">
+              <Loader2 className="w-8 h-8 animate-spin mx-auto text-neutral-500" />
+              <p className="text-neutral-500">Loading your shops...</p>
+            </div>
+          </div>
+        ) : filteredShops.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="space-y-4">
+              <div className="w-16 h-16 bg-neutral-100 rounded-full flex items-center justify-center mx-auto">
+                <Store className="w-8 h-8 text-neutral-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-medium text-neutral-900">
+                  {shops.length === 0 ? 'No shops yet' : 'No shops found'}
+                </h3>
+                <p className="text-neutral-500 mt-1">
+                  {shops.length === 0 
+                    ? 'Create your first shop to get started'
+                    : 'Try adjusting your search or filter criteria'
+                  }
+                </p>
+              </div>
+              {shops.length === 0 && (
+                <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+                  <DialogTrigger asChild>
+                    <Button onClick={resetForm} className="mt-4">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create Your First Shop
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                      <DialogTitle>Create New Shop</DialogTitle>
+                      <DialogDescription>
+                        Fill in the details to create your new online shop
+                      </DialogDescription>
+                    </DialogHeader>
+                    <ShopForm 
+                      onSubmit={handleCreateShop}
+                      mode='create'
+                      submitLabel="Create Shop"
+                      isSubmitting={isSubmitting}
+                      formData={formData}
+                      formErrors={formErrors}
+                      error={error}
+                      categories={categories}
+                      handleInputChange={handleInputChange}
+                      handleSelectChange={handleSelectChange}
+                    />
+                  </DialogContent>
+                </Dialog>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredShops.map((shop) => (
+              <Card key={shop.id} className="group hover:shadow-lg transition-all duration-200 border-0 shadow-md bg-white">
+                <CardHeader className="pb-4">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1 flex-1">
+                      <CardTitle className="text-xl group-hover:text-neutral-800 transition-colors">
+                        {shop.name}
+                      </CardTitle>
+                      <CardDescription className="flex items-center gap-1">
+                        <Globe className="w-3 h-3" />
+                        {shop.domain}
+                      </CardDescription>
+                    </div>
+                    <Badge variant="secondary" className="text-xs">
+                      {shop.category}
+                    </Badge>
+                  </div>
+                </CardHeader>
+
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-neutral-600 line-clamp-2">
+                    {shop.description}
+                  </p>
+                  
+                  <div className="flex items-center gap-4 text-sm text-neutral-500">
+                    <div className="flex items-center gap-1">
+                      <DollarSign className="w-3 h-3" />
+                      {shop.currency}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Package className="w-3 h-3" />
+                      Created {shop.created_at ? new Date(shop.created_at).toLocaleDateString() : 'N/A'}
+                    </div>
+                  </div>
+                </CardContent>
+
+                <CardFooter className="pt-4 flex items-center justify-between">
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href={`/shops/${shop.domain}`} target="_blank" className="flex items-center gap-1">
+                      <ExternalLink className="w-3 h-3" />
+                      Visit
+                    </Link>
+                  </Button>
+                  
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => openEditModal(shop)}
+                      className="h-8 w-8 p-0"
+                    >
+                      <Edit className="w-3 h-3" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => openDeleteModal(shop)}
+                      className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
+                  </div>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        {/* Edit Modal */}
+        <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Edit Shop</DialogTitle>
+              <DialogDescription>
+                Update your shop details
+              </DialogDescription>
+            </DialogHeader>
+            <ShopForm 
+              onSubmit={handleEditShop}
+              mode='update'
+              submitLabel="Update Shop"
+              isSubmitting={isSubmitting}
+              formData={formData}
+              formErrors={formErrors}
+              error={error}
+              categories={categories}
+              handleInputChange={handleInputChange}
+              handleSelectChange={handleSelectChange}
+            />
+          </DialogContent>
+        </Dialog>
+
+        {/* Delete Confirmation Modal */}
+        <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Delete Shop</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to delete &ldquo;{selectedShop?.name}&rdquo;? This action cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+            
+            {error && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+            
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setIsDeleteOpen(false)}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleDeleteShop}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  'Delete Shop'
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </div>
+  );
+}

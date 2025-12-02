@@ -1,11 +1,11 @@
 import { database } from '@/lib/db';
 
 export interface ShopAttributes {
-  id: string;
-  owner_id: string;
+  id: number;
+  owner_id: number;
   name: string;
   domain: string;
-  category: string;
+  category_id: number;
   description?: string;
   status: 'active' | 'inactive' | 'suspended';
   currency: string;
@@ -16,11 +16,13 @@ export interface ShopAttributes {
 export interface ShopWithOwner extends ShopAttributes {
   owner_email: string;
   owner_username: string;
+  category: string;
 }
 
 export class Shop {
   static tableName = 'shops';
   static usersTableName = 'users';
+  static categoriesTableName = 'categories';
 
   /**
    * Create a new shop
@@ -33,7 +35,7 @@ export class Shop {
     };
 
     const query = `
-      INSERT INTO ${Shop.tableName} (owner_id, name, domain, category, description, status, currency, created_at, updated_at)
+      INSERT INTO ${Shop.tableName} (owner_id, name, domain, category_id, description, status, currency, created_at, updated_at)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING *
     `;
@@ -42,7 +44,7 @@ export class Shop {
       shop.owner_id,
       shop.name,
       shop.domain,
-      shop.category,
+      shop.category_id,
       shop.description,
       shop.status,
       shop.currency,
@@ -57,15 +59,18 @@ export class Shop {
   /**
    * Find shop by ID
    */
-  static async findById(id: string): Promise<ShopWithOwner | null> {
+  static async findById(id: number): Promise<ShopWithOwner | null> {
     const result = await database.query(
       `SELECT
       s.*,
       u.id AS owner_id,
       u.email AS owner_email,
-      u.username AS owner_username
+      u.username AS owner_username,
+      c.id AS category_id,
+      c.name AS category
       FROM ${Shop.tableName} s
       JOIN ${Shop.usersTableName} u ON s.owner_id = u.id
+      JOIN ${Shop.categoriesTableName} c ON s.category_id = c.id
       WHERE s.id = $1`,
       [id]
     );
@@ -81,9 +86,12 @@ export class Shop {
       s.*,
       u.id AS owner_id,
       u.email AS owner_email,
-      u.username AS owner_username
+      u.username AS owner_username,
+      c.id AS category_id,
+      c.name AS category
       FROM ${Shop.tableName} s
       JOIN ${Shop.usersTableName} u ON s.owner_id = u.id
+      JOIN ${Shop.categoriesTableName} c ON s.category_id = c.id
       WHERE s.domain = $1`,
       [domain]
     );
@@ -93,15 +101,18 @@ export class Shop {
   /**
    * Find shop by owner ID
    */
-  static async findByOwnerId(owner_id: string): Promise<ShopWithOwner[] | null> {
+  static async findByOwnerId(owner_id: number): Promise<ShopWithOwner[] | null> {
     const result = await database.query(
       `SELECT
       s.*,
       u.id AS owner_id,
       u.email AS owner_email,
-      u.username AS owner_username
+      u.username AS owner_username,
+      c.id AS category_id,
+      c.name AS category
       FROM ${Shop.tableName} s
       JOIN ${Shop.usersTableName} u ON s.owner_id = u.id
+      JOIN ${Shop.categoriesTableName} c ON s.category_id = c.id
       WHERE s.owner_id = $1`,
       [owner_id]
     );
@@ -111,7 +122,7 @@ export class Shop {
   /**
    * Update shop
    */
-  static async update(id: string, shopData: Partial<ShopAttributes>): Promise<ShopAttributes | null> {
+  static async update(id: number, shopData: Partial<ShopAttributes>): Promise<ShopAttributes | null> {
     const fields = [];
     const values = [];
     let paramCount = 1;
@@ -143,7 +154,7 @@ export class Shop {
   /**
    * Delete shop
    */
-  static async delete(id: string): Promise<boolean> {
+  static async delete(id: number): Promise<boolean> {
     const result = await database.query(
       'DELETE FROM shops WHERE id = $1',
       [id]
@@ -171,9 +182,12 @@ export class Shop {
       s.*,
       u.id AS owner_id,
       u.email AS owner_email,
-      u.username AS owner_username
+      u.username AS owner_username,
+      c.id AS category_id,
+      c.name AS category
       FROM ${Shop.tableName} s
       JOIN ${Shop.usersTableName} u ON s.owner_id = u.id
+      JOIN ${Shop.categoriesTableName} c ON s.category_id = c.id
       ORDER BY s.created_at DESC
       LIMIT $1 OFFSET $2`,
       [limit, offset]

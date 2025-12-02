@@ -25,7 +25,7 @@ export abstract class BaseModel {
   /**
    * Find a record by ID
    */
-  protected static async findById(tableName: string, id: string): Promise<any> {
+  protected static async findById(tableName: string, id: number): Promise<any> {
     const result = await this.query(
       `SELECT * FROM ${tableName} WHERE id = $1`,
       [id]
@@ -93,7 +93,7 @@ export abstract class BaseModel {
    */
   protected static async update(
     tableName: string,
-    id: string,
+    id: number,
     data: Record<string, any>
   ): Promise<any> {
     const keys = Object.keys(data);
@@ -115,7 +115,7 @@ export abstract class BaseModel {
   /**
    * Delete a record
    */
-  protected static async delete(tableName: string, id: string): Promise<boolean> {
+  protected static async delete(tableName: string, id: number): Promise<boolean> {
     const result = await this.query(
       `DELETE FROM ${tableName} WHERE id = $1`,
       [id]

@@ -1,7 +1,7 @@
 import { database } from '@/lib/db';
 
 export interface UserAttributes {
-  id: string;
+  id: number;
   email: string;
   username: string;
   phone_number: string;
@@ -51,7 +51,7 @@ export class User {
   /**
    * Find user by ID
    */
-  static async findById(id: string): Promise<UserAttributes | null> {
+  static async findById(id: number): Promise<UserAttributes | null> {
     const result = await database.query(
       'SELECT * FROM users WHERE id = $1',
       [id]
@@ -73,7 +73,7 @@ export class User {
   /**
    * Update user
    */
-  static async update(id: string, userData: Partial<UserAttributes>): Promise<UserAttributes> {
+  static async update(id: number, userData: Partial<UserAttributes>): Promise<UserAttributes> {
     const fields = [];
     const values = [];
     let paramCount = 1;
@@ -105,7 +105,7 @@ export class User {
   /**
    * Delete user
    */
-  static async delete(id: string): Promise<boolean> {
+  static async delete(id: number): Promise<boolean> {
     const result = await database.query(
       'DELETE FROM users WHERE id = $1',
       [id]
