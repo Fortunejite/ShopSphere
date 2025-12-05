@@ -32,6 +32,7 @@ import { z } from 'zod';
 import axios from 'axios';
 import { useAppSelector } from '@/hooks/redux.hook';
 import { ShopWithOwner } from '@/models/Shop';
+import { generateURL } from '@/lib/domain';
 
 interface ShopFormProps {
   onSubmit: (e: React.FormEvent) => Promise<void>;
@@ -572,7 +573,7 @@ export default function ShopsPage() {
 
                 <CardFooter className="pt-4 flex items-center justify-between">
                   <Button variant="outline" size="sm" asChild>
-                    <Link href={`/shops/${shop.domain}`} target="_blank" className="flex items-center gap-1">
+                    <Link href={generateURL(shop.domain)} target="_blank" className="flex items-center gap-1">
                       <ExternalLink className="w-3 h-3" />
                       Visit
                     </Link>

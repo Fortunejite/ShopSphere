@@ -1,4 +1,6 @@
-import { Pool } from 'pg'
+import { Pool, types } from 'pg'
+
+types.setTypeParser(1700, (val) => val === null ? null : parseFloat(val));
 
 const pool = new Pool({
   user: 'fortune',
