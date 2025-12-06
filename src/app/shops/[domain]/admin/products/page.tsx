@@ -123,8 +123,8 @@ export default function AdminProductsPage() {
 
       const response = await axios.get(`/api/shops/${domain}/products?${queryParams}`);
       setProducts(response.data.products);
-      setTotalPages(response.data.totalPages || 1);
-      setTotalProducts(response.data.total || 0);
+      setTotalPages(response.data.pagination.totalPages || 1);
+      setTotalProducts(response.data.pagination.total || 0);
     } catch (error) {
       console.error('Error fetching products:', error);
       if (axios.isAxiosError(error) && error.response?.status === 401) {

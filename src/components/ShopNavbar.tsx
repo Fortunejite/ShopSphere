@@ -6,12 +6,12 @@ import {
   ShoppingCart,
   Search,
   Heart,
-  Badge,
   User,
   Menu,
   LogIn,
   Shield,
 } from 'lucide-react';
+import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import Link from 'next/link';
@@ -44,21 +44,21 @@ const ShopNavbar = ({ shop }: { shop: ShopWithOwner }) => {
           {/* Navigation Links - Desktop */}
           <nav className="hidden md:flex items-center space-x-8">
             <Link
-              href={`/${shop.domain}`}
+              href='/'
               className="text-neutral-700 hover:text-neutral-900 font-medium transition-colors"
             >
               <Home className="w-4 h-4 inline mr-2" />
               Home
             </Link>
             <Link
-              href={`/${shop.domain}/products`}
+              href='/products'
               className="text-neutral-700 hover:text-neutral-900 font-medium transition-colors"
             >
               <Package className="w-4 h-4 inline mr-2" />
               Products
             </Link>
             <Link
-              href={`/${shop.domain}/cart`}
+              href='/cart'
               className="text-neutral-700 hover:text-neutral-900 font-medium transition-colors"
             >
               <ShoppingCart className="w-4 h-4 inline mr-2" />
