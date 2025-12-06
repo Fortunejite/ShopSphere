@@ -16,6 +16,7 @@ import { useAppDispatch, useAppSelector } from '@/hooks/redux.hook';
 import { fetchShop } from '@/redux/shopSlice';
 import { ShopWithOwner } from '@/models/Shop';
 import ShopNavbar from '@/components/ShopNavbar';
+import { PageLoading } from '@/components/Loading';
 
 const ShopUnavailable = ({ shop }: { shop: ShopWithOwner }) => {
   return (
@@ -105,14 +106,7 @@ export default function HomeLayout({
 
   if (status === 'failed') return notFound();
   if (status === 'loading' || !shop) {
-    return (
-      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className="w-8 h-8 border-2 border-neutral-300 border-t-neutral-600 rounded-full animate-spin mx-auto"></div>
-          <p className="text-neutral-600">Loading shop...</p>
-        </div>
-      </div>
-    );
+    return <PageLoading text="Loading shop..." variant="shop" />;
   }
 
   if (shop.status !== 'active') {

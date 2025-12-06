@@ -34,6 +34,7 @@ import axios from 'axios';
 import { updateProductSchema } from '@/lib/schema/product';
 import ProductStepForm, { type ProductFormData } from '@/components/productForm/ProductStepForm';
 import { useAppSelector } from '@/hooks/redux.hook';
+import { PageLoading } from '@/components/Loading';
 
 interface Product {
   id: number;
@@ -232,14 +233,7 @@ export default function ProductDetailsPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="flex items-center space-x-2">
-          <Loader2 className="w-6 h-6 animate-spin" />
-          <span>Loading product details...</span>
-        </div>
-      </div>
-    );
+    return <PageLoading text="Loading product details..." variant="shop" />;
   }
 
   if (error) {

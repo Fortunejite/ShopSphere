@@ -14,7 +14,6 @@ import {
   Loader2,
 } from 'lucide-react';
 import { z } from 'zod';
-import type { CategoryAttributes } from '@/models/Category';
 import {
   basicInfoSchema,
   mediaSchema,

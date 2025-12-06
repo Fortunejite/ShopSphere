@@ -32,6 +32,7 @@ import { useAppSelector } from '@/hooks/redux.hook';
 import axios from 'axios';
 import ProductStepForm from '@/components/productForm/ProductStepForm';
 import Link from 'next/link';
+import { ProductLoading } from '@/components/Loading';
 
 interface Product {
   id: number;
@@ -387,11 +388,8 @@ export default function AdminProductsPage() {
 
         {/* Content */}
         {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="text-center space-y-4">
-              <Loader2 className="w-8 h-8 animate-spin mx-auto text-neutral-500" />
-              <p className="text-neutral-500">Loading products...</p>
-            </div>
+          <div className="py-12">
+            <ProductLoading text="Loading products..." size="lg" className="justify-center" />
           </div>
         ) : products.length === 0 ? (
           <div className="text-center py-12">

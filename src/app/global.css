@@ -118,3 +118,20 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom animations for loading components */
+@keyframes loading-bar {
+  0% {
+    transform: scaleX(0);
+  }
+  50% {
+    transform: scaleX(0.7);
+  }
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+.animate-loading-bar {
+  animation: loading-bar 2s ease-in-out infinite;
+}

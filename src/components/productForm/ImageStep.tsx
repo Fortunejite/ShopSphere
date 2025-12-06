@@ -6,6 +6,7 @@ import { Input } from '../ui/input';
 import { ProductFormData, UpdateFormData } from './ProductStepForm';
 import { useState } from 'react';
 import { uploadPhoto, uploadMultiplePhotos } from '@/lib/uploadPhoto';
+import { InlineLoading } from '../Loading';
 
 interface Props {
   formData: ProductFormData;
@@ -69,10 +70,7 @@ const ImageStep = ({ formData, updateFormData }: Props) => {
                 Upload an image file (JPG, PNG, WebP, etc.)
               </p>
               {isUploadingMain && (
-                <div className="flex items-center text-sm text-blue-600">
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Uploading...
-                </div>
+                <InlineLoading />
               )}
             </div>
             {uploadError && (
