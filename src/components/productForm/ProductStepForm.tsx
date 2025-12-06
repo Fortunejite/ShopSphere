@@ -27,6 +27,7 @@ import PricingAndStockForm from './PriceStep';
 import Variants from './VariantStep';
 import ImageStep from './ImageStep';
 import ShippingStep from './ShippingStep';
+import { useAppSelector } from '@/hooks/redux.hook';
 
 interface ProductVariant {
   attributes: Record<string, string>;
@@ -38,6 +39,7 @@ interface ProductVariant {
 
 export interface ProductFormData {
   name: string;
+  slug: string;
   description: string;
   price: number;
   discount: number;
@@ -47,6 +49,7 @@ export interface ProductFormData {
   is_featured: boolean;
   category_ids: number[];
   variants: ProductVariant[];
+  status: 'active' | 'inactive' | 'out_of_stock';
   weight: number;
   length: number;
   width: number;
@@ -64,7 +67,6 @@ interface ProductStepFormProps {
   isSubmitting?: boolean;
   initialData?: Partial<ProductFormData>;
   error?: string;
-  categories?: CategoryAttributes[];
   isEdit?: boolean;
 }
 
@@ -82,12 +84,12 @@ export default function ProductStepForm({
   isSubmitting = false,
   initialData,
   error,
-  categories = [],
   isEdit = false,
 }: ProductStepFormProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<ProductFormData>({
     name: '',
+    slug: '',
     description: '',
     price: 0,
     discount: 0,
@@ -97,6 +99,7 @@ export default function ProductStepForm({
     is_featured: false,
     category_ids: [],
     variants: [],
+    status: 'active',
     weight: 0,
     length: 0,
     width: 0,
@@ -106,6 +109,10 @@ export default function ProductStepForm({
 
   const [stepErrors, setStepErrors] = useState<Record<number, string>>({});
   const [isValidating, setIsValidating] = useState(false);
+
+  const categoriesState = useAppSelector(state => state.category.categories);
+  const shop = useAppSelector(state => state.shop.shop);
+  const categories = categoriesState.filter(cat => cat.parent_id === shop!.category_id);
 
   const updateFormData = <K extends keyof ProductFormData>(
     field: K,

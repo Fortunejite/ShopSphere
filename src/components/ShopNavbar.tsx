@@ -9,12 +9,17 @@ import {
   Badge,
   User,
   Menu,
+  LogIn,
+  Shield,
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 
 const ShopNavbar = ({ shop }: { shop: ShopWithOwner }) => {
+  const user = useSession()?.data?.user;
+  const isShopAdmin = user?.id === shop.owner_id;
   return (
     <header className="bg-white border-b border-neutral-200 sticky top-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -22,7 +27,7 @@ const ShopNavbar = ({ shop }: { shop: ShopWithOwner }) => {
           {/* Logo and Shop Name */}
           <div className="flex items-center space-x-4">
             <Link
-              href={`/${shop.domain}`}
+              href='/'
               className="flex items-center space-x-3"
             >
               <div className="w-10 h-10 bg-neutral-900 rounded-lg flex items-center justify-center">
@@ -32,7 +37,6 @@ const ShopNavbar = ({ shop }: { shop: ShopWithOwner }) => {
                 <h1 className="text-xl font-bold text-neutral-900">
                   {shop.name}
                 </h1>
-                <p className="text-xs text-neutral-500">{shop.domain}</p>
               </div>
             </Link>
           </div>
@@ -88,11 +92,26 @@ const ShopNavbar = ({ shop }: { shop: ShopWithOwner }) => {
               </Badge>
             </Button>
 
-            {/* Account */}
+            {!user ? (
+              <Button asChild size="sm" className="hidden sm:flex">
+                <Link href="/login" className="flex items-center gap-1">
+                  <LogIn className="w-4 h-4 mr-2" />
+                  Login
+                </Link>
+              </Button>
+          ) : isShopAdmin ? (
+              <Button asChild variant="secondary" size="sm" className="hidden sm:flex">
+                <Link href={`/admin`} className="flex items-center gap-1">
+                  <Shield className="w-4 h-4 mr-2" />
+                  Admin
+                </Link>
+              </Button>
+            ) : (
             <Button variant="outline" size="sm" className="hidden sm:flex">
               <User className="w-4 h-4 mr-2" />
-              Account
+              {user.username}
             </Button>
+          )}
 
             {/* Mobile Menu */}
             <Button variant="ghost" size="sm" className="md:hidden">

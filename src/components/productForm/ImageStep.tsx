@@ -1,10 +1,11 @@
 import Image from 'next/image';
 import { Label } from '@radix-ui/react-label';
-import { ImageOff, Upload, X } from 'lucide-react';
+import { ImageOff, Upload, X, Loader2 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { ProductFormData, UpdateFormData } from './ProductStepForm';
 import { useState } from 'react';
+import { uploadPhoto, uploadMultiplePhotos } from '@/lib/uploadPhoto';
 
 interface Props {
   formData: ProductFormData;
@@ -14,6 +15,9 @@ interface Props {
 const ImageStep = ({ formData, updateFormData }: Props) => {
   const [imageError, setImageError] = useState<boolean>(false);
   const [thumbnailErrors, setThumbnailErrors] = useState<boolean[]>([]);
+  const [isUploadingMain, setIsUploadingMain] = useState<boolean>(false);
+  const [isUploadingThumbnails, setIsUploadingThumbnails] = useState<boolean>(false);
+  const [uploadError, setUploadError] = useState<string>('');
   return (
     <div className="space-y-6">
       <div>
@@ -25,22 +29,55 @@ const ImageStep = ({ formData, updateFormData }: Props) => {
               id="image"
               type="file"
               accept="image/*"
-              onChange={(e) => {
+              onChange={async (e) => {
                 const file = e.target.files?.[0];
                 if (file) {
-                  // Create a temporary URL for preview
+                  setIsUploadingMain(true);
+                  setUploadError('');
+                  setImageError(false);
+                  
+                  // Create temporary URL for immediate preview
                   const tempUrl = URL.createObjectURL(file);
                   updateFormData('image', tempUrl);
-                  setImageError(false);
-                  // In a real app, you'd upload to a server here
-                  // and get back a permanent URL
+                  
+                  try {
+                    // Upload the actual file
+                    const result = await uploadPhoto(file);
+                    
+                    if (result.success) {
+                      // Replace temporary URL with permanent URL
+                      updateFormData('image', result.url);
+                      // Clean up temporary URL
+                      URL.revokeObjectURL(tempUrl);
+                    } else {
+                      setUploadError(result.error || 'Failed to upload image');
+                      setImageError(true);
+                    }
+                  } catch {
+                    setUploadError('Upload failed. Please try again.');
+                    setImageError(true);
+                  } finally {
+                    setIsUploadingMain(false);
+                  }
                 }
               }}
               className="w-full"
+              disabled={isUploadingMain}
             />
-            <p className="text-sm text-gray-500">
-              Upload an image file (JPG, PNG, GIF, etc.)
-            </p>
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-gray-500">
+                Upload an image file (JPG, PNG, WebP, etc.)
+              </p>
+              {isUploadingMain && (
+                <div className="flex items-center text-sm text-blue-600">
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Uploading...
+                </div>
+              )}
+            </div>
+            {uploadError && (
+              <p className="text-sm text-red-600 mt-1">{uploadError}</p>
+            )}
           </div>
 
           {/* Image preview */}
@@ -65,7 +102,15 @@ const ImageStep = ({ formData, updateFormData }: Props) => {
                       type="button"
                       variant="outline"
                       size="sm"
-                      onClick={() => updateFormData('image', '')}
+                      onClick={() => {
+                        // Clean up object URL if it's a blob URL
+                        if (formData.image.startsWith('blob:')) {
+                          URL.revokeObjectURL(formData.image);
+                        }
+                        updateFormData('image', '');
+                        setImageError(false);
+                        setUploadError('');
+                      }}
                       className="text-xs"
                     >
                       Remove Image
@@ -90,35 +135,81 @@ const ImageStep = ({ formData, updateFormData }: Props) => {
               input.type = 'file';
               input.accept = 'image/*';
               input.multiple = true;
-              input.onchange = (e) => {
+              input.onchange = async (e) => {
                 const files = (e.target as HTMLInputElement).files;
-                if (files) {
+                if (files && files.length > 0) {
+                  setIsUploadingThumbnails(true);
+                  setUploadError('');
+                  
+                  const fileArray = Array.from(files);
+                  const availableSlots = 10 - formData.thumbnails.length;
+                  const filesToUpload = fileArray.slice(0, availableSlots);
+                  
+                  // Create temporary URLs for immediate preview
                   const newThumbnails = [...formData.thumbnails];
                   const newErrors = [...thumbnailErrors];
-
-                  Array.from(files).forEach((file) => {
+                  const tempUrls: string[] = [];
+                  
+                  filesToUpload.forEach((file) => {
                     const tempUrl = URL.createObjectURL(file);
+                    tempUrls.push(tempUrl);
                     newThumbnails.push(tempUrl);
                     newErrors.push(false);
                   });
-
-                  // Limit to 10 thumbnails
-                  if (newThumbnails.length > 10) {
-                    newThumbnails.splice(10);
-                    newErrors.splice(10);
-                  }
-
+                  
                   updateFormData('thumbnails', newThumbnails);
                   setThumbnailErrors(newErrors);
+                  
+                  try {
+                    // Upload the actual files
+                    const results = await uploadMultiplePhotos(filesToUpload);
+                    
+                    // Replace temporary URLs with permanent URLs
+                    const finalThumbnails = [...formData.thumbnails];
+                    const startIndex = formData.thumbnails.length - filesToUpload.length;
+                    
+                    results.forEach((result, index) => {
+                      const thumbnailIndex = startIndex + index;
+                      if (result.success) {
+                        finalThumbnails[thumbnailIndex] = result.url;
+                        // Clean up temporary URL
+                        URL.revokeObjectURL(tempUrls[index]);
+                      } else {
+                        // Mark as error but keep the temp URL for user to see what failed
+                        newErrors[thumbnailIndex] = true;
+                        console.error('Thumbnail upload failed:', result.error);
+                      }
+                    });
+                    
+                    updateFormData('thumbnails', finalThumbnails);
+                    setThumbnailErrors(newErrors);
+                    
+                  } catch (error) {
+                    console.error('Thumbnails upload failed:', error);
+                    // Mark all new thumbnails as errored
+                    const errorThumbnails = [...thumbnailErrors];
+                    for (let i = 0; i < filesToUpload.length; i++) {
+                      errorThumbnails[formData.thumbnails.length - filesToUpload.length + i] = true;
+                    }
+                    setThumbnailErrors(errorThumbnails);
+                  } finally {
+                    setIsUploadingThumbnails(false);
+                  }
                 }
               };
               input.click();
             }}
-            disabled={formData.thumbnails.length >= 10}
+            disabled={formData.thumbnails.length >= 10 || isUploadingThumbnails}
             className="w-full sm:w-auto"
           >
-            <Upload className="w-4 h-4 mr-2" />
-            {formData.thumbnails.length === 0
+            {isUploadingThumbnails ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Upload className="w-4 h-4 mr-2" />
+            )}
+            {isUploadingThumbnails
+              ? 'Uploading...'
+              : formData.thumbnails.length === 0
               ? 'Add Thumbnail Images'
               : `Add More Images (${formData.thumbnails.length}/10)`}
           </Button>
@@ -156,6 +247,13 @@ const ImageStep = ({ formData, updateFormData }: Props) => {
                     size="sm"
                     className="absolute -top-2 -right-2 w-6 h-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
                     onClick={() => {
+                      const thumbnailToRemove = formData.thumbnails[index];
+                      
+                      // Clean up object URL if it's a blob URL
+                      if (thumbnailToRemove.startsWith('blob:')) {
+                        URL.revokeObjectURL(thumbnailToRemove);
+                      }
+                      
                       const newThumbnails = formData.thumbnails.filter(
                         (_, i) => i !== index,
                       );

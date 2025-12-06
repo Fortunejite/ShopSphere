@@ -106,7 +106,7 @@ const BasicInfoStep = ({ formData, updateFormData, categories }: Props) => {
                         );
                       }}
                     >
-                      <X />
+                      <X className='w-3 h-3'/>
                     </button>
                   </Badge>
                 ) : null;

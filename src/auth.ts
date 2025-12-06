@@ -34,7 +34,7 @@ const config: NextAuthConfig = {
   callbacks: {
     jwt({ token, user }) {
       if (user) {
-        token.id = user.id!;
+        token.id = Number(user.id!);
         token.email = user.email;
         token.username = user.username;
         token.role = user.role;

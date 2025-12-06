@@ -31,6 +31,7 @@ import { createProductSchema, updateProductSchema } from '@/lib/schema/product';
 import { useAppSelector } from '@/hooks/redux.hook';
 import axios from 'axios';
 import ProductStepForm from '@/components/productForm/ProductStepForm';
+import Link from 'next/link';
 
 interface Product {
   id: number;
@@ -308,7 +309,6 @@ export default function AdminProductsPage() {
                 submitLabel="Create Product"
                 isSubmitting={isSubmitting}
                 error={error}
-                categories={categories}
               />
             </DialogContent>
           </Dialog>
@@ -430,7 +430,6 @@ export default function AdminProductsPage() {
                       submitLabel="Create Product"
                       isSubmitting={isSubmitting}
                       error={error}
-                      categories={categories}
                     />
                   </DialogContent>
                 </Dialog>
@@ -521,10 +520,10 @@ export default function AdminProductsPage() {
 
                 <CardFooter className="p-4 pt-0 flex items-center justify-between">
                   <Button variant="outline" size="sm" asChild>
-                    <a href={`/${domain}/products/${product.slug}`} target="_blank" className="flex items-center gap-1">
+                    <Link href={`/admin/products/${product.slug}`} className="flex items-center gap-1">
                       <Eye className="w-3 h-3" />
                       View
-                    </a>
+                    </Link>
                   </Button>
                   
                   <div className="flex items-center gap-1">
@@ -638,7 +637,6 @@ export default function AdminProductsPage() {
                 height: selectedProduct.height,
               } : undefined}
               error={error}
-              categories={categories}
               isEdit={true}
             />
           </DialogContent>
