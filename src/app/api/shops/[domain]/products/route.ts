@@ -64,9 +64,33 @@ export const GET = errorHandler(async (request, { params }) => {
     inStock,
     minPrice,
     maxPrice,
-    sortBy,
-    sortOrder,
+    sortBy: originalSortBy,
+    sortOrder: originalSortOrder,
+    sort,
   } = validationResult.data;
+
+  // Handle legacy sort parameter from frontend
+  let sortBy = originalSortBy;
+  let sortOrder = originalSortOrder;
+  let isFeaturedSort = false;
+  
+  if (sort) {
+    const sortMapping: Record<string, { field: string; order: 'asc' | 'desc'; featured?: boolean }> = {
+      'featured': { field: 'is_featured', order: 'desc', featured: true },
+      'price_low': { field: 'price', order: 'asc' },
+      'price_high': { field: 'price', order: 'desc' },
+      'newest': { field: 'created_at', order: 'desc' },
+      'popular': { field: 'sales_count', order: 'desc' },
+      'rating': { field: 'created_at', order: 'desc' },
+    };
+    
+    const mapping = sortMapping[sort];
+    if (mapping) {
+      sortBy = mapping.field as 'name' | 'price' | 'created_at' | 'updated_at' | 'sales_count' | 'stock_quantity' | 'is_featured';
+      sortOrder = mapping.order;
+      isFeaturedSort = mapping.featured || false;
+    }
+  }
 
   const offset = (page - 1) * limit;
 
@@ -130,28 +154,42 @@ export const GET = errorHandler(async (request, { params }) => {
 
   // Category filter using array operations
   if (categories.length > 0) {
-    // First, get category IDs from names/slugs
-    const categoryQuery = `
-      SELECT ARRAY_AGG(id) as category_ids 
-      FROM categories 
-      WHERE name = ANY($${paramCount + 1}) OR slug = ANY($${paramCount + 1})
-    `;
-    paramCount++;
-    queryParams.push(categories);
-
-    const categoryResult = await database.query(categoryQuery, [categories]);
-    const categoryIds = categoryResult.rows[0]?.category_ids || [];
-
-    if (categoryIds.length > 0) {
+    // Check if categories are numeric IDs or names/slugs
+    const isNumericIds = categories.every(cat => !isNaN(Number(cat)));
+    
+    if (isNumericIds) {
+      // Categories are IDs, use them directly
+      const categoryIds = categories.map(cat => Number(cat));
       paramCount++;
       whereConditions.push(`p.category_ids && $${paramCount}`);
       queryParams.push(categoryIds);
+    } else {
+      // Categories are names/slugs, get IDs from names/slugs
+      const categoryQuery = `
+        SELECT ARRAY_AGG(id) as category_ids 
+        FROM categories 
+        WHERE name = ANY($1::text[]) OR slug = ANY($1::text[])
+      `;
+
+      const categoryResult = await database.query(categoryQuery, [categories]);
+      const categoryIds = categoryResult.rows[0]?.category_ids || [];
+
+      if (categoryIds.length > 0) {
+        paramCount++;
+        whereConditions.push(`p.category_ids && $${paramCount}`);
+        queryParams.push(categoryIds);
+      }
     }
   }
 
     // Sort parameters are already validated by schema
     const sortField = sortBy;
     const order = sortOrder;
+    
+    // For featured sort, we want featured products first, then sort by creation date
+    const orderByClause = isFeaturedSort 
+      ? `p.is_featured DESC, p.created_at DESC`
+      : `p.${sortField} ${order}`;
 
   // Build the main query
   const query = `
@@ -168,7 +206,7 @@ export const GET = errorHandler(async (request, { params }) => {
     LEFT JOIN categories c ON c.id = ANY(p.category_ids)
     WHERE ${whereConditions.join(' AND ')}
     GROUP BY p.id, s.name, s.domain
-    ORDER BY p.${sortField} ${order}
+    ORDER BY ${orderByClause}
     LIMIT $${paramCount + 1} OFFSET $${paramCount + 2}
   `;
 

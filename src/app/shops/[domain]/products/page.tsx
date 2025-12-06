@@ -125,8 +125,33 @@ export default function ProductsPage() {
       });
       
       if (searchTerm) queryParams.set('search', searchTerm);
-      if (selectedCategory !== 'all') queryParams.set('category', selectedCategory);
-      if (sortBy) queryParams.set('sort', sortBy);
+      if (selectedCategory !== 'all') {
+        // Find category name by ID to send to API
+        const category = categories.find(c => c.id.toString() === selectedCategory);
+        if (category) {
+          queryParams.set('category', category.name);
+        } else {
+          // Fallback: send the selectedCategory as-is (might be name or slug)
+          queryParams.set('category', selectedCategory);
+        }
+      }
+      if (sortBy) {
+        // Map frontend sort values to API values
+        const sortMapping: Record<string, { field: string; order: string }> = {
+          'featured': { field: 'is_featured', order: 'desc' },
+          'price_low': { field: 'price', order: 'asc' },
+          'price_high': { field: 'price', order: 'desc' },
+          'newest': { field: 'created_at', order: 'desc' },
+          'popular': { field: 'sales_count', order: 'desc' },
+          'rating': { field: 'created_at', order: 'desc' }, // Fallback since we don't have ratings yet
+        };
+        
+        const mapping = sortMapping[sortBy];
+        if (mapping) {
+          queryParams.set('sortBy', mapping.field);
+          queryParams.set('sortOrder', mapping.order);
+        }
+      }
 
       const { data: productsRes } = await axios.get(`/api/shops/${domain}/products?${queryParams}`);
       

@@ -61,8 +61,10 @@ export const productQuerySchema = z.object({
   inStock: z.enum(['true', 'false']).optional(),
   minPrice: z.coerce.number().min(0).optional(),
   maxPrice: z.coerce.number().min(0).optional(),
-  sortBy: z.enum(['name', 'price', 'created_at', 'updated_at', 'sales_count', 'stock_quantity']).default('created_at'),
+  sortBy: z.enum(['name', 'price', 'created_at', 'updated_at', 'sales_count', 'stock_quantity', 'is_featured']).default('created_at'),
   sortOrder: z.enum(['asc', 'desc']).default('desc'),
+  // Legacy support for frontend sort parameter
+  sort: z.string().optional(),
 });
 
 export type CreateProductInput = z.infer<typeof createProductSchema>;
