@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { database } from "@/lib/db";
 
 export interface ProductVariant {

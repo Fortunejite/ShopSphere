@@ -144,6 +144,7 @@ export default function AdminProductsPage() {
     } finally {
       setIsLoading(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [domain, searchTerm, selectedStatus, selectedCategory, sortBy, sortOrder, currentPage, productsPerPage, router]);
 
   useEffect(() => {

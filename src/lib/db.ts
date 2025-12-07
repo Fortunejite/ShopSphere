@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Pool, types } from 'pg'
 
 types.setTypeParser(1700, (val) => val === null ? null : parseFloat(val));

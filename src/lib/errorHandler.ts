@@ -40,8 +40,8 @@ export const errorHandler =
 
       // Fallback
       return NextResponse.json(
-        { error: err.message || 'InternalServerError', message: err.message || 'Something went wrong' },
-        { status: err.status || 500 },
+        { error: (err as { message: string }).message || 'InternalServerError', message: (err as { message: string }).message || 'Something went wrong' },
+        { status: (err as { status: number }).status || 500 },
       );
     }
   };

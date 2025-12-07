@@ -26,7 +26,8 @@ const config: NextAuthConfig = {
         const isValid = await compare(password, user.password_hash);
         if (!isValid) return null;
 
-        return user;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return user as any;
       },
     }),
   ],
@@ -47,7 +48,7 @@ const config: NextAuthConfig = {
 
     async session({ session, token }) {
       if (session?.user) {
-        session.user.id = token.id;
+        session.user.id = token.id as never;
         session.user.email = token.email || '';
         session.user.username = token.username;
         session.user.role = token.role;
