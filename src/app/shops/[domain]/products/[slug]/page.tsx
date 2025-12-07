@@ -1,0 +1,661 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  ArrowLeft,
+  Star,
+  StarHalf,
+  ShoppingCart,
+  Heart,
+  Share2,
+  Truck,
+  Shield,
+  RotateCcw,
+  Plus,
+  Minus,
+  AlertCircle,
+  Package,
+  // MessageCircle,
+  // User,
+  // Verified
+} from 'lucide-react';
+import axios from 'axios';
+import { ProductLoading } from '@/components/Loading';
+import { cn } from '@/lib/utils';
+import { ProductAttributes } from '@/models/Product';
+import { useAppSelector } from '@/hooks/redux.hook';
+
+// TODO: Implement Reviews
+
+export default function ProductDetailsPage() {
+  const { domain, slug } = useParams();
+  const router = useRouter();
+  
+  const [product, setProduct] = useState<ProductAttributes | null>(null);
+  // const [reviews, setReviews] = useState<Review[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const { shop } = useAppSelector(state => state.shop);
+    const categoriesState = useAppSelector(state => state.category.categories);
+    const categories = categoriesState.filter(cat => cat.parent_id === shop!.category_id);
+  
+  // Product interaction states
+  const [selectedImage, setSelectedImage] = useState<string>('');
+  const [selectedVariant, setSelectedVariant] = useState<ProductAttributes['variants'][0] | null>(null);
+  const [selectedAttributes, setSelectedAttributes] = useState<Record<string, string>>({});
+  const [quantity, setQuantity] = useState(1);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [isInWishlist, setIsInWishlist] = useState(false);
+
+  useEffect(() => {
+    fetchProductDetails();
+  }, [domain, slug]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const fetchProductDetails = async () => {
+    try {
+      setIsLoading(true);
+      setError('');
+
+      const productRes = await axios.get(`/api/shops/${domain}/products/${slug}`);
+
+      const productData = productRes.data;
+      setProduct(productData);
+      setSelectedImage(productData.image);
+      
+      // Set default variant if available
+      if (productData.variants && productData.variants.length > 0) {
+        const defaultVariant = productData.variants.find((v: ProductAttributes['variants'][0]) => v.is_default) || productData.variants[0];
+        setSelectedVariant(defaultVariant);
+        setSelectedAttributes(defaultVariant.attributes);
+      }
+      
+      // Fetch reviews (mock data for now)
+      // setReviews([
+      //   {
+      //     id: 1,
+      //     user_name: 'John D.',
+      //     rating: 5,
+      //     comment: 'Excellent product! Great quality and fast shipping.',
+      //     created_at: '2024-11-15T10:30:00Z',
+      //     verified_purchase: true
+      //   },
+      //   {
+      //     id: 2,
+      //     user_name: 'Sarah M.',
+      //     rating: 4,
+      //     comment: 'Good value for money. Would recommend.',
+      //     created_at: '2024-11-10T14:20:00Z',
+      //     verified_purchase: true
+      //   }
+      // ]);
+      
+    } catch (error) {
+      console.error('Error fetching product details:', error);
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 404) {
+          setError('Product not found');
+        } else {
+          setError('Failed to load product details');
+        }
+      } else {
+        setError('An unexpected error occurred');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const formatPrice = (price: number, discount: number = 0) => {
+    const discountedPrice = price * (1 - discount / 100);
+    return {
+      original: price.toFixed(2),
+      discounted: discountedPrice.toFixed(2),
+      savings: (price - discountedPrice).toFixed(2)
+    };
+  };
+
+  const getCurrentPrice = () => {
+    if (selectedVariant) {
+      return formatPrice(selectedVariant.price, selectedVariant.discount);
+    }
+    return formatPrice(product?.price || 0, product?.discount || 0);
+  };
+
+  const getCurrentStock = () => {
+    if (selectedVariant) {
+      return selectedVariant.stock_quantity;
+    }
+    return product?.stock_quantity || 0;
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const renderStars = (rating: number = 0) => {
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+
+    return (
+      <div className="flex items-center gap-0.5">
+        {Array(fullStars).fill(0).map((_, i) => (
+          <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+        ))}
+        {hasHalfStar && (
+          <StarHalf className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+        )}
+        {Array(emptyStars).fill(0).map((_, i) => (
+          <Star key={i} className="w-4 h-4 text-gray-300" />
+        ))}
+      </div>
+    );
+  };
+
+  const handleAttributeChange = (attributeKey: string, value: string) => {
+    const newAttributes = { ...selectedAttributes, [attributeKey]: value };
+    setSelectedAttributes(newAttributes);
+    
+    // Find matching variant
+    if (product?.variants) {
+      const matchingVariant = product.variants.find(variant => {
+        return Object.entries(newAttributes).every(([key, val]) => 
+          variant.attributes[key] === val
+        );
+      });
+      
+      if (matchingVariant) {
+        setSelectedVariant(matchingVariant);
+      }
+    }
+  };
+
+  const handleAddToCart = async () => {
+    if (!product) return;
+    
+    setIsAddingToCart(true);
+    try {
+      // Mock API call - replace with actual implementation
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Here you would typically make an API call to add to cart
+      console.log('Adding to cart:', {
+        productId: product.id,
+        quantity,
+        attributes: selectedAttributes
+      });
+      
+      // Show success message or redirect
+      alert('Product added to cart!');
+      
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      alert('Failed to add to cart. Please try again.');
+    } finally {
+      setIsAddingToCart(false);
+    }
+  };
+
+  const getProductCategories = () => {
+    return categories.filter(cat => product?.category_ids.includes(cat.id));
+  };
+
+  const getAvailableAttributes = () => {
+    if (!product?.variants || product.variants.length === 0) return {};
+    
+    const attributes: Record<string, Set<string>> = {};
+    
+    product.variants.forEach(variant => {
+      Object.entries(variant.attributes).forEach(([key, value]) => {
+        if (!attributes[key]) {
+          attributes[key] = new Set();
+        }
+        attributes[key].add(value);
+      });
+    });
+    
+    // Convert Sets to Arrays
+    const result: Record<string, string[]> = {};
+    Object.entries(attributes).forEach(([key, valueSet]) => {
+      result[key] = Array.from(valueSet);
+    });
+    
+    return result;
+  };
+
+  if (isLoading) {
+    return <ProductLoading text="Loading product details..." fullPage />;
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-6">
+        <div className="max-w-2xl mx-auto">
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+          <Button 
+            variant="outline" 
+            onClick={() => router.back()}
+            className="mt-4"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Go Back
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-6">
+        <div className="max-w-2xl mx-auto">
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>Product not found</AlertDescription>
+          </Alert>
+        </div>
+      </div>
+    );
+  }
+
+  const pricing = getCurrentPrice();
+  const currentStock = getCurrentStock();
+  const productCategories = getProductCategories();
+  const availableAttributes = getAvailableAttributes();
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Breadcrumb */}
+      <div className="bg-white border-b">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <Link href='/' className="hover:text-gray-900">
+              {shop?.name}
+            </Link>
+            <span>/</span>
+            <Link href='/products' className="hover:text-gray-900">
+              Products
+            </Link>
+            <span>/</span>
+            <span className="text-gray-900">{product.name}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Product Images */}
+          <div className="space-y-4">
+            {/* Main Image */}
+            <div className="relative aspect-square bg-white rounded-lg overflow-hidden">
+              <Image
+                src={selectedImage}
+                alt={product.name}
+                fill
+                className="object-cover"
+              />
+              {product.discount > 0 && (
+                <Badge className="absolute top-4 left-4 bg-red-500 text-white">
+                  -{product.discount}% OFF
+                </Badge>
+              )}
+              {product.is_featured && (
+                <Badge className="absolute top-4 right-4 bg-yellow-500 text-white">
+                  <Star className="w-3 h-3 mr-1" />
+                  Featured
+                </Badge>
+              )}
+            </div>
+            
+            {/* Thumbnail Gallery */}
+            {product.thumbnails.length > 0 && (
+              <div className="grid grid-cols-5 gap-2">
+                <div 
+                  className={cn(
+                    'relative aspect-square bg-white rounded-lg overflow-hidden cursor-pointer border-2',
+                    selectedImage === product.image ? 'border-blue-500' : 'border-gray-200'
+                  )}
+                  onClick={() => setSelectedImage(product.image)}
+                >
+                  <Image
+                    src={product.image}
+                    alt="Main"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                {product.thumbnails.map((thumbnail, index) => (
+                  <div 
+                    key={index}
+                    className={cn(
+                      'relative aspect-square bg-white rounded-lg overflow-hidden cursor-pointer border-2',
+                      selectedImage === thumbnail ? 'border-blue-500' : 'border-gray-200'
+                    )}
+                    onClick={() => setSelectedImage(thumbnail)}
+                  >
+                    <Image
+                      src={thumbnail}
+                      alt={`View ${index + 1}`}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Product Info */}
+          <div className="space-y-6">
+            {/* Title and Rating */}
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
+
+              {/* Rating */}
+              {/* <div className="flex items-center gap-4 mb-4">
+                {product.rating && (
+                  <div className="flex items-center gap-2">
+                    {renderStars(product.rating)}
+                    <span className="text-lg font-medium">{product.rating}</span>
+                    <span className="text-gray-600">({product.reviews_count || 0} reviews)</span>
+                  </div>
+                )}
+                <div className="text-gray-600">
+                  {product.sales_count} sold
+                </div>
+              </div> */}
+
+              {/* Categories */}
+              {productCategories.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {productCategories.map(category => (
+                    <Badge key={category.id} variant="secondary">
+                      {category.name}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Price */}
+            <div className="border-b pb-6">
+              <div className="flex items-center gap-3 mb-2">
+                <span className="text-3xl font-bold text-gray-900">${pricing.discounted}</span>
+                {product.discount > 0 && (
+                  <>
+                    <span className="text-xl text-gray-500 line-through">${pricing.original}</span>
+                    <Badge className="bg-red-100 text-red-800">
+                      Save ${pricing.savings}
+                    </Badge>
+                  </>
+                )}
+              </div>
+              
+              {/* Stock Status */}
+              <div className="flex items-center gap-2">
+                <Package className="w-4 h-4 text-gray-500" />
+                <span className={cn(
+                  'font-medium',
+                  currentStock > 0 ? 'text-green-600' : 'text-red-600'
+                )}>
+                  {currentStock > 0 ? `${currentStock} in stock` : 'Out of stock'}
+                </span>
+                {currentStock > 0 && currentStock < 10 && (
+                  <Badge variant="outline" className="text-orange-600">
+                    Only {currentStock} left!
+                  </Badge>
+                )}
+              </div>
+            </div>
+
+            {/* Variants */}
+            {Object.keys(availableAttributes).length > 0 && (
+              <div className="space-y-4">
+                {Object.entries(availableAttributes).map(([attributeKey, values]) => (
+                  <div key={attributeKey}>
+                    <label className="block text-sm font-medium text-gray-700 mb-2 capitalize">
+                      {attributeKey.replace('_', ' ')}
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {values.map(value => (
+                        <Button
+                          key={value}
+                          variant={selectedAttributes[attributeKey] === value ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => handleAttributeChange(attributeKey, value)}
+                          className="capitalize"
+                        >
+                          {value}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Quantity and Add to Cart */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <label className="text-sm font-medium text-gray-700">Quantity:</label>
+                <div className="flex items-center border rounded-lg">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    disabled={quantity <= 1}
+                  >
+                    <Minus className="w-4 h-4" />
+                  </Button>
+                  <span className="px-4 py-2 font-medium">{quantity}</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setQuantity(Math.min(currentStock, quantity + 1))}
+                    disabled={quantity >= currentStock}
+                  >
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <Button 
+                  className="flex-1" 
+                  size="lg"
+                  onClick={handleAddToCart}
+                  disabled={currentStock === 0 || isAddingToCart}
+                >
+                  <ShoppingCart className="w-5 h-5 mr-2" />
+                  {isAddingToCart ? 'Adding...' : currentStock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="lg"
+                  onClick={() => setIsInWishlist(!isInWishlist)}
+                >
+                  <Heart className={cn('w-5 h-5', isInWishlist && 'fill-red-500 text-red-500')} />
+                </Button>
+                <Button variant="outline" size="lg">
+                  <Share2 className="w-5 h-5" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Features */}
+            <div className="border-t pt-6 space-y-3">
+              <div className="flex items-center gap-3 text-sm text-gray-600">
+                <Truck className="w-5 h-5" />
+                <span>Free shipping on orders over $50</span>
+              </div>
+              <div className="flex items-center gap-3 text-sm text-gray-600">
+                <Shield className="w-5 h-5" />
+                <span>Secure payment & buyer protection</span>
+              </div>
+              <div className="flex items-center gap-3 text-sm text-gray-600">
+                <RotateCcw className="w-5 h-5" />
+                <span>30-day return policy</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Product Details Tabs */}
+        <div className="mt-12">
+          <Tabs defaultValue="description" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="description">Description</TabsTrigger>
+              <TabsTrigger value="specifications">Specifications</TabsTrigger>
+              <TabsTrigger value="shipping">Shipping</TabsTrigger>
+              {/* <TabsTrigger value="reviews">Reviews ({reviews.length})</TabsTrigger> */}
+            </TabsList>
+
+            <TabsContent value="description" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Product Description</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {product.description ? (
+                    <div className="prose max-w-none">
+                      <p className="text-gray-700 leading-relaxed">{product.description}</p>
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 italic">No description available for this product.</p>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="specifications" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Product Specifications</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="font-medium">Weight:</span>
+                        <span>{product.weight} kg</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="font-medium">Dimensions:</span>
+                        <span>{product.length} × {product.width} × {product.height} cm</span>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="font-medium">Availability:</span>
+                        <span className={currentStock > 0 ? 'text-green-600' : 'text-red-600'}>
+                          {currentStock > 0 ? 'In Stock' : 'Out of Stock'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="font-medium">Category:</span>
+                        <span>{productCategories.map(c => c.name).join(', ') || 'Uncategorized'}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="font-medium">Added:</span>
+                        <span>{new Date(product.created_at!).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="shipping" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Shipping Information</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <h4 className="font-medium mb-2">Standard Shipping</h4>
+                      <p className="text-sm text-gray-600 mb-1">5-7 business days</p>
+                      <p className="text-sm font-medium">Free on orders over $50</p>
+                    </div>
+                    <div>
+                      <h4 className="font-medium mb-2">Express Shipping</h4>
+                      <p className="text-sm text-gray-600 mb-1">2-3 business days</p>
+                      <p className="text-sm font-medium">$9.99</p>
+                    </div>
+                  </div>
+                  
+                  <div className="border-t pt-4">
+                    <h4 className="font-medium mb-2">Package Details</h4>
+                    <div className="text-sm text-gray-600 space-y-1">
+                      <p>Weight: {product.weight} kg</p>
+                      <p>Dimensions: {product.length} × {product.width} × {product.height} cm</p>
+                      <p>This product ships from our warehouse within 1-2 business days.</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* <TabsContent value="reviews" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Customer Reviews</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {reviews.length > 0 ? (
+                    <div className="space-y-6">
+                      {reviews.map(review => (
+                        <div key={review.id} className="border-b last:border-b-0 pb-6 last:pb-0">
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                                <User className="w-5 h-5 text-gray-600" />
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <h4 className="font-medium">{review.user_name}</h4>
+                                  {review.verified_purchase && (
+                                    <Badge variant="secondary" className="text-xs">
+                                      <Verified className="w-3 h-3 mr-1" />
+                                      Verified Purchase
+                                    </Badge>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-2 mt-1">
+                                  {renderStars(review.rating)}
+                                  <span className="text-sm text-gray-600">
+                                    {new Date(review.created_at).toLocaleDateString()}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <p className="text-gray-700">{review.comment}</p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <MessageCircle className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                      <p>No reviews yet</p>
+                      <p className="text-sm">Be the first to review this product!</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent> */}
+          </Tabs>
+        </div>
+      </div>
+    </div>
+  );
+}
