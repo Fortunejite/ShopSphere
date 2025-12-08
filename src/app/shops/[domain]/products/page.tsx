@@ -275,9 +275,9 @@ export default function ProductsPage() {
           
           {/* Results count */}
           <div className="flex items-center justify-between text-sm text-gray-600">
-            <span>
+            {/* <span>
               {isLoading ? 'Loading...' : `${totalProducts} product${totalProducts !== 1 ? 's' : ''} found`}
-            </span>
+            </span> */}
             {(searchTerm || selectedCategory !== 'all') && (
               <Button
                 variant="outline"
@@ -316,7 +316,7 @@ export default function ProductsPage() {
             <p className="text-gray-600 mb-4">
               {searchTerm || selectedCategory !== 'all'
                 ? 'Try adjusting your search or filter criteria'
-                : 'This shop doesn&apos;t have any products yet'
+                : 'This shop doesn\'t have any products yet'
               }
             </p>
             {(searchTerm || selectedCategory !== 'all') && (

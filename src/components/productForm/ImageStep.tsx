@@ -4,7 +4,7 @@ import { ImageOff, Upload, X, Loader2 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { ProductFormData, UpdateFormData } from './ProductStepForm';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { uploadPhoto, uploadMultiplePhotos } from '@/lib/uploadPhoto';
 import { InlineLoading } from '../Loading';
 
@@ -19,6 +19,19 @@ const ImageStep = ({ formData, updateFormData }: Props) => {
   const [isUploadingMain, setIsUploadingMain] = useState<boolean>(false);
   const [isUploadingThumbnails, setIsUploadingThumbnails] = useState<boolean>(false);
   const [uploadError, setUploadError] = useState<string>('');
+
+  // Sync thumbnail errors array with thumbnails array length
+  useEffect(() => {
+    if (thumbnailErrors.length !== formData.thumbnails.length) {
+      const newErrors = new Array(formData.thumbnails.length).fill(false);
+      // Copy existing error states for indices that still exist
+      for (let i = 0; i < Math.min(thumbnailErrors.length, formData.thumbnails.length); i++) {
+        newErrors[i] = thumbnailErrors[i] || false;
+      }
+      setThumbnailErrors(newErrors);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.thumbnails.length, thumbnailErrors.length]);
   return (
     <div className="space-y-6">
       <div>
@@ -140,13 +153,21 @@ const ImageStep = ({ formData, updateFormData }: Props) => {
                   setUploadError('');
                   
                   const fileArray = Array.from(files);
-                  const availableSlots = 10 - formData.thumbnails.length;
+                  const currentThumbnails = [...formData.thumbnails];
+                  const availableSlots = 10 - currentThumbnails.length;
                   const filesToUpload = fileArray.slice(0, availableSlots);
                   
+                  if (filesToUpload.length === 0) {
+                    setIsUploadingThumbnails(false);
+                    setUploadError('No available slots for new images');
+                    return;
+                  }
+                  
                   // Create temporary URLs for immediate preview
-                  const newThumbnails = [...formData.thumbnails];
+                  const newThumbnails = [...currentThumbnails];
                   const newErrors = [...thumbnailErrors];
                   const tempUrls: string[] = [];
+                  const startIndex = currentThumbnails.length;
                   
                   filesToUpload.forEach((file) => {
                     const tempUrl = URL.createObjectURL(file);
@@ -163,8 +184,8 @@ const ImageStep = ({ formData, updateFormData }: Props) => {
                     const results = await uploadMultiplePhotos(filesToUpload);
                     
                     // Replace temporary URLs with permanent URLs
-                    const finalThumbnails = [...formData.thumbnails];
-                    const startIndex = formData.thumbnails.length - filesToUpload.length;
+                    const finalThumbnails = [...newThumbnails];
+                    const finalErrors = [...newErrors];
                     
                     results.forEach((result, index) => {
                       const thumbnailIndex = startIndex + index;
@@ -172,24 +193,27 @@ const ImageStep = ({ formData, updateFormData }: Props) => {
                         finalThumbnails[thumbnailIndex] = result.url;
                         // Clean up temporary URL
                         URL.revokeObjectURL(tempUrls[index]);
+                        finalErrors[thumbnailIndex] = false;
                       } else {
                         // Mark as error but keep the temp URL for user to see what failed
-                        newErrors[thumbnailIndex] = true;
+                        finalErrors[thumbnailIndex] = true;
                         console.error('Thumbnail upload failed:', result.error);
+                        setUploadError(`Failed to upload image ${index + 1}: ${result.error || 'Unknown error'}`);
                       }
                     });
                     
                     updateFormData('thumbnails', finalThumbnails);
-                    setThumbnailErrors(newErrors);
+                    setThumbnailErrors(finalErrors);
                     
                   } catch (error) {
                     console.error('Thumbnails upload failed:', error);
                     // Mark all new thumbnails as errored
-                    const errorThumbnails = [...thumbnailErrors];
+                    const errorThumbnails = [...newErrors];
                     for (let i = 0; i < filesToUpload.length; i++) {
-                      errorThumbnails[formData.thumbnails.length - filesToUpload.length + i] = true;
+                      errorThumbnails[startIndex + i] = true;
                     }
                     setThumbnailErrors(errorThumbnails);
+                    setUploadError('Failed to upload thumbnails. Please try again.');
                   } finally {
                     setIsUploadingThumbnails(false);
                   }
@@ -215,8 +239,14 @@ const ImageStep = ({ formData, updateFormData }: Props) => {
           {formData.thumbnails.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
               {formData.thumbnails.map((thumbnail, index) => (
-                <div key={index} className="relative group">
-                  <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                <div 
+                  key={`thumbnail-${index}`} 
+                  className="relative group"
+                  title={thumbnailErrors[index] ? 'Failed to upload this image' : `Thumbnail ${index + 1}`}
+                >
+                  <div className={`aspect-square bg-gray-100 rounded-lg overflow-hidden ${
+                    thumbnailErrors[index] ? 'border-2 border-red-300 border-dashed' : ''
+                  }`}>
                     {!thumbnailErrors[index] ? (
                       <Image
                         src={thumbnail}
@@ -224,16 +254,20 @@ const ImageStep = ({ formData, updateFormData }: Props) => {
                         fill
                         className="object-cover"
                         onError={() => {
+                          console.error(`Failed to load thumbnail ${index + 1}:`, thumbnail);
                           const newErrors = [...thumbnailErrors];
                           newErrors[index] = true;
                           setThumbnailErrors(newErrors);
                         }}
                       />
                     ) : (
-                      <div className="flex flex-col items-center justify-center h-full text-gray-400 p-2">
+                      <div className="flex flex-col items-center justify-center h-full text-red-400 p-2">
                         <ImageOff className="w-6 h-6 mb-1" />
                         <span className="text-xs text-center">
-                          Failed to load
+                          Upload failed
+                        </span>
+                        <span className="text-xs text-center text-gray-500 mt-1">
+                          Click × to remove
                         </span>
                       </div>
                     )}
@@ -269,10 +303,20 @@ const ImageStep = ({ formData, updateFormData }: Props) => {
             </div>
           )}
 
-          <p className="text-sm text-gray-500">
-            You can upload up to 10 additional images. Click and drag to reorder
-            them.
-          </p>
+          <div className="text-sm text-gray-500 space-y-1">
+            <p>You can upload up to 10 additional images. Supported formats: JPG, PNG, WebP, GIF.</p>
+            <p>Maximum file size: 10MB per image.</p>
+            {formData.thumbnails.length > 0 && (
+              <p className="text-blue-600">
+                {formData.thumbnails.length}/10 images uploaded
+                {thumbnailErrors.some(error => error) && (
+                  <span className="text-red-600 ml-2">
+                    (Some uploads failed - hover over images to see details)
+                  </span>
+                )}
+              </p>
+            )}
+          </div>
         </div>
       </div>
     </div>

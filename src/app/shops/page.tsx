@@ -51,6 +51,7 @@ interface ShopFormProps {
   categories: Array<{ id: number; name: string }>;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   handleSelectChange: (name: string, value: string) => void;
+  isDomainChecking: boolean;
 }
 
 const ShopForm: React.FC<ShopFormProps> = ({
@@ -64,6 +65,7 @@ const ShopForm: React.FC<ShopFormProps> = ({
   categories,
   handleInputChange,
   handleSelectChange,
+  isDomainChecking,
 }) => (
   <form onSubmit={onSubmit} className="space-y-4">
     {error && (
@@ -90,16 +92,29 @@ const ShopForm: React.FC<ShopFormProps> = ({
 
       <div className="space-y-2">
         <Label htmlFor="domain">Domain</Label>
-        <Input
-          id="domain"
-          name="domain"
-          placeholder="Enter domain (e.g., myshop)"
-          value={formData.domain}
-          onChange={handleInputChange}
-          className={formErrors.domain ? 'border-red-500' : ''}
-          disabled={isSubmitting}
-        />
+        <div className="relative">
+          <Input
+            id="domain"
+            name="domain"
+            placeholder="Enter domain (e.g., myshop)"
+            value={formData.domain}
+            onChange={handleInputChange}
+            className={`${formErrors.domain ? 'border-red-500' : formData.domain && !formErrors.domain && !isDomainChecking ? 'border-green-500' : ''} pr-32`}
+            disabled={isSubmitting}
+          />
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+            {isDomainChecking && (
+              <Loader2 className="w-3 h-3 animate-spin text-neutral-400" />
+            )}
+            <span className="text-sm text-neutral-500 pointer-events-none">
+              .{process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'localhost:3000'}
+            </span>
+          </div>
+        </div>
         {formErrors.domain && <p className="text-sm text-red-500">{formErrors.domain}</p>}
+        {mode === 'create' && formData.domain && !formErrors.domain && !isDomainChecking && (
+          <p className="text-sm text-green-600">Domain is available</p>
+        )}
       </div>
     </div>
 
@@ -123,7 +138,7 @@ const ShopForm: React.FC<ShopFormProps> = ({
         {formErrors.category_id && <p className="text-sm text-red-500">{formErrors.category_id}</p>}
       </div>
 
-      {mode === 'create' && <div className="space-y-2">
+      <div className="space-y-2">
         <Label htmlFor="currency">Currency</Label>
         <Select
           value={formData.currency}
@@ -140,7 +155,7 @@ const ShopForm: React.FC<ShopFormProps> = ({
           </SelectContent>
         </Select>
         {formErrors.currency && <p className="text-sm text-red-500">{formErrors.currency}</p>}
-      </div>}
+      </div>
     </div>}
 
     <div className="space-y-2">
@@ -199,6 +214,8 @@ export default function ShopsPage() {
     currency: 'USD',
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [isDomainChecking, setIsDomainChecking] = useState(false);
+  const [domainCheckTimeout, setDomainCheckTimeout] = useState<NodeJS.Timeout | null>(null);
 
   const categoriesState = useAppSelector(state => state.category.categories);
   const categories = categoriesState.filter(cat => cat.parent_id === null);
@@ -224,17 +241,73 @@ export default function ShopsPage() {
     fetchShops();
   }, [router]);
 
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (domainCheckTimeout) {
+        clearTimeout(domainCheckTimeout);
+      }
+    };
+  }, [domainCheckTimeout]);
+
+  const checkDomainAvailability = async (domain: string) => {
+    if (!domain || domain.length < 3) return;
+    
+    // Skip domain check in edit mode if domain hasn't changed
+    if (selectedShop && selectedShop.domain === domain) return;
+    
+    try {
+      setIsDomainChecking(true);
+      const response = await axios.get(`/api/shops/check-domain?domain=${encodeURIComponent(domain)}`);
+      
+      if (!response.data.available) {
+        setFormErrors(prev => ({ ...prev, domain: 'This domain is already taken' }));
+      } else {
+        // Clear domain error if it exists
+        setFormErrors(prev => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { domain: _, ...rest } = prev;
+          return rest;
+        });
+      }
+    } catch (error) {
+      console.error('Domain check error:', error);
+    } finally {
+      setIsDomainChecking(false);
+    }
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    
     // Clear error when user starts typing
     if (formErrors[name]) {
       setFormErrors(prev => ({ ...prev, [name]: '' }));
     }
+
+    // Debounced domain availability check
+    if (name === 'domain') {
+      // Clear existing timeout
+      if (domainCheckTimeout) {
+        clearTimeout(domainCheckTimeout);
+      }
+
+      // Set new timeout for domain check
+      const timeout = setTimeout(() => {
+        checkDomainAvailability(value);
+      }, 500); // 500ms debounce
+
+      setDomainCheckTimeout(timeout);
+    }
   };
 
   const handleSelectChange = (name: string, value: string) => {
-    setFormData(prev => ({ ...prev, [name]: Number(value) }));
+    if (name === 'currency') {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: Number(value) }));
+    }
     if (formErrors[name]) {
       setFormErrors(prev => ({ ...prev, [name]: '' }));
     }
@@ -434,6 +507,7 @@ export default function ShopsPage() {
                 categories={categories}
                 handleInputChange={handleInputChange}
                 handleSelectChange={handleSelectChange}
+                isDomainChecking={isDomainChecking}
               />
             </DialogContent>
           </Dialog>
@@ -527,6 +601,7 @@ export default function ShopsPage() {
                       categories={categories}
                       handleInputChange={handleInputChange}
                       handleSelectChange={handleSelectChange}
+                      isDomainChecking={isDomainChecking}
                     />
                   </DialogContent>
                 </Dialog>
@@ -623,6 +698,7 @@ export default function ShopsPage() {
               categories={categories}
               handleInputChange={handleInputChange}
               handleSelectChange={handleSelectChange}
+              isDomainChecking={isDomainChecking}
             />
           </DialogContent>
         </Dialog>

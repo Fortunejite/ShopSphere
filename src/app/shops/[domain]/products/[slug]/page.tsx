@@ -159,10 +159,25 @@ export default function ProductDetailsPage() {
   };
 
   const handleAttributeChange = (attributeKey: string, value: string) => {
-    const newAttributes = { ...selectedAttributes, [attributeKey]: value };
+    const isCurrentlySelected = selectedAttributes[attributeKey] === value;
+    
+    let newAttributes: Record<string, string>;
+    
+    if (isCurrentlySelected) {
+      // Unselect the attribute
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { [attributeKey]: _, ...remainingAttributes } = selectedAttributes;
+      newAttributes = remainingAttributes;
+    } else {
+      // Only proceed if this is a valid selection
+      if (!isAttributeValueAvailable(attributeKey, value)) return;
+      // Select the new value
+      newAttributes = { ...selectedAttributes, [attributeKey]: value };
+    }
+    
     setSelectedAttributes(newAttributes);
     
-    // Find matching variant
+    // Find matching variant with the new selection
     if (product?.variants) {
       const matchingVariant = product.variants.find(variant => {
         return Object.entries(newAttributes).every(([key, val]) => 
@@ -172,6 +187,9 @@ export default function ProductDetailsPage() {
       
       if (matchingVariant) {
         setSelectedVariant(matchingVariant);
+      } else {
+        // Clear variant if no exact match (partial selection)
+        setSelectedVariant(null);
       }
     }
   };
@@ -206,27 +224,112 @@ export default function ProductDetailsPage() {
     return categories.filter(cat => product?.category_ids.includes(cat.id));
   };
 
-  const getAvailableAttributes = () => {
+  const getAllPossibleAttributes = () => {
     if (!product?.variants || product.variants.length === 0) return {};
     
-    const attributes: Record<string, Set<string>> = {};
+    // Get all possible attribute keys and values
+    const allAttributes: Record<string, Set<string>> = {};
     
     product.variants.forEach(variant => {
       Object.entries(variant.attributes).forEach(([key, value]) => {
-        if (!attributes[key]) {
-          attributes[key] = new Set();
+        if (!allAttributes[key]) {
+          allAttributes[key] = new Set();
         }
-        attributes[key].add(value);
+        allAttributes[key].add(value);
       });
     });
     
-    // Convert Sets to Arrays
+    // Convert to arrays
     const result: Record<string, string[]> = {};
-    Object.entries(attributes).forEach(([key, valueSet]) => {
+    Object.entries(allAttributes).forEach(([key, valueSet]) => {
       result[key] = Array.from(valueSet);
     });
     
     return result;
+  };
+
+  const getAvailableAttributes = () => {
+    if (!product?.variants || product.variants.length === 0) return {};
+    
+    // Get all possible attributes first
+    const allPossibleAttributes = getAllPossibleAttributes();
+    
+    // If no attributes are selected, return all possible attributes
+    if (Object.keys(selectedAttributes).length === 0) {
+      return allPossibleAttributes;
+    }
+    
+    // For each attribute key, find which values are compatible with current selection
+    const availableAttributes: Record<string, string[]> = {};
+    
+    Object.keys(allPossibleAttributes).forEach(attributeKey => {
+      // If this attribute is currently selected, include its selected value
+      if (selectedAttributes[attributeKey]) {
+        availableAttributes[attributeKey] = [selectedAttributes[attributeKey]];
+      } else {
+        // Find compatible values for this attribute
+        const compatibleValues: Set<string> = new Set();
+        
+        // Test each possible value
+        allPossibleAttributes[attributeKey].forEach(value => {
+          // Create test selection including this value
+          const testSelection = { ...selectedAttributes, [attributeKey]: value };
+          
+          // Check if any variant matches this combination
+          const hasMatchingVariant = product.variants.some(variant => {
+            return Object.entries(testSelection).every(([key, val]) => 
+              variant.attributes[key] === val
+            );
+          });
+          
+          if (hasMatchingVariant) {
+            compatibleValues.add(value);
+          }
+        });
+        
+        availableAttributes[attributeKey] = Array.from(compatibleValues);
+      }
+    });
+    
+    return availableAttributes;
+  };
+
+  const isAttributeValueAvailable = (attributeKey: string, value: string) => {
+    if (!product?.variants) return false;
+    
+    // If this attribute is already selected with this value, it's available (for deselection)
+    if (selectedAttributes[attributeKey] === value) return true;
+    
+    // Create test attributes excluding the current attribute, then adding this value
+    // This ensures we test compatibility with other selected attributes
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { [attributeKey]: _, ...otherSelectedAttributes } = selectedAttributes;
+    const testAttributes = { ...otherSelectedAttributes, [attributeKey]: value };
+    
+    // Check if any variant matches this combination
+    return product.variants.some(variant => {
+      return Object.entries(testAttributes).every(([key, val]) => 
+        variant.attributes[key] === val
+      );
+    });
+  };
+
+  const isValidCompleteSelection = () => {
+    if (!product?.variants || product.variants.length === 0) return true;
+    
+    // Get all required attribute keys
+    const requiredKeys = new Set<string>();
+    product.variants.forEach(variant => {
+      Object.keys(variant.attributes).forEach(key => requiredKeys.add(key));
+    });
+    
+    // Check if all required attributes are selected
+    for (const key of requiredKeys) {
+      if (!selectedAttributes[key]) return false;
+    }
+    
+    // Check if current selection matches a variant
+    return selectedVariant !== null;
   };
 
   if (isLoading) {
@@ -317,36 +420,52 @@ export default function ProductDetailsPage() {
             </div>
             
             {/* Thumbnail Gallery */}
-            {product.thumbnails.length > 0 && (
+            {(product.thumbnails.length > 0 || product.image) && (
               <div className="grid grid-cols-5 gap-2">
-                <div 
-                  className={cn(
-                    'relative aspect-square bg-white rounded-lg overflow-hidden cursor-pointer border-2',
-                    selectedImage === product.image ? 'border-blue-500' : 'border-gray-200'
-                  )}
-                  onClick={() => setSelectedImage(product.image)}
-                >
-                  <Image
-                    src={product.image}
-                    alt="Main"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                {product.thumbnails.map((thumbnail, index) => (
+                {/* Main Image Thumbnail */}
+                {product.image && (
                   <div 
-                    key={index}
                     className={cn(
-                      'relative aspect-square bg-white rounded-lg overflow-hidden cursor-pointer border-2',
-                      selectedImage === thumbnail ? 'border-blue-500' : 'border-gray-200'
+                      'relative aspect-square bg-white rounded-lg overflow-hidden cursor-pointer border-2 transition-colors',
+                      selectedImage === product.image ? 'border-blue-500' : 'border-gray-200 hover:border-gray-300'
+                    )}
+                    onClick={() => setSelectedImage(product.image)}
+                  >
+                    <Image
+                      src={product.image}
+                      alt="Main image"
+                      fill
+                      className="object-cover"
+                      onError={() => {
+                        console.error('Failed to load main product image');
+                      }}
+                    />
+                    <div className="absolute bottom-1 left-1">
+                      <Badge variant="secondary" className="text-xs px-1 py-0">
+                        Main
+                      </Badge>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Additional Thumbnails */}
+                {product.thumbnails.filter(Boolean).map((thumbnail, index) => (
+                  <div 
+                    key={`thumb-${index}`}
+                    className={cn(
+                      'relative aspect-square bg-white rounded-lg overflow-hidden cursor-pointer border-2 transition-colors',
+                      selectedImage === thumbnail ? 'border-blue-500' : 'border-gray-200 hover:border-gray-300'
                     )}
                     onClick={() => setSelectedImage(thumbnail)}
                   >
                     <Image
                       src={thumbnail}
-                      alt={`View ${index + 1}`}
+                      alt={`Additional view ${index + 1}`}
                       fill
                       className="object-cover"
+                      onError={() => {
+                        console.error(`Failed to load thumbnail ${index + 1}`);
+                      }}
                     />
                   </div>
                 ))}
@@ -418,25 +537,61 @@ export default function ProductDetailsPage() {
             </div>
 
             {/* Variants */}
-            {Object.keys(availableAttributes).length > 0 && (
+            {Object.keys(getAllPossibleAttributes()).length > 0 && (
               <div className="space-y-4">
-                {Object.entries(availableAttributes).map(([attributeKey, values]) => (
+                {/* Selection Status */}
+                <div className="bg-blue-50 p-3 rounded-lg">
+                  <div className="text-sm text-blue-800">
+                    {Object.keys(selectedAttributes).length === 0 ? (
+                      "Please select product options below:"
+                    ) : Object.keys(selectedAttributes).length === Object.keys(getAllPossibleAttributes()).length ? (
+                      <div className="flex items-center gap-2">
+                        <span className="text-green-700 font-medium">✓ All options selected</span>
+                        {selectedVariant && (
+                          <Badge variant="outline" className="bg-green-100 text-green-800">
+                            Variant available
+                          </Badge>
+                        )}
+                      </div>
+                    ) : (
+                      <span>
+                        Selection progress: {Object.keys(selectedAttributes).length} of {Object.keys(getAllPossibleAttributes()).length} options selected
+                      </span>
+                    )}
+                  </div>
+                  {Object.keys(selectedAttributes).length > 0 && (
+                    <div className="mt-2 text-xs text-blue-600">
+                      💡 Click a selected option to deselect it, or select different values to see available combinations
+                    </div>
+                  )}
+                </div>
+                {Object.entries(getAllPossibleAttributes()).map(([attributeKey, allValues]) => (
                   <div key={attributeKey}>
                     <label className="block text-sm font-medium text-gray-700 mb-2 capitalize">
                       {attributeKey.replace('_', ' ')}
                     </label>
                     <div className="flex flex-wrap gap-2">
-                      {values.map(value => (
-                        <Button
-                          key={value}
-                          variant={selectedAttributes[attributeKey] === value ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => handleAttributeChange(attributeKey, value)}
-                          className="capitalize"
-                        >
-                          {value}
-                        </Button>
-                      ))}
+                      {allValues.map(value => {
+                        const isSelected = selectedAttributes[attributeKey] === value;
+                        const isAvailable = isAttributeValueAvailable(attributeKey, value);
+                        
+                        return (
+                          <Button
+                            key={value}
+                            variant={isSelected ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => handleAttributeChange(attributeKey, value)}
+                            disabled={!isAvailable && !isSelected}
+                            className={cn(
+                              "capitalize transition-all",
+                              !isAvailable && !isSelected && "opacity-40 cursor-not-allowed bg-gray-100 text-gray-400 hover:bg-gray-100",
+                              isSelected && "ring-2 ring-blue-200"
+                            )}
+                          >
+                            {value}
+                          </Button>
+                        );
+                      })}
                     </div>
                   </div>
                 ))}
@@ -452,7 +607,7 @@ export default function ProductDetailsPage() {
                     variant="ghost"
                     size="sm"
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    disabled={quantity <= 1}
+                    disabled={quantity <= 1 || !isValidCompleteSelection()}
                   >
                     <Minus className="w-4 h-4" />
                   </Button>
@@ -461,11 +616,16 @@ export default function ProductDetailsPage() {
                     variant="ghost"
                     size="sm"
                     onClick={() => setQuantity(Math.min(currentStock, quantity + 1))}
-                    disabled={quantity >= currentStock}
+                    disabled={quantity >= currentStock || !isValidCompleteSelection()}
                   >
                     <Plus className="w-4 h-4" />
                   </Button>
                 </div>
+                {isValidCompleteSelection() && currentStock > 0 && (
+                  <span className="text-sm text-gray-500">
+                    ({currentStock} available)
+                  </span>
+                )}
               </div>
 
               <div className="flex gap-3">
@@ -473,10 +633,17 @@ export default function ProductDetailsPage() {
                   className="flex-1" 
                   size="lg"
                   onClick={handleAddToCart}
-                  disabled={currentStock === 0 || isAddingToCart}
+                  disabled={currentStock === 0 || isAddingToCart || !isValidCompleteSelection()}
                 >
                   <ShoppingCart className="w-5 h-5 mr-2" />
-                  {isAddingToCart ? 'Adding...' : currentStock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                  {isAddingToCart 
+                    ? 'Adding...' 
+                    : currentStock === 0 
+                      ? 'Out of Stock' 
+                      : !isValidCompleteSelection() && Object.keys(availableAttributes).length > 0
+                        ? 'Please Select All Options'
+                        : 'Add to Cart'
+                  }
                 </Button>
                 <Button 
                   variant="outline" 

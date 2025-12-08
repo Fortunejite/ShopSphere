@@ -24,7 +24,7 @@ export const pricingSchema = z.object({
 });
 
 export const mediaSchema = z.object({
-  image: z.string().url().min(1, 'Main image is required'),
+  image: z.string().min(1, 'Main image is required'),
   thumbnails: z.array(z.string().url('Thumbnail must be a valid URL'))
     .max(10, 'Maximum of 10 thumbnails allowed')
     .default([]),
