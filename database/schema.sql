@@ -74,4 +74,11 @@ CREATE TABLE products (
   INDEX idx_products_created_at (created_at)
 );
 
-
+CREATE TABLE carts (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER REFERENCES users(id),
+  shop_id INTEGER REFERENCES shops(id),
+  items JSONB DEFAULT '[]'::jsonb,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

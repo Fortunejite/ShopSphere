@@ -31,14 +31,27 @@ import axios from 'axios';
 import { ProductLoading } from '@/components/Loading';
 import { cn } from '@/lib/utils';
 import { ProductAttributes } from '@/models/Product';
-import { useAppSelector } from '@/hooks/redux.hook';
+import { useAppDispatch, useAppSelector } from '@/hooks/redux.hook';
+import { formatPrice } from '@/lib/currency';
+import { 
+  itemInCart, 
+  addToCart, 
+  updateCartItem,
+  selectCartStatus,
+  removeFromCart,
+  getCartItemQuantity,
+} from '@/redux/cartSlice';
 
 // TODO: Implement Reviews
 
 export default function ProductDetailsPage() {
   const { domain, slug } = useParams();
+  const dispatch = useAppDispatch();
   const router = useRouter();
-  
+
+  const reduxState = useAppSelector(state => state);
+  const cartStatus = useAppSelector(selectCartStatus);
+
   const [product, setProduct] = useState<ProductAttributes | null>(null);
   // const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -53,8 +66,30 @@ export default function ProductDetailsPage() {
   const [selectedVariant, setSelectedVariant] = useState<ProductAttributes['variants'][0] | null>(null);
   const [selectedAttributes, setSelectedAttributes] = useState<Record<string, string>>({});
   const [quantity, setQuantity] = useState(1);
-  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [quantityInitialized, setQuantityInitialized] = useState(false)
   const [isInWishlist, setIsInWishlist] = useState(false);
+
+  useEffect(() => {
+    if (!shop || !product || !isInCart || !quantityInitialized) return;
+    dispatch(updateCartItem({
+        shopDomain: shop.domain,
+        product_id: product.id,
+        quantity,
+        variant_index: variantIndex,
+      }));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [quantity]);
+
+  useEffect(() => {
+    if (!product || quantityInitialized) return;
+    if (!isInCart) {
+      setQuantityInitialized(true);
+      return;
+    }
+    setQuantity(getCartItemQuantity(reduxState, product.id, variantIndex));
+    setQuantityInitialized(true);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product]);
 
   useEffect(() => {
     fetchProductDetails();
@@ -112,15 +147,6 @@ export default function ProductDetailsPage() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const formatPrice = (price: number, discount: number = 0) => {
-    const discountedPrice = price * (1 - discount / 100);
-    return {
-      original: price.toFixed(2),
-      discounted: discountedPrice.toFixed(2),
-      savings: (price - discountedPrice).toFixed(2)
-    };
   };
 
   const getCurrentPrice = () => {
@@ -195,29 +221,29 @@ export default function ProductDetailsPage() {
   };
 
   const handleAddToCart = async () => {
-    if (!product) return;
+    if (!product || !shop?.domain) return;
     
-    setIsAddingToCart(true);
-    try {
-      // Mock API call - replace with actual implementation
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Here you would typically make an API call to add to cart
-      console.log('Adding to cart:', {
-        productId: product.id,
+    // Check if item is already in cart
+    const variantIndex = selectedVariant ? product.variants.indexOf(selectedVariant) : undefined;
+
+    dispatch(addToCart({
+      shopDomain: shop.domain,
+      item: {
+        product_id: product.id,
         quantity,
-        attributes: selectedAttributes
-      });
-      
-      // Show success message or redirect
-      alert('Product added to cart!');
-      
-    } catch (error) {
-      console.error('Error adding to cart:', error);
-      alert('Failed to add to cart. Please try again.');
-    } finally {
-      setIsAddingToCart(false);
-    }
+        variant_index: variantIndex,
+      }
+    }));
+  };
+
+  const handleRemoveFromCart = async () => {
+    if (!product || !shop?.domain) return;
+    const variantIndex = selectedVariant ? product.variants.indexOf(selectedVariant) : undefined;
+    dispatch(removeFromCart({
+      shopDomain: shop.domain,
+      product_id: product.id,
+      variant_index: variantIndex,
+    }));
   };
 
   const getProductCategories = () => {
@@ -374,6 +400,16 @@ export default function ProductDetailsPage() {
   const currentStock = getCurrentStock();
   const productCategories = getProductCategories();
   const availableAttributes = getAvailableAttributes();
+  const variantIndex = selectedVariant ? product.variants.indexOf(selectedVariant) : undefined;
+  const isInCart = itemInCart(reduxState, product.id, variantIndex);
+
+  const toggleCart = () => {
+    if (isInCart) {
+      handleRemoveFromCart();
+    } else {
+      handleAddToCart();
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -607,7 +643,7 @@ export default function ProductDetailsPage() {
                     variant="ghost"
                     size="sm"
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    disabled={quantity <= 1 || !isValidCompleteSelection()}
+                    disabled={quantity <= 1 || !isValidCompleteSelection() || cartStatus === 'loading'}
                   >
                     <Minus className="w-4 h-4" />
                   </Button>
@@ -616,7 +652,7 @@ export default function ProductDetailsPage() {
                     variant="ghost"
                     size="sm"
                     onClick={() => setQuantity(Math.min(currentStock, quantity + 1))}
-                    disabled={quantity >= currentStock || !isValidCompleteSelection()}
+                    disabled={quantity >= currentStock || !isValidCompleteSelection() || cartStatus === 'loading'}
                   >
                     <Plus className="w-4 h-4" />
                   </Button>
@@ -632,17 +668,19 @@ export default function ProductDetailsPage() {
                 <Button 
                   className="flex-1" 
                   size="lg"
-                  onClick={handleAddToCart}
-                  disabled={currentStock === 0 || isAddingToCart || !isValidCompleteSelection()}
+                  onClick={toggleCart}
+                  disabled={currentStock === 0 || cartStatus === 'loading' || !isValidCompleteSelection()}
                 >
                   <ShoppingCart className="w-5 h-5 mr-2" />
-                  {isAddingToCart 
-                    ? 'Adding...' 
-                    : currentStock === 0 
-                      ? 'Out of Stock' 
+                  {cartStatus === 'loading'
+                    ? 'Adding...'
+                    : currentStock === 0
+                      ? 'Out of Stock'
                       : !isValidCompleteSelection() && Object.keys(availableAttributes).length > 0
                         ? 'Please Select All Options'
-                        : 'Add to Cart'
+                        : isInCart
+                          ? 'Remove from Cart'
+                          : 'Add to Cart'
                   }
                 </Button>
                 <Button 

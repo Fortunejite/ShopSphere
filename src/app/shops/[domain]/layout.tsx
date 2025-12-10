@@ -17,6 +17,7 @@ import { fetchShop } from '@/redux/shopSlice';
 import { ShopWithOwner } from '@/models/Shop';
 import ShopNavbar from '@/components/ShopNavbar';
 import { PageLoading } from '@/components/Loading';
+import { fetchCart } from '@/redux/cartSlice';
 
 const ShopUnavailable = ({ shop }: { shop: ShopWithOwner }) => {
   return (
@@ -97,10 +98,12 @@ export default function HomeLayout({
 
   const dispatch = useAppDispatch();
   const { status, shop } = useAppSelector((s) => s.shop);
+  const { cart } = useAppSelector((s) => s.cart);
 
   useEffect(() => {
     if (domain) {
       dispatch(fetchShop(domain as string));
+      dispatch(fetchCart(domain as string));
     }
   }, [dispatch, domain]);
 
@@ -115,7 +118,7 @@ export default function HomeLayout({
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      <ShopNavbar shop={shop} />
+      <ShopNavbar shop={shop} cart={cart} />
       <main>{children}</main>
     </div>
   );

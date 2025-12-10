@@ -35,6 +35,7 @@ import { updateProductSchema } from '@/lib/schema/product';
 import ProductStepForm, { type ProductFormData } from '@/components/productForm/ProductStepForm';
 import { useAppSelector } from '@/hooks/redux.hook';
 import { PageLoading } from '@/components/Loading';
+import { formatPrice } from '@/lib/currency';
 
 interface Product {
   id: number;
@@ -140,15 +141,6 @@ export default function ProductDetailsPage() {
       case 'out_of_stock': return <AlertCircle className="w-3 h-3" />;
       default: return <Clock className="w-3 h-3" />;
     }
-  };
-
-  const formatPrice = (price: number, discount: number = 0) => {
-    const discountedPrice = price * (1 - discount / 100);
-    return {
-      original: price.toFixed(2),
-      discounted: discountedPrice.toFixed(2),
-      savings: (price - discountedPrice).toFixed(2)
-    };
   };
 
   const calculateTotalStock = () => {

@@ -5,15 +5,10 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardFooter } from "./ui/card";
 import Image from "next/image";
 import Link from "next/link";
-
-const formatPrice = (price: number, discount: number = 0) => {
-    const discountedPrice = price * (1 - discount / 100);
-    return {
-      original: price.toFixed(2),
-      discounted: discountedPrice.toFixed(2),
-      savings: (price - discountedPrice).toFixed(2)
-    };
-  };
+import { formatPrice } from "@/lib/currency";
+import { getTotalStock, inStock } from "@/lib/product";
+import { addToCart, itemInCart, removeFromCart, selectCartStatus } from "@/redux/cartSlice";
+import { useAppDispatch, useAppSelector } from "@/hooks/redux.hook";
 
   const getStockStatus = (quantity: number) => {
     if (quantity === 0) return { text: 'Out of Stock', color: 'bg-red-100 text-red-800' };
@@ -43,8 +38,44 @@ const formatPrice = (price: number, discount: number = 0) => {
   };
 
 const ProductCard = ({ product, isListView = false }: { product: ProductAttributes; isListView?: boolean }) => {
-    const pricing = formatPrice(product.price, product.discount);
-    const stockStatus = getStockStatus(product.stock_quantity);
+  const reduxState = useAppSelector(state => state);
+  const cartStatus = useAppSelector(selectCartStatus);
+  const dispatch = useAppDispatch();
+  const { shop } = reduxState.shop;
+
+  const pricing = formatPrice(product.price, product.discount);
+  const stockStatus = getStockStatus(getTotalStock(product));
+  const isInCart = itemInCart(reduxState, product.id);
+
+  const handleAddToCart = async () => {
+    if (!product || !shop?.domain) return;
+
+    dispatch(addToCart({
+      shopDomain: shop.domain,
+      item: {
+        product_id: product.id,
+        quantity: 1,
+        variant_index: product.variants.length > 0 ? 0 : undefined,
+      }
+    }));
+  };
+    
+  const handleRemoveFromCart = async () => {
+    if (!product || !shop?.domain) return;
+    dispatch(removeFromCart({
+      shopDomain: shop.domain,
+      product_id: product.id,
+      variant_index: product.variants.length > 0 ? 0 : undefined,
+    }));
+  };
+
+  const toggleCart = () => {
+    if (isInCart) {
+      handleRemoveFromCart();
+    } else {
+      handleAddToCart();
+    }
+  };
 
     if (isListView) {
       return (
@@ -100,9 +131,20 @@ const ProductCard = ({ product, isListView = false }: { product: ProductAttribut
                         View
                       </Link>
                     </Button>
-                    <Button size="sm" disabled={product.stock_quantity === 0}>
+                    <Button
+                      size="sm"
+                      onClick={toggleCart}
+                      disabled={!inStock(product) || cartStatus === 'loading'}
+                    >
                       <ShoppingCart className="w-4 h-4 mr-1" />
-                      Add to Cart
+                      {cartStatus === 'loading'
+                        ? 'Adding...'
+                        : !inStock(product)
+                          ? 'Out of Stock'
+                          : isInCart
+                            ? 'Remove from Cart'
+                            : 'Add to Cart'
+                      }
                     </Button>
                   </div>
                 </div>
@@ -175,11 +217,19 @@ const ProductCard = ({ product, isListView = false }: { product: ProductAttribut
         
         <CardFooter className="p-4 pt-0">
           <Button 
-            className="w-full" 
-            disabled={product.stock_quantity === 0}
+            className="w-full"
+            onClick={toggleCart}
+            disabled={!inStock(product) || cartStatus === 'loading'}
           >
             <ShoppingCart className="w-4 h-4 mr-2" />
-            {product.stock_quantity === 0 ? 'Out of Stock' : 'Add to Cart'}
+            {cartStatus === 'loading'
+              ? 'Adding...'
+              : !inStock(product)
+                ? 'Out of Stock'
+                : isInCart
+                  ? 'Remove from Cart'
+                  : 'Add to Cart'
+            }
           </Button>
         </CardFooter>
       </Card>

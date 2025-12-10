@@ -16,8 +16,14 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
+import { CartWithProducts } from '@/models/Cart';
 
-const ShopNavbar = ({ shop }: { shop: ShopWithOwner }) => {
+interface Props {
+  cart: CartWithProducts | null;
+  shop: ShopWithOwner;
+}
+
+const ShopNavbar = ({ shop, cart }: Props) => {
   const user = useSession()?.data?.user;
   const isShopAdmin = user?.id === shop.owner_id;
   return (
@@ -87,9 +93,9 @@ const ShopNavbar = ({ shop }: { shop: ShopWithOwner }) => {
             {/* Cart */}
             <Button variant="ghost" size="sm" className="relative">
               <ShoppingCart className="w-4 h-4" />
-              <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center text-xs bg-neutral-900 text-white">
-                0
-              </Badge>
+              { cart && cart.items.length > 0 && <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center text-xs bg-neutral-900 text-white">
+                {cart.items.length}
+              </Badge>}
             </Button>
 
             {!user ? (

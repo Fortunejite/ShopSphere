@@ -47,3 +47,12 @@ export const formatCurrency = (
   //     currency,
   //   }).format(Number(amount));
 };
+
+export const formatPrice = (price: number, discount: number = 0) => {
+  const discountedPrice = price * (1 - discount / 100);
+  return {
+    original: price.toFixed(2),
+    discounted: discountedPrice.toFixed(2),
+    savings: (price - discountedPrice).toFixed(2)
+  };
+};
