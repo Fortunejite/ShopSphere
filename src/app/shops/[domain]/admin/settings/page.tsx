@@ -32,16 +32,14 @@ const shopSettingsSchema = z.object({
   description: z.string().max(500, 'Description must be less than 500 characters').optional(),
   domain: z.string().min(3, 'Domain must be at least 3 characters'),
   currency: z.string().min(1, 'Currency is required'),
-  email: z.string().email('Invalid email address').optional(),
-  phone: z.string().optional(),
-  address: z.string().optional(),
-  city: z.string().optional(),
-  state: z.string().optional(),
-  postal_code: z.string().optional(),
-  country: z.string().optional(),
-  tax_rate: z.number().min(0).max(100).default(0),
-  shipping_fee: z.number().min(0).default(0),
-  free_shipping_threshold: z.number().min(0).default(50),
+  email: z.string().email('Invalid email address'),
+  phone: z.string(),
+  address: z.string(),
+  city: z.string(),
+  state: z.string(),
+  postal_code: z.string(),
+  country: z.string(),
+  free_shipping_threshold: z.number().min(0).default(50).optional(),
 });
 
 type ShopSettingsFormData = z.infer<typeof shopSettingsSchema>;
@@ -68,8 +66,6 @@ export default function AdminSettingsPage() {
       state: '',
       postal_code: '',
       country: 'US',
-      tax_rate: 0,
-      shipping_fee: 0,
       free_shipping_threshold: 50,
     }
   });
@@ -88,8 +84,6 @@ export default function AdminSettingsPage() {
         state: shop.state || '',
         postal_code: shop.postal_code || '',
         country: shop.country || 'US',
-        tax_rate: shop.tax_rate || 0,
-        shipping_fee: shop.shipping_fee || 0,
         free_shipping_threshold: shop.free_shipping_threshold || 50,
       });
       setIsLoading(false);
@@ -327,34 +321,6 @@ export default function AdminSettingsPage() {
                       </option>
                     ))}
                   </select>
-                </div>
-
-                <div>
-                  <Label htmlFor="tax_rate">Tax Rate (%)</Label>
-                  <Input
-                    id="tax_rate"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    max="100"
-                    {...form.register('tax_rate', { valueAsNumber: true })}
-                    placeholder="8.25"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Default tax rate applied to orders
-                  </p>
-                </div>
-
-                <div>
-                  <Label htmlFor="shipping_fee">Default Shipping Fee</Label>
-                  <Input
-                    id="shipping_fee"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    {...form.register('shipping_fee', { valueAsNumber: true })}
-                    placeholder="9.99"
-                  />
                 </div>
 
                 <div>

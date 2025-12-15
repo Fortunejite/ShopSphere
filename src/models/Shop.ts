@@ -8,6 +8,14 @@ export interface ShopAttributes {
   category_id: number;
   description?: string;
   status: 'active' | 'inactive' | 'suspended';
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  state: string;
+  postal_code: string;
+  country: string;
+  free_shipping_threshold?: number;
   currency: string;
   created_at?: Date;
   updated_at?: Date;
@@ -35,8 +43,12 @@ export class Shop {
     };
 
     const query = `
-      INSERT INTO ${Shop.tableName} (owner_id, name, domain, category_id, description, status, currency, created_at, updated_at)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      INSERT INTO ${Shop.tableName} (
+        owner_id, name, domain, category_id, description, status, currency, 
+        email, phone, address, city, state, postal_code, country, free_shipping_threshold,
+        created_at, updated_at
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
       RETURNING *
     `;
 
@@ -48,6 +60,14 @@ export class Shop {
       shop.description,
       shop.status,
       shop.currency,
+      shop.email,
+      shop.phone,
+      shop.address,
+      shop.city,
+      shop.state,
+      shop.postal_code,
+      shop.country,
+      shop.free_shipping_threshold,
       shop.created_at,
       shop.updated_at,
     ];

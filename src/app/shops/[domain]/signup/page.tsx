@@ -10,12 +10,12 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Eye, EyeOff, Loader2, CheckCircle } from 'lucide-react';
 import { createUserSchema } from '@/lib/schema/auth';
 import { z } from 'zod';
 import axios from 'axios';
 import { useAppSelector } from '@/hooks/redux.hook';
+import AuthGuard from '@/components/AuthGuard';
 
 export default function SignupPage() {
   const { shop } = useAppSelector(state => state.shop);
@@ -24,7 +24,6 @@ export default function SignupPage() {
     password: '',
     username: '',
     phone_number: '',
-    role: 'user' as 'user' | 'admin',
     address: '',
     city: '',
   });
@@ -47,13 +46,6 @@ export default function SignupPage() {
     }
   };
 
-  const handleSelectChange = (value: string) => {
-    setFormData(prev => ({ ...prev, role: value as 'user' | 'admin' }));
-    if (errors.role) {
-      setErrors(prev => ({ ...prev, role: '' }));
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -69,7 +61,7 @@ export default function SignupPage() {
       if (response.data) {
         setSuccess(true);
         setTimeout(() => {
-          router.push('/login');
+          router.push('/');
         }, 2000);
       }
     } catch (error) {
@@ -108,7 +100,7 @@ export default function SignupPage() {
                 </div>
                 <h2 className="text-2xl font-bold text-neutral-900">Account Created!</h2>
                 <p className="text-neutral-600">
-                  Your account has been created successfully. You&apos;ll be redirected to the login page shortly.
+                  Your account has been created successfully. You&apos;ll be redirected to the home page shortly.
                 </p>
                 <Button 
                   onClick={() => router.push('/login')}
@@ -126,6 +118,7 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-neutral-50 to-neutral-100 p-4">
+      <AuthGuard reversed />
       <div className="w-full max-w-md space-y-6">
         {/* Logo and Header */}
         <div className="text-center space-y-2">
@@ -241,27 +234,6 @@ export default function SignupPage() {
                 />
                 {errors.phone_number && (
                   <p className="text-sm text-red-500">{errors.phone_number}</p>
-                )}
-              </div>
-
-              {/* Role Field */}
-              <div className="space-y-2">
-                <Label htmlFor="role">Role</Label>
-                <Select
-                  value={formData.role}
-                  onValueChange={handleSelectChange}
-                  disabled={isLoading}
-                >
-                  <SelectTrigger className={errors.role ? 'border-red-500 focus:border-red-500' : ''}>
-                    <SelectValue placeholder="Select your role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="user">User</SelectItem>
-                    <SelectItem value="admin">Admin</SelectItem>
-                  </SelectContent>
-                </Select>
-                {errors.role && (
-                  <p className="text-sm text-red-500">{errors.role}</p>
                 )}
               </div>
 

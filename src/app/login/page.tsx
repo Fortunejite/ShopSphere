@@ -13,6 +13,7 @@ import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { loginUserSchema } from '@/lib/schema/auth';
 import Image from 'next/image';
 import { z } from 'zod';
+import AuthGuard from '@/components/AuthGuard';
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -76,6 +77,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-neutral-50 to-neutral-100 p-4">
+      <AuthGuard reversed />
       <div className="w-full max-w-md space-y-6">
         {/* Logo and Header */}
         <div className="text-center space-y-2">

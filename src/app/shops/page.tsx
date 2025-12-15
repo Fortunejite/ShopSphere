@@ -33,6 +33,7 @@ import axios from 'axios';
 import { useAppSelector } from '@/hooks/redux.hook';
 import { ShopWithOwner } from '@/models/Shop';
 import { generateURL } from '@/lib/domain';
+import AuthGuard from '@/components/AuthGuard';
 
 interface ShopFormProps {
   onSubmit: (e: React.FormEvent) => Promise<void>;
@@ -45,6 +46,14 @@ interface ShopFormProps {
     category_id: number | undefined;
     description: string | undefined;
     currency: string;
+    email: string;
+    phone: string;
+    address: string;
+    city: string;
+    state: string;
+    postal_code: string;
+    country: string;
+    free_shipping_threshold: number | undefined;
   };
   formErrors: Record<string, string>;
   error: string;
@@ -75,47 +84,45 @@ const ShopForm: React.FC<ShopFormProps> = ({
       </Alert>
     )}
 
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div className="space-y-2">
-        <Label htmlFor="name">Shop Name</Label>
+    <div className="space-y-2">
+      <Label htmlFor="name">Shop Name</Label>
+      <Input
+        id="name"
+        name="name"
+        placeholder="Enter shop name"
+        value={formData.name}
+        onChange={handleInputChange}
+        className={formErrors.name ? 'border-red-500' : ''}
+        disabled={isSubmitting}
+      />
+      {formErrors.name && <p className="text-sm text-red-500">{formErrors.name}</p>}
+    </div>
+
+    <div className="space-y-2">
+      <Label htmlFor="domain">Domain</Label>
+      <div className="relative">
         <Input
-          id="name"
-          name="name"
-          placeholder="Enter shop name"
-          value={formData.name}
+          id="domain"
+          name="domain"
+          placeholder="Enter domain (e.g., myshop)"
+          value={formData.domain}
           onChange={handleInputChange}
-          className={formErrors.name ? 'border-red-500' : ''}
+          className={`${formErrors.domain ? 'border-red-500' : formData.domain && !formErrors.domain && !isDomainChecking ? 'border-green-500' : ''} pr-32`}
           disabled={isSubmitting}
         />
-        {formErrors.name && <p className="text-sm text-red-500">{formErrors.name}</p>}
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="domain">Domain</Label>
-        <div className="relative">
-          <Input
-            id="domain"
-            name="domain"
-            placeholder="Enter domain (e.g., myshop)"
-            value={formData.domain}
-            onChange={handleInputChange}
-            className={`${formErrors.domain ? 'border-red-500' : formData.domain && !formErrors.domain && !isDomainChecking ? 'border-green-500' : ''} pr-32`}
-            disabled={isSubmitting}
-          />
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
-            {isDomainChecking && (
-              <Loader2 className="w-3 h-3 animate-spin text-neutral-400" />
-            )}
-            <span className="text-sm text-neutral-500 pointer-events-none">
-              .{process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'localhost:3000'}
-            </span>
-          </div>
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+          {isDomainChecking && (
+            <Loader2 className="w-3 h-3 animate-spin text-neutral-400" />
+          )}
+          <span className="text-sm text-neutral-500 pointer-events-none">
+            .{process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'localhost:3000'}
+          </span>
         </div>
-        {formErrors.domain && <p className="text-sm text-red-500">{formErrors.domain}</p>}
-        {mode === 'create' && formData.domain && !formErrors.domain && !isDomainChecking && (
-          <p className="text-sm text-green-600">Domain is available</p>
-        )}
       </div>
+      {formErrors.domain && <p className="text-sm text-red-500">{formErrors.domain}</p>}
+      {mode === 'create' && formData.domain && !formErrors.domain && !isDomainChecking && (
+        <p className="text-sm text-green-600">Domain is available</p>
+      )}
     </div>
 
     {mode === 'create' && <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -157,6 +164,142 @@ const ShopForm: React.FC<ShopFormProps> = ({
         {formErrors.currency && <p className="text-sm text-red-500">{formErrors.currency}</p>}
       </div>
     </div>}
+
+    {/* Contact Information */}
+    <div className="space-y-4">
+      <h3 className="text-lg font-medium">Contact Information</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="Enter shop email"
+            value={formData.email}
+            onChange={handleInputChange}
+            className={formErrors.email ? 'border-red-500' : ''}
+            disabled={isSubmitting}
+          />
+          {formErrors.email && <p className="text-sm text-red-500">{formErrors.email}</p>}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="phone">Phone</Label>
+          <Input
+            id="phone"
+            name="phone"
+            type="tel"
+            placeholder="Enter phone number"
+            value={formData.phone}
+            onChange={handleInputChange}
+            className={formErrors.phone ? 'border-red-500' : ''}
+            disabled={isSubmitting}
+          />
+          {formErrors.phone && <p className="text-sm text-red-500">{formErrors.phone}</p>}
+        </div>
+      </div>
+    </div>
+
+    {/* Address Information */}
+    <div className="space-y-4">
+      <h3 className="text-lg font-medium">Address Information</h3>
+      <div className="space-y-2">
+        <Label htmlFor="address">Street Address</Label>
+        <Input
+          id="address"
+          name="address"
+          placeholder="Enter street address"
+          value={formData.address}
+          onChange={handleInputChange}
+          className={formErrors.address ? 'border-red-500' : ''}
+          disabled={isSubmitting}
+        />
+        {formErrors.address && <p className="text-sm text-red-500">{formErrors.address}</p>}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="city">City</Label>
+          <Input
+            id="city"
+            name="city"
+            placeholder="Enter city"
+            value={formData.city}
+            onChange={handleInputChange}
+            className={formErrors.city ? 'border-red-500' : ''}
+            disabled={isSubmitting}
+          />
+          {formErrors.city && <p className="text-sm text-red-500">{formErrors.city}</p>}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="state">State/Province</Label>
+          <Input
+            id="state"
+            name="state"
+            placeholder="Enter state/province"
+            value={formData.state}
+            onChange={handleInputChange}
+            className={formErrors.state ? 'border-red-500' : ''}
+            disabled={isSubmitting}
+          />
+          {formErrors.state && <p className="text-sm text-red-500">{formErrors.state}</p>}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="postal_code">Postal Code</Label>
+          <Input
+            id="postal_code"
+            name="postal_code"
+            placeholder="Enter postal code"
+            value={formData.postal_code}
+            onChange={handleInputChange}
+            className={formErrors.postal_code ? 'border-red-500' : ''}
+            disabled={isSubmitting}
+          />
+          {formErrors.postal_code && <p className="text-sm text-red-500">{formErrors.postal_code}</p>}
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="country">Country</Label>
+        <Input
+          id="country"
+          name="country"
+          placeholder="Enter country"
+          value={formData.country}
+          onChange={handleInputChange}
+          className={formErrors.country ? 'border-red-500' : ''}
+          disabled={isSubmitting}
+        />
+        {formErrors.country && <p className="text-sm text-red-500">{formErrors.country}</p>}
+      </div>
+    </div>
+
+    {/* Shipping Settings */}
+    <div className="space-y-4">
+      <h3 className="text-lg font-medium">Shipping Settings</h3>
+      <div className="space-y-2">
+        <Label htmlFor="free_shipping_threshold">Free Shipping Threshold (Optional)</Label>
+        <Input
+          id="free_shipping_threshold"
+          name="free_shipping_threshold"
+          type="number"
+          min="0"
+          step="0.01"
+          placeholder="Enter minimum amount for free shipping"
+          value={formData.free_shipping_threshold || ''}
+          onChange={handleInputChange}
+          className={formErrors.free_shipping_threshold ? 'border-red-500' : ''}
+          disabled={isSubmitting}
+        />
+        {formErrors.free_shipping_threshold && <p className="text-sm text-red-500">{formErrors.free_shipping_threshold}</p>}
+        <p className="text-sm text-neutral-500">
+          Orders above this amount will qualify for free shipping. Leave empty to disable free shipping.
+        </p>
+      </div>
+    </div>
 
     <div className="space-y-2">
       <Label htmlFor="description">Description</Label>
@@ -212,6 +355,14 @@ export default function ShopsPage() {
     category_id: undefined as number | undefined,
     description: '' as string | undefined,
     currency: 'USD',
+    email: '',
+    phone: '',
+    address: '',
+    city: '',
+    state: '',
+    postal_code: '',
+    country: '',
+    free_shipping_threshold: undefined as number | undefined,
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [isDomainChecking, setIsDomainChecking] = useState(false);
@@ -279,7 +430,16 @@ export default function ShopsPage() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    // Handle number fields specially
+    if (name === 'free_shipping_threshold') {
+      setFormData(prev => ({ 
+        ...prev, 
+        [name]: value === '' ? undefined : parseFloat(value) 
+      }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
     
     // Clear error when user starts typing
     if (formErrors[name]) {
@@ -320,6 +480,14 @@ export default function ShopsPage() {
       category_id: undefined,
       description: '',
       currency: 'USD',
+      email: '',
+      phone: '',
+      address: '',
+      city: '',
+      state: '',
+      postal_code: '',
+      country: '',
+      free_shipping_threshold: undefined,
     });
     setFormErrors({});
     setError('');
@@ -448,6 +616,14 @@ export default function ShopsPage() {
       category_id: shop.category_id,
       description: shop.description,
       currency: shop.currency,
+      email: shop.email || '',
+      phone: shop.phone || '',
+      address: shop.address || '',
+      city: shop.city || '',
+      state: shop.state || '',
+      postal_code: shop.postal_code || '',
+      country: shop.country || '',
+      free_shipping_threshold: shop.free_shipping_threshold,
     });
     setFormErrors({});
     setError('');
@@ -471,6 +647,7 @@ export default function ShopsPage() {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-neutral-50 to-neutral-100 p-4 md:p-6">
+      <AuthGuard />
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

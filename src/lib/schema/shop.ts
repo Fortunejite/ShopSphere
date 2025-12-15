@@ -16,4 +16,12 @@ export const createShopSchema = z.object({
   currency: z.enum(Object.keys(currencySymbols) as [string, ...string[]], {
     required_error: 'Currency is required',
   }),
+  email: z.string().email('Invalid email address'),
+  phone: z.string().min(1, 'Phone number is required'),
+  address: z.string().min(1, 'Address is required'),
+  city: z.string().min(1, 'City is required'),
+  state: z.string().min(1, 'State is required'),
+  postal_code: z.string().min(1, 'Postal code is required'),
+  country: z.string().min(1, 'Country is required'),
+  free_shipping_threshold: z.number().min(0, 'Free shipping threshold must be 0 or greater').optional(),
 });
