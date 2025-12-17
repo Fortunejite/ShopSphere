@@ -20,6 +20,8 @@ import {
 import { cn } from '@/lib/utils';
 import { OrderWithProducts } from '@/models/Order';
 import { useState } from 'react';
+import { formatCurrency } from '@/lib/currency';
+import { useAppSelector } from '@/hooks/redux.hook';
 
 
 export default function OrderCard({ 
@@ -33,6 +35,7 @@ export default function OrderCard({
   onPaymentUpdate: (id: string, status: string) => void;
   onViewDetails: () => void;
 }) {
+  const shop = useAppSelector(state => state.shop.shop);
   const [isEditingStatus, setIsEditingStatus] = useState(false);
   const [newStatus, setNewStatus] = useState<'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded'>(order.status);
   const [adminNotes, setAdminNotes] = useState(order.admin_notes || '');
@@ -124,7 +127,7 @@ export default function OrderCard({
                     <Users className="w-4 h-4" />
                     <span>{order.shipping_address?.name || 'N/A'}</span>
                   </div>
-                  <span>${order.final_amount.toFixed(2)}</span>
+                  <span>{formatCurrency(order.final_amount, shop!.currency)}</span>
                   <span>{order.total_items} items</span>
                 </div>
               </div>

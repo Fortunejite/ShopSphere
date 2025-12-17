@@ -104,9 +104,9 @@ const ProductCard = ({ product, isListView = false }: { product: ProductAttribut
                   </div>
                   <div className="text-right">
                     <div className="flex items-center gap-2">
-                      <span className="text-xl font-bold text-gray-900">${pricing.discounted}</span>
+                      <span className="text-xl font-bold text-gray-900">{pricing.discounted}</span>
                       {product.discount > 0 && (
-                        <span className="text-sm text-gray-500 line-through">${pricing.original}</span>
+                        <span className="text-sm text-gray-500 line-through">{pricing.original}</span>
                       )}
                     </div>
                   </div>
@@ -205,9 +205,9 @@ const ProductCard = ({ product, isListView = false }: { product: ProductAttribut
             
             <div className="flex items-center justify-between">
               <div>
-                <span className="text-lg font-bold text-gray-900">${pricing.discounted}</span>
+                <span className="text-lg font-bold text-gray-900">{pricing.discounted}</span>
                 {product.discount > 0 && (
-                  <span className="text-sm text-gray-500 line-through ml-2">${pricing.original}</span>
+                  <span className="text-sm text-gray-500 line-through ml-2">{pricing.original}</span>
                 )}
               </div>
               <Badge className={stockStatus.color}>{stockStatus.text}</Badge>

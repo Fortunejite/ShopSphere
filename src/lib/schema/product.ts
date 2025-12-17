@@ -43,13 +43,9 @@ export const createProductSchema = z.object({
   ...mediaSchema.shape,
   ...shippingSchema.shape,
   ...variantsSchema.shape,
-  slug: z.string()
-    .min(1, 'Slug is required')
-    .max(255, 'Slug too long')
-    .regex(/^[a-z0-9-]+$/, 'Slug must contain only lowercase letters, numbers, and hyphens'),
 });
 
-export const updateProductSchema = createProductSchema.partial().omit({ slug: true });
+export const updateProductSchema = createProductSchema.partial();
 
 export const productQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),

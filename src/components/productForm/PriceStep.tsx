@@ -2,6 +2,8 @@ import { Checkbox } from "@radix-ui/react-checkbox";
 import { Label } from "@radix-ui/react-label";
 import { Input } from "../ui/input";
 import { ProductFormData, UpdateFormData } from './ProductStepForm';
+import { useAppSelector } from "@/hooks/redux.hook";
+import { formatCurrency, getCurrencySymbol } from "@/lib/currency";
 
 interface Props {
   formData: ProductFormData
@@ -9,11 +11,12 @@ interface Props {
 }
 
 const PricingAndStockForm = ({ formData, updateFormData }: Props) => {
+  const shop = useAppSelector(state => state.shop.shop);
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="price">Price ($) *</Label>
+          <Label htmlFor="price">Price ({getCurrencySymbol(shop!.currency)}) *</Label>
           <Input
             id="price"
             type="number"
@@ -50,9 +53,9 @@ const PricingAndStockForm = ({ formData, updateFormData }: Props) => {
           <p className="text-sm text-blue-800">
             Final Price:{' '}
             <strong>
-              ${(formData.price * (1 - formData.discount / 100)).toFixed(2)}
+              {formatCurrency((formData.price * (1 - formData.discount / 100)), shop!.currency)}
             </strong>{' '}
-            (Save ${(formData.price * (formData.discount / 100)).toFixed(2)})
+            (Save {formatCurrency((formData.price * (formData.discount / 100)), shop!.currency)})
           </p>
         </div>
       )}

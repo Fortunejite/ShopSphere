@@ -275,8 +275,6 @@ export const POST = errorHandler(async (request, { params }) => {
   }
 
   const body = await request.json();
-  body.slug = slugify(body.name, { lower: true, strict: true })
-
   // Validate input using Zod schema
   const validationResult = createProductSchema.safeParse(body);
   
@@ -296,11 +294,12 @@ export const POST = errorHandler(async (request, { params }) => {
   }
 
   const validatedData: CreateProductInput = validationResult.data;
+  const slug = slugify(validatedData.name, { lower: true, strict: true })
 
   // Check if product with same slug already exists in this shop
   const existingProduct = await Product.existsByShopAndSlug(
     shop.id,
-    validatedData.slug,
+    slug,
   );
   
   if (existingProduct) {
@@ -334,7 +333,7 @@ export const POST = errorHandler(async (request, { params }) => {
     shop_id: shop.id,
     category_ids: validatedData.category_ids,
     name: validatedData.name,
-    slug: validatedData.slug,
+    slug,
     description: validatedData.description,
     price: validatedData.price,
     discount: validatedData.discount,

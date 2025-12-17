@@ -35,7 +35,7 @@ import { updateProductSchema } from '@/lib/schema/product';
 import ProductStepForm, { type ProductFormData } from '@/components/productForm/ProductStepForm';
 import { useAppSelector } from '@/hooks/redux.hook';
 import { PageLoading } from '@/components/Loading';
-import { formatPrice } from '@/lib/currency';
+import { formatCurrency, formatPrice } from '@/lib/currency';
 
 interface Product {
   id: number;
@@ -199,7 +199,7 @@ export default function ProductDetailsPage() {
       
       // Redirect to products list after successful deletion
       setTimeout(() => {
-        router.push(`/shops/${domain}/admin/products`);
+        router.push(`/admin/products`);
       }, 1500);
       
     } catch (error) {
@@ -258,7 +258,7 @@ export default function ProductDetailsPage() {
     );
   }
 
-  const pricing = formatPrice(product.price, product.discount);
+  const pricing = formatPrice(product.price, product.discount, shop!.currency);
   const totalStock = calculateTotalStock();
   const productCategories = getProductCategories();
 
@@ -341,11 +341,11 @@ export default function ProductDetailsPage() {
                 <div className="flex items-center mt-1">
                   {product.discount > 0 ? (
                     <div className="flex items-center space-x-2">
-                      <span className="text-lg font-bold text-green-600">${pricing.discounted}</span>
-                      <span className="text-sm text-gray-500 line-through">${pricing.original}</span>
+                      <span className="text-lg font-bold text-green-600">{pricing.discounted}</span>
+                      <span className="text-sm text-gray-500 line-through">{pricing.original}</span>
                     </div>
                   ) : (
-                    <span className="text-lg font-bold">${pricing.original}</span>
+                    <span className="text-lg font-bold">{pricing.original}</span>
                   )}
                 </div>
               </div>
@@ -457,15 +457,9 @@ export default function ProductDetailsPage() {
                   <CardTitle>Basic Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium text-gray-600">Product Name</label>
-                      <p className="text-lg">{product.name}</p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-600">Slug</label>
-                      <p className="text-lg font-mono text-blue-600">{product.slug}</p>
-                    </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">Product Name</label>
+                    <p className="text-lg">{product.name}</p>
                   </div>
                   
                   {product.description && (
@@ -526,7 +520,7 @@ export default function ProductDetailsPage() {
                     <div className="space-y-4">
                       <div>
                         <label className="text-sm font-medium text-gray-600">Base Price</label>
-                        <p className="text-2xl font-bold">${pricing.original}</p>
+                        <p className="text-2xl font-bold">{pricing.original}</p>
                       </div>
                       {product.discount > 0 && (
                         <>
@@ -536,11 +530,11 @@ export default function ProductDetailsPage() {
                           </div>
                           <div>
                             <label className="text-sm font-medium text-gray-600">Sale Price</label>
-                            <p className="text-2xl font-bold text-green-600">${pricing.discounted}</p>
+                            <p className="text-2xl font-bold text-green-600">{pricing.discounted}</p>
                           </div>
                           <div>
                             <label className="text-sm font-medium text-gray-600">Savings</label>
-                            <p className="text-lg text-green-600">Save ${pricing.savings}</p>
+                            <p className="text-lg text-green-600">Save {pricing.savings}</p>
                           </div>
                         </>
                       )}
@@ -603,7 +597,7 @@ export default function ProductDetailsPage() {
                             <div className="grid grid-cols-3 gap-2 text-sm">
                               <div>
                                 <label className="text-gray-600">Price</label>
-                                <p className="font-medium">${variant.price}</p>
+                                <p className="font-medium">{variant.price}</p>
                               </div>
                               <div>
                                 <label className="text-gray-600">Discount</label>
@@ -691,7 +685,7 @@ export default function ProductDetailsPage() {
                     
                     <div className="text-center p-4 bg-green-50 rounded-lg">
                       <div className="text-2xl font-bold text-green-600">
-                        ${(product.sales_count * parseFloat(pricing.discounted)).toFixed(2)}
+                        {formatCurrency(product.sales_count * parseFloat(pricing.discounted), shop!.currency)}
                       </div>
                       <div className="text-sm text-green-800">Total Revenue</div>
                     </div>

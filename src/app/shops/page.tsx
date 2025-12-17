@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { 
   Plus, 
@@ -340,7 +340,6 @@ export default function ShopsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedShop, setSelectedShop] = useState<ShopWithOwner | null>(null);
@@ -349,6 +348,7 @@ export default function ShopsPage() {
   const [success, setSuccess] = useState('');
   const router = useRouter();
 
+  // Form state for editing shops only
   const [formData, setFormData] = useState({
     name: '',
     domain: '',
@@ -494,41 +494,7 @@ export default function ShopsPage() {
     setSuccess('');
   };
 
-  const handleCreateShop = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setError('');
 
-    try {
-      const validatedData = createShopSchema.parse(formData);
-      const response = await axios.post('/api/shops', validatedData);
-      
-      const category = categories.find(cat => cat.id === response.data.category_id);
-      setShops(prev => [...prev, { ...response.data, category : category ? category.name : '' }]);
-      setSuccess('Shop created successfully!');
-      resetForm();
-      setIsCreateOpen(false);
-      
-      // Clear success message after 3 seconds
-      setTimeout(() => setSuccess(''), 3000);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        const fieldErrors: Record<string, string> = {};
-        error.errors.forEach((err) => {
-          if (err.path[0]) {
-            fieldErrors[err.path[0] as string] = err.message;
-          }
-        });
-        setFormErrors(fieldErrors);
-      } else if (axios.isAxiosError(error)) {
-        setError(error.response?.data?.message || 'Failed to create shop. Please try again.');
-      } else {
-        setError('An unexpected error occurred. Please try again.');
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   const handleEditShop = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -659,35 +625,12 @@ export default function ShopsPage() {
             <p className="text-neutral-600 mt-1">Manage your online stores</p>
           </div>
           
-          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={resetForm} className="flex items-center gap-2">
-                <Plus className="w-4 h-4" />
-                Create Shop
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>Create New Shop</DialogTitle>
-                <DialogDescription>
-                  Fill in the details to create your new online shop
-                </DialogDescription>
-              </DialogHeader>
-              <ShopForm 
-                onSubmit={handleCreateShop}
-                mode='create'
-                submitLabel="Create Shop"
-                isSubmitting={isSubmitting}
-                formData={formData}
-                formErrors={formErrors}
-                error={error}
-                categories={categories}
-                handleInputChange={handleInputChange}
-                handleSelectChange={handleSelectChange}
-                isDomainChecking={isDomainChecking}
-              />
-            </DialogContent>
-          </Dialog>
+          <Button asChild className="flex items-center gap-2">
+            <Link href="/shops/new">
+              <Plus className="w-4 h-4" />
+              Create Shop
+            </Link>
+          </Button>
         </div>
 
         {/* Success Message */}
@@ -753,35 +696,12 @@ export default function ShopsPage() {
                 </p>
               </div>
               {shops.length === 0 && (
-                <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-                  <DialogTrigger asChild>
-                    <Button onClick={resetForm} className="mt-4">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Create Your First Shop
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl">
-                    <DialogHeader>
-                      <DialogTitle>Create New Shop</DialogTitle>
-                      <DialogDescription>
-                        Fill in the details to create your new online shop
-                      </DialogDescription>
-                    </DialogHeader>
-                    <ShopForm 
-                      onSubmit={handleCreateShop}
-                      mode='create'
-                      submitLabel="Create Shop"
-                      isSubmitting={isSubmitting}
-                      formData={formData}
-                      formErrors={formErrors}
-                      error={error}
-                      categories={categories}
-                      handleInputChange={handleInputChange}
-                      handleSelectChange={handleSelectChange}
-                      isDomainChecking={isDomainChecking}
-                    />
-                  </DialogContent>
-                </Dialog>
+                <Button asChild className="mt-4">
+                  <Link href="/shops/new">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create Your First Shop
+                  </Link>
+                </Button>
               )}
             </div>
           </div>

@@ -4,6 +4,8 @@ import { X } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { ProductFormData, UpdateFormData } from './ProductStepForm';
+import { getCurrencySymbol } from "@/lib/currency";
+import { useAppSelector } from "@/hooks/redux.hook";
 
 interface Props {
   formData: ProductFormData
@@ -11,6 +13,7 @@ interface Props {
 }
 
 const Variants = ({ formData, updateFormData }: Props) => {
+  const shop = useAppSelector(state => state.shop.shop);
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -171,7 +174,7 @@ const Variants = ({ formData, updateFormData }: Props) => {
 
                 <div className="space-y-4">
                   <div>
-                    <Label>Price ($)</Label>
+                    <Label>Price ({getCurrencySymbol(shop!.currency)})</Label>
                     <Input
                       type="number"
                       step="0.01"

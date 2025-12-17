@@ -1,3 +1,5 @@
+import { ShopAttributes } from "@/models/Shop";
+
 export const currencySymbols: Record<string, string> = {
   NGN: '₦',
   USD: '$',
@@ -48,11 +50,11 @@ export const formatCurrency = (
   //   }).format(Number(amount));
 };
 
-export const formatPrice = (price: number, discount: number = 0) => {
+export const formatPrice = (price: number, discount: number = 0, currency: string = 'NGN') => {
   const discountedPrice = price * (1 - discount / 100);
   return {
-    original: price.toFixed(2),
-    discounted: discountedPrice.toFixed(2),
-    savings: (price - discountedPrice).toFixed(2)
+    original: formatCurrency(price, currency),
+    discounted: formatCurrency(discountedPrice, currency),
+    savings: formatCurrency((price - discountedPrice), currency),
   };
 };

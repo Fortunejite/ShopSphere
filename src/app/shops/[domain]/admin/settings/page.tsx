@@ -16,7 +16,6 @@ import {
   Settings,
   Store,
   Palette,
-  DollarSign,
   Mail,
   Save,
   AlertCircle,
@@ -105,15 +104,6 @@ export default function AdminSettingsPage() {
       setIsSaving(false);
     }
   };
-
-  const currencies = [
-    { code: 'USD', name: 'US Dollar ($)', symbol: '$' },
-    { code: 'EUR', name: 'Euro (€)', symbol: '€' },
-    { code: 'GBP', name: 'British Pound (£)', symbol: '£' },
-    { code: 'CAD', name: 'Canadian Dollar (C$)', symbol: 'C$' },
-    { code: 'AUD', name: 'Australian Dollar (A$)', symbol: 'A$' },
-    { code: 'JPY', name: 'Japanese Yen (¥)', symbol: '¥' },
-  ];
 
   if (isLoading) {
     return <ProductLoading text="Loading shop settings..." fullPage />;
@@ -295,47 +285,6 @@ export default function AdminSettingsPage() {
                       <option value="FR">France</option>
                     </select>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Currency & Pricing */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <DollarSign className="w-5 h-5" />
-                  Currency & Pricing
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="currency">Currency *</Label>
-                  <select
-                    id="currency"
-                    {...form.register('currency')}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    {currencies.map((currency) => (
-                      <option key={currency.code} value={currency.code}>
-                        {currency.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <Label htmlFor="free_shipping_threshold">Free Shipping Threshold</Label>
-                  <Input
-                    id="free_shipping_threshold"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    {...form.register('free_shipping_threshold', { valueAsNumber: true })}
-                    placeholder="50.00"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Orders above this amount qualify for free shipping
-                  </p>
                 </div>
               </CardContent>
             </Card>

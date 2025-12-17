@@ -33,6 +33,7 @@ import axios from 'axios';
 import ProductStepForm from '@/components/productForm/ProductStepForm';
 import Link from 'next/link';
 import { ProductLoading } from '@/components/Loading';
+import { formatCurrency } from '@/lib/currency';
 
 interface Product {
   id: number;
@@ -483,14 +484,17 @@ export default function AdminProductsPage() {
                       <div className="flex items-center gap-2">
                         <DollarSign className="w-4 h-4 text-neutral-500" />
                         <span className="font-bold text-lg">
-                          ${product.discount > 0 
-                            ? (product.price * (1 - product.discount / 100)).toFixed(2)
-                            : product.price.toFixed(2)
+                          { formatCurrency(
+                            product.discount > 0 
+                            ? (product.price * (1 - product.discount / 100))
+                            : product.price,
+                            shop!.currency
+                          )
                           }
                         </span>
                         {product.discount > 0 && (
                           <span className="text-sm text-neutral-500 line-through">
-                            ${product.price.toFixed(2)}
+                            {formatCurrency(product.price, shop!.currency)}
                           </span>
                         )}
                       </div>

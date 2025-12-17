@@ -26,10 +26,13 @@ import {
 import { ProductLoading } from '@/components/Loading';
 import { OrderWithProducts } from '@/models/Order';
 import { cn } from '@/lib/utils';
+import { formatCurrency } from '@/lib/currency';
+import { useAppSelector } from '@/hooks/redux.hook';
 
 export default function OrderDetailsPage() {
   const { domain, trackingId } = useParams();
   const router = useRouter();
+  const shop = useAppSelector(state => state.shop.shop);
   const searchParams = useSearchParams();
   const isSuccess = searchParams.get('success') === 'true';
   
@@ -326,11 +329,11 @@ export default function OrderDetailsPage() {
                           </div>
                           <div className="text-right">
                             <div className="font-medium">
-                              ${item.subtotal.toFixed(2)}
+                              {formatCurrency(item.subtotal, shop!.currency)}
                             </div>
                             {item.discount_at_purchase > 0 && (
                               <div className="text-sm text-gray-500 line-through">
-                                ${(item.unit_price_at_purchase * item.quantity).toFixed(2)}
+                                {formatCurrency(item.unit_price_at_purchase * item.quantity, shop!.currency)}
                               </div>
                             )}
                           </div>
@@ -344,25 +347,25 @@ export default function OrderDetailsPage() {
                 <div className="border-t pt-4 mt-6 space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>Subtotal:</span>
-                    <span>${order.total_amount.toFixed(2)}</span>
+                    <span>{formatCurrency(order.total_amount, shop!.currency)}</span>
                   </div>
                   {order.discount_amount > 0 && (
                     <div className="flex justify-between text-sm text-green-600">
                       <span>Discount:</span>
-                      <span>-${order.discount_amount.toFixed(2)}</span>
+                      <span>{formatCurrency(-order.discount_amount, shop!.currency)}</span>
                     </div>
                   )}
                   <div className="flex justify-between text-sm">
                     <span>Shipping:</span>
-                    <span>${order.shipping_amount.toFixed(2)}</span>
+                    <span>{formatCurrency(order.shipping_amount, shop!.currency)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Tax:</span>
-                    <span>${order.tax_amount.toFixed(2)}</span>
+                    <span>{formatCurrency(order.tax_amount, shop!.currency)}</span>
                   </div>
                   <div className="flex justify-between font-bold text-lg border-t pt-2">
                     <span>Total:</span>
-                    <span>${order.final_amount.toFixed(2)}</span>
+                    <span>{formatCurrency(order.final_amount, shop!.currency)}</span>
                   </div>
                 </div>
               </CardContent>
@@ -406,7 +409,7 @@ export default function OrderDetailsPage() {
                 )}
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">Total Paid:</span>
-                  <span className="font-medium">${order.final_amount.toFixed(2)}</span>
+                  <span className="font-medium">{formatCurrency(order.final_amount, shop!.currency)}</span>
                 </div>
               </CardContent>
             </Card>

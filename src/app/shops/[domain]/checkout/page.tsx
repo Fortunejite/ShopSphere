@@ -29,6 +29,8 @@ import { ProductLoading } from '@/components/Loading';
 import { createOrderSchema } from '@/lib/schema/order';
 
 import Image from 'next/image';
+import { formatCurrency } from '@/lib/currency';
+import { useAppSelector } from '@/hooks/redux.hook';
 
 const checkoutSchema = createOrderSchema.extend({
   use_billing_as_shipping: z.boolean().optional().default(false),
@@ -41,8 +43,8 @@ type CheckoutFormData = z.infer<typeof checkoutSchema>;
 export default function CheckoutPage() {
   const { domain } = useParams();
   const router = useRouter();
+  const shop = useAppSelector(state => state.shop.shop);
 
-  
   const [cartItems, setCartItems] = useState<CartItemWithProduct[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -531,7 +533,7 @@ export default function CheckoutPage() {
                           )}
                           <div className="flex justify-between items-center mt-2">
                             <span className="text-sm text-gray-600">Qty: {item.quantity}</span>
-                            <span className="font-medium">${(finalPrice * item.quantity).toFixed(2)}</span>
+                            <span className="font-medium">{formatCurrency(finalPrice * item.quantity, shop!.currency)}</span>
                           </div>
                         </div>
                       </div>
@@ -542,25 +544,25 @@ export default function CheckoutPage() {
                 <div className="border-t pt-4 space-y-2">
                   <div className="flex justify-between">
                     <span>Subtotal:</span>
-                    <span>${totals.subtotal.toFixed(2)}</span>
+                    <span>{formatCurrency(totals.subtotal, shop!.currency)}</span>
                   </div>
                   {totals.discount > 0 && (
                     <div className="flex justify-between text-green-600">
                       <span>Discount:</span>
-                      <span>-${totals.discount.toFixed(2)}</span>
+                      <span>{formatCurrency(-totals.discount, shop!.currency)}</span>
                     </div>
                   )}
                   <div className="flex justify-between">
                     <span>Shipping:</span>
-                    <span>${totals.shipping.toFixed(2)}</span>
+                    <span>{formatCurrency(totals.shipping, shop!.currency)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Tax:</span>
-                    <span>${totals.tax.toFixed(2)}</span>
+                    <span>{formatCurrency(totals.tax, shop!.currency)}</span>
                   </div>
                   <div className="flex justify-between font-bold text-lg border-t pt-2">
                     <span>Total:</span>
-                    <span>${totals.total.toFixed(2)}</span>
+                    <span>{formatCurrency(totals.total, shop!.currency)}</span>
                   </div>
                 </div>
 

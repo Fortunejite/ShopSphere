@@ -19,11 +19,14 @@ import {
 import { ProductLoading } from '@/components/Loading';
 import { OrderWithProducts } from '@/models/Order';
 import OrderCard from '@/components/OrderCard';
+import { formatCurrency } from '@/lib/currency';
+import { useAppSelector } from '@/hooks/redux.hook';
 
 export default function AdminOrdersPage() {
   const { domain } = useParams();
   const router = useRouter();
-  
+  const shop = useAppSelector(state => state.shop.shop);
+
   const [orders, setOrders] = useState<OrderWithProducts[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -149,7 +152,7 @@ export default function AdminOrdersPage() {
                 <div>
                   <p className="text-sm font-medium text-gray-600">Total Revenue</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    ${stats.total_revenue.toFixed(2)}
+                    {formatCurrency(stats.total_revenue, shop!.currency)}
                   </p>
                 </div>
                 <DollarSign className="w-8 h-8 text-green-500" />

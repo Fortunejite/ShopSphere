@@ -36,6 +36,7 @@ import {
 import { cn } from '@/lib/utils';
 import { CartItemWithProduct } from '@/models/Cart';
 import { getVariaintStock } from '@/lib/product';
+import { formatCurrency } from '@/lib/currency';
 
 export default function CartPage() {
   const router = useRouter();
@@ -214,7 +215,7 @@ export default function CartPage() {
             <div className="flex items-center gap-2">
               <ShoppingCart className="w-5 h-5 text-gray-400" />
               <span className="text-lg font-semibold">
-                ${cartTotal.toFixed(2)}
+                {formatCurrency(cartTotal, shop!.currency)}
               </span>
             </div>
           </div>
@@ -314,11 +315,11 @@ export default function CartPage() {
 
                           <div className="flex items-center gap-2 mt-2">
                             <span className="font-semibold text-gray-900">
-                              ${finalPrice.toFixed(2)}
+                              {formatCurrency(finalPrice, shop!.currency)}
                             </span>
                             {pricing.discount > 0 && (
                               <span className="text-sm text-gray-500 line-through">
-                                ${pricing.price.toFixed(2)}
+                                {formatCurrency(pricing.price, shop!.currency)}
                               </span>
                             )}
                           </div>
@@ -405,7 +406,7 @@ export default function CartPage() {
 
                           <div className="text-right">
                             <p className="font-semibold">
-                              ${(finalPrice * currentQuantity).toFixed(2)}
+                              {formatCurrency(finalPrice * currentQuantity, shop!.currency)}
                             </p>
                             <Button
                               size="sm"
@@ -440,7 +441,7 @@ export default function CartPage() {
                 <CardContent className="space-y-4">
                   <div className="flex justify-between text-sm">
                     <span>Subtotal ({itemCount} items)</span>
-                    <span>${cartTotal.toFixed(2)}</span>
+                    <span>{formatCurrency(cartTotal, shop!.currency)}</span>
                   </div>
 
                   <div className="flex justify-between text-sm">
@@ -456,7 +457,7 @@ export default function CartPage() {
                   <div className="border-t pt-4">
                     <div className="flex justify-between font-semibold text-lg">
                       <span>Total</span>
-                      <span>${cartTotal.toFixed(2)}</span>
+                      <span>{formatCurrency(cartTotal, shop!.currency)}</span>
                     </div>
                   </div>
 

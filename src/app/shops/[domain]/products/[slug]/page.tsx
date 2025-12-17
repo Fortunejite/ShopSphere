@@ -151,9 +151,9 @@ export default function ProductDetailsPage() {
 
   const getCurrentPrice = () => {
     if (selectedVariant) {
-      return formatPrice(selectedVariant.price, selectedVariant.discount);
+      return formatPrice(selectedVariant.price, selectedVariant.discount, shop!.currency);
     }
-    return formatPrice(product?.price || 0, product?.discount || 0);
+    return formatPrice(product?.price || 0, product?.discount || 0, shop!.currency);
   };
 
   const getCurrentStock = () => {
@@ -544,12 +544,12 @@ export default function ProductDetailsPage() {
             {/* Price */}
             <div className="border-b pb-6">
               <div className="flex items-center gap-3 mb-2">
-                <span className="text-3xl font-bold text-gray-900">${pricing.discounted}</span>
+                <span className="text-3xl font-bold text-gray-900">{pricing.discounted}</span>
                 {product.discount > 0 && (
                   <>
-                    <span className="text-xl text-gray-500 line-through">${pricing.original}</span>
+                    <span className="text-xl text-gray-500 line-through">{pricing.original}</span>
                     <Badge className="bg-red-100 text-red-800">
-                      Save ${pricing.savings}
+                      Save {pricing.savings}
                     </Badge>
                   </>
                 )}

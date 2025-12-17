@@ -26,11 +26,14 @@ import {
 import { ProductLoading } from '@/components/Loading';
 import { OrderWithProducts } from '@/models/Order';
 import { cn } from '@/lib/utils';
+import { formatCurrency } from '@/lib/currency';
+import { useAppSelector } from '@/hooks/redux.hook';
 
 export default function OrdersPage() {
   const { domain } = useParams();
   const router = useRouter();
-  
+  const shop = useAppSelector(state => state.shop.shop);
+
   const [orders, setOrders] = useState<OrderWithProducts[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -233,7 +236,7 @@ export default function OrdersPage() {
                               <Calendar className="w-4 h-4" />
                               <span>{new Date(order.created_at).toLocaleDateString()}</span>
                             </div>
-                            <span>${order.final_amount.toFixed(2)}</span>
+                            <span>{formatCurrency(order.final_amount, shop!.currency)}</span>
                             <span>{order.total_items} items</span>
                           </div>
                         </div>

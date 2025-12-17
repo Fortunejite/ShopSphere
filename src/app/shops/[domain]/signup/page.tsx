@@ -15,7 +15,7 @@ import { createUserSchema } from '@/lib/schema/auth';
 import { z } from 'zod';
 import axios from 'axios';
 import { useAppSelector } from '@/hooks/redux.hook';
-import AuthGuard from '@/components/AuthGuard';
+// import AuthGuard from '@/components/AuthGuard';
 
 export default function SignupPage() {
   const { shop } = useAppSelector(state => state.shop);
@@ -118,7 +118,7 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-neutral-50 to-neutral-100 p-4">
-      <AuthGuard reversed />
+      {/* <AuthGuard reversed /> */}
       <div className="w-full max-w-md space-y-6">
         {/* Logo and Header */}
         <div className="text-center space-y-2">
