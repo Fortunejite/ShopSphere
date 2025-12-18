@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { 
   Plus, 
@@ -23,14 +23,13 @@ import {
   SortAsc,
   SortDesc,
   Eye,
-  DollarSign,
   Tag,
   Star
 } from 'lucide-react';
-import { createProductSchema, updateProductSchema } from '@/lib/schema/product';
+
 import { useAppSelector } from '@/hooks/redux.hook';
 import axios from 'axios';
-import ProductStepForm from '@/components/productForm/ProductStepForm';
+
 import Link from 'next/link';
 import { ProductLoading } from '@/components/Loading';
 import { formatCurrency } from '@/lib/currency';
@@ -57,25 +56,6 @@ interface Product {
   shop_id: number;
 }
 
-interface ProductFormData {
-  name: string;
-  slug: string;
-  description: string;
-  price: number;
-  discount: number;
-  image: string;
-  thumbnails: string[];
-  stock_quantity: number;
-  status: 'active' | 'inactive' | 'out_of_stock';
-  is_featured: boolean;
-  category_ids: number[];
-  weight: number;
-  length: number;
-  width: number;
-  height: number;
-}
-
-
 
 export default function AdminProductsPage() {
   const { domain } = useParams();
@@ -89,8 +69,6 @@ export default function AdminProductsPage() {
   const [sortBy, setSortBy] = useState<string>('created_at');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -152,70 +130,7 @@ export default function AdminProductsPage() {
     fetchProducts();
   }, [fetchProducts]);
 
-  const resetForm = () => {
-    setError('');
-    setSuccess('');
-  };
 
-  const handleCreateProduct = async (formData: ProductFormData) => {
-    setIsSubmitting(true);
-    setError('');
-
-    try {
-      const validatedData = createProductSchema.parse(formData);
-      const response = await axios.post(`/api/shops/${domain}/products`, validatedData);
-      
-      setProducts(prev => [response.data, ...prev]);
-      setSuccess('Product created successfully!');
-      resetForm();
-      setIsCreateOpen(false);
-      
-      setTimeout(() => setSuccess(''), 3000);
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        setError(error.response?.data?.message || 'Failed to create product. Please try again.');
-      } else {
-        setError('An unexpected error occurred. Please try again.');
-      }
-      throw error; // Re-throw to let ProductStepForm handle validation errors
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleEditProduct = async (formData: ProductFormData) => {
-    if (!selectedProduct) return;
-
-    setIsSubmitting(true);
-    setError('');
-
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { slug, ...updateData } = formData;
-      const validatedData = updateProductSchema.parse(updateData);
-      const response = await axios.put(`/api/shops/${domain}/products/${selectedProduct.slug}`, validatedData);
-      
-      setProducts(prev => prev.map(product => 
-        product.id === selectedProduct.id ? response.data : product
-      ));
-      
-      setSuccess('Product updated successfully!');
-      resetForm();
-      setIsEditOpen(false);
-      setSelectedProduct(null);
-      
-      setTimeout(() => setSuccess(''), 3000);
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        setError(error.response?.data?.message || 'Failed to update product. Please try again.');
-      } else {
-        setError('Failed to update product. Please try again.');
-      }
-      throw error; // Re-throw to let ProductStepForm handle validation errors
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   const handleDeleteProduct = async () => {
     if (!selectedProduct) return;
@@ -245,11 +160,7 @@ export default function AdminProductsPage() {
     }
   };
 
-  const openEditModal = (product: Product) => {
-    setSelectedProduct(product);
-    setError('');
-    setIsEditOpen(true);
-  };
+
 
   const openDeleteModal = (product: Product) => {
     setSelectedProduct(product);
@@ -302,28 +213,12 @@ export default function AdminProductsPage() {
             <p className="text-neutral-600 mt-1">Manage your shop&apos;s product catalog</p>
           </div>
           
-          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={resetForm} className="flex items-center gap-2">
-                <Plus className="w-4 h-4" />
-                Add Product
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Create New Product</DialogTitle>
-                <DialogDescription>
-                  Add a new product to your shop catalog
-                </DialogDescription>
-              </DialogHeader>
-              <ProductStepForm 
-                onSubmit={handleCreateProduct}
-                submitLabel="Create Product"
-                isSubmitting={isSubmitting}
-                error={error}
-              />
-            </DialogContent>
-          </Dialog>
+          <Button asChild className="flex items-center gap-2">
+            <Link href={`/admin/products/new`}>
+              <Plus className="w-4 h-4" />
+              Add Product
+            </Link>
+          </Button>
         </div>
 
         {/* Success Message */}
@@ -420,28 +315,12 @@ export default function AdminProductsPage() {
                 </p>
               </div>
               {!searchTerm && selectedStatus === 'all' && selectedCategory === 'all' && (
-                <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-                  <DialogTrigger asChild>
-                    <Button onClick={resetForm} className="mt-4">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Create Your First Product
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle>Create New Product</DialogTitle>
-                      <DialogDescription>
-                        Add a new product to your shop catalog
-                      </DialogDescription>
-                    </DialogHeader>
-                    <ProductStepForm 
-                      onSubmit={handleCreateProduct}
-                      submitLabel="Create Product"
-                      isSubmitting={isSubmitting}
-                      error={error}
-                    />
-                  </DialogContent>
-                </Dialog>
+                <Button asChild className="mt-4">
+                  <Link href={`/admin/products/new`}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create Your First Product
+                  </Link>
+                </Button>
               )}
             </div>
           </div>
@@ -482,7 +361,6 @@ export default function AdminProductsPage() {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <DollarSign className="w-4 h-4 text-neutral-500" />
                         <span className="font-bold text-lg">
                           { formatCurrency(
                             product.discount > 0 
@@ -542,10 +420,12 @@ export default function AdminProductsPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => openEditModal(product)}
+                      asChild
                       className="h-8 w-8 p-0"
                     >
-                      <Edit className="w-3 h-3" />
+                      <Link href={`/admin/products/${product.slug}/edit`}>
+                        <Edit className="w-3 h-3" />
+                      </Link>
                     </Button>
                     <Button
                       variant="ghost"
@@ -618,41 +498,7 @@ export default function AdminProductsPage() {
           </div>
         )}
 
-        {/* Edit Modal */}
-        <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Edit Product</DialogTitle>
-              <DialogDescription>
-                Update your product information
-              </DialogDescription>
-            </DialogHeader>
-            <ProductStepForm 
-              onSubmit={handleEditProduct}
-              submitLabel="Update Product"
-              isSubmitting={isSubmitting}
-              initialData={selectedProduct ? {
-                name: selectedProduct.name,
-                slug: selectedProduct.slug,
-                description: selectedProduct.description || '',
-                price: selectedProduct.price,
-                discount: selectedProduct.discount,
-                image: selectedProduct.image,
-                thumbnails: selectedProduct.thumbnails,
-                stock_quantity: selectedProduct.stock_quantity,
-                status: selectedProduct.status,
-                is_featured: selectedProduct.is_featured,
-                category_ids: selectedProduct.category_ids,
-                weight: selectedProduct.weight,
-                length: selectedProduct.length,
-                width: selectedProduct.width,
-                height: selectedProduct.height,
-              } : undefined}
-              error={error}
-              isEdit={true}
-            />
-          </DialogContent>
-        </Dialog>
+
 
         {/* Delete Confirmation Modal */}
         <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>

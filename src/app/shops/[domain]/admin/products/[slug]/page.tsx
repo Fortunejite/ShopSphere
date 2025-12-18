@@ -282,7 +282,7 @@ export default function ProductDetailsPage() {
         
         <div className="flex items-center space-x-2">
           <Link 
-            href={`products/${product.slug}`}
+            href={`/products/${product.slug}`}
           >
             <Button variant="outline" size="sm">
               <ExternalLink className="w-4 h-4 mr-2" />

@@ -153,7 +153,7 @@ export default function AdminDashboardPage() {
             </div>
             <div className="flex items-center gap-3">
               <Button asChild variant="outline">
-                <Link href="/products/new">
+                <Link href="/admin/products/new">
                   <Plus className="w-4 h-4 mr-2" />
                   Add Product
                 </Link>
