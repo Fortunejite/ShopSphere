@@ -27,6 +27,7 @@ import {
 import { ProductLoading } from '@/components/Loading';
 import { useAppSelector } from '@/hooks/redux.hook';
 import { cn } from '@/lib/utils';
+import { formatCurrency } from '@/lib/currency';
 
 interface DashboardStats {
   totalRevenue: number;
@@ -110,13 +111,6 @@ export default function AdminDashboardPage() {
     return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800';
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(amount);
-  };
-
   const formatPercentage = (value: number) => {
     const sign = value >= 0 ? '+' : '';
     return `${sign}${value.toFixed(1)}%`;
@@ -179,7 +173,7 @@ export default function AdminDashboardPage() {
                 <div>
                   <p className="text-sm font-medium text-gray-600">Total Revenue</p>
                   <p className="text-3xl font-bold text-gray-900">
-                    {formatCurrency(stats?.totalRevenue || 0)}
+                    {formatCurrency(stats?.totalRevenue || 0, shop!.currency)}
                   </p>
                   <div className="flex items-center mt-2">
                     {stats && stats.revenueGrowth >= 0 ? (
@@ -392,7 +386,7 @@ export default function AdminDashboardPage() {
                             {order.items_count} items
                           </span>
                           <span className="font-medium text-sm">
-                            {formatCurrency(order.total_amount)}
+                            {formatCurrency(order.total_amount, shop!.currency)}
                           </span>
                         </div>
                       </div>
@@ -453,7 +447,7 @@ export default function AdminDashboardPage() {
                           <span className="text-sm font-medium">#{index + 1}</span>
                         </div>
                         <p className="text-sm font-medium">
-                          {formatCurrency(product.revenue)}
+                          {formatCurrency(product.revenue, shop!.currency)}
                         </p>
                       </div>
                     </div>

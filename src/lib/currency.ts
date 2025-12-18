@@ -1,5 +1,3 @@
-import { ShopAttributes } from "@/models/Shop";
-
 export const currencySymbols: Record<string, string> = {
   NGN: '₦',
   USD: '$',
