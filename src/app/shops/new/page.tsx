@@ -15,13 +15,18 @@ import {
   Store,
   Loader2,
   AlertCircle,
-  CheckCircle2
+  CheckCircle2,
+  Upload,
+  X,
+  ImageIcon
 } from 'lucide-react';
 import { createShopSchema } from '@/lib/schema/shop';
 import { currencySymbols } from '@/lib/currency';
 import { z } from 'zod';
 import axios from 'axios';
 import { useAppSelector } from '@/hooks/redux.hook';
+import { uploadPhoto } from '@/lib/uploadPhoto';
+import Image from 'next/image';
 import AuthGuard from '@/components/AuthGuard';
 
 export default function NewShopPage() {
@@ -44,10 +49,14 @@ export default function NewShopPage() {
     postal_code: '',
     country: '',
     free_shipping_threshold: undefined as number | undefined,
+    logo: '',
+    banner: '',
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [isDomainChecking, setIsDomainChecking] = useState(false);
   const [domainCheckTimeout, setDomainCheckTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [isLogoUploading, setIsLogoUploading] = useState(false);
+  const [isBannerUploading, setIsBannerUploading] = useState(false);
 
   const categoriesState = useAppSelector(state => state.category.categories);
   const categories = categoriesState.filter(cat => cat.parent_id === null);
@@ -128,6 +137,36 @@ export default function NewShopPage() {
     if (formErrors[name]) {
       setFormErrors(prev => ({ ...prev, [name]: '' }));
     }
+  };
+
+  const handleImageUpload = async (file: File, type: 'logo' | 'banner') => {
+    try {
+      const uploadSetter = type === 'logo' ? setIsLogoUploading : setIsBannerUploading;
+      uploadSetter(true);
+
+      const result = await uploadPhoto(file);
+      
+      if (result.success) {
+        setFormData(prev => ({ ...prev, [type]: result.url }));
+        // Clear any existing error for this field
+        setFormErrors(prev => ({ ...prev, [type]: '' }));
+      } else {
+        setFormErrors(prev => ({ ...prev, [type]: result.error || 'Upload failed' }));
+      }
+    } catch (error) {
+      setFormErrors(prev => ({ 
+        ...prev, 
+        [type]: error instanceof Error ? error.message : 'Upload failed' 
+      }));
+    } finally {
+      const uploadSetter = type === 'logo' ? setIsLogoUploading : setIsBannerUploading;
+      uploadSetter(false);
+    }
+  };
+
+  const handleImageRemove = (type: 'logo' | 'banner') => {
+    setFormData(prev => ({ ...prev, [type]: '' }));
+    setFormErrors(prev => ({ ...prev, [type]: '' }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -316,6 +355,142 @@ export default function NewShopPage() {
                     rows={4}
                   />
                   {formErrors.description && <p className="text-sm text-red-500">{formErrors.description}</p>}
+                </div>
+
+                {/* Logo Upload */}
+                <div className="space-y-2">
+                  <Label>Shop Logo (Optional)</Label>
+                  <div className="space-y-4">
+                    {formData.logo ? (
+                      <div className="relative inline-block">
+                        <Image
+                          src={formData.logo}
+                          alt="Shop logo"
+                          width={120}
+                          height={120}
+                          className="w-30 h-30 object-cover rounded-lg border-2 border-gray-200"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          className="absolute -top-2 -right-2 w-6 h-6 p-0 rounded-full"
+                          onClick={() => handleImageRemove('logo')}
+                          disabled={isSubmitting}
+                        >
+                          <X className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors">
+                        <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                        <p className="text-sm text-gray-600 mb-3">Upload your shop logo</p>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleImageUpload(file, 'logo');
+                          }}
+                          disabled={isSubmitting || isLogoUploading}
+                          className="hidden"
+                          id="logo-upload"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          disabled={isSubmitting || isLogoUploading}
+                          asChild
+                        >
+                          <label htmlFor="logo-upload" className="cursor-pointer">
+                            {isLogoUploading ? (
+                              <>
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                Uploading...
+                              </>
+                            ) : (
+                              <>
+                                <Upload className="w-4 h-4 mr-2" />
+                                Choose File
+                              </>
+                            )}
+                          </label>
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                  {formErrors.logo && <p className="text-sm text-red-500">{formErrors.logo}</p>}
+                  <p className="text-sm text-gray-500">
+                    Recommended: Square image, minimum 200x200px. Max file size: 5MB.
+                  </p>
+                </div>
+
+                {/* Banner Upload */}
+                <div className="space-y-2">
+                  <Label>Shop Banner (Optional)</Label>
+                  <div className="space-y-4">
+                    {formData.banner ? (
+                      <div className="relative inline-block">
+                        <Image
+                          src={formData.banner}
+                          alt="Shop banner"
+                          width={400}
+                          height={150}
+                          className="w-full max-w-md h-32 object-cover rounded-lg border-2 border-gray-200"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          className="absolute -top-2 -right-2 w-6 h-6 p-0 rounded-full"
+                          onClick={() => handleImageRemove('banner')}
+                          disabled={isSubmitting}
+                        >
+                          <X className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors">
+                        <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                        <p className="text-sm text-gray-600 mb-3">Upload your shop banner</p>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleImageUpload(file, 'banner');
+                          }}
+                          disabled={isSubmitting || isBannerUploading}
+                          className="hidden"
+                          id="banner-upload"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          disabled={isSubmitting || isBannerUploading}
+                          asChild
+                        >
+                          <label htmlFor="banner-upload" className="cursor-pointer">
+                            {isBannerUploading ? (
+                              <>
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                Uploading...
+                              </>
+                            ) : (
+                              <>
+                                <Upload className="w-4 h-4 mr-2" />
+                                Choose File
+                              </>
+                            )}
+                          </label>
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                  {formErrors.banner && <p className="text-sm text-red-500">{formErrors.banner}</p>}
+                  <p className="text-sm text-gray-500">
+                    Recommended: Wide format image, minimum 800x300px. Max file size: 5MB.
+                  </p>
                 </div>
               </div>
 

@@ -20,8 +20,15 @@ export const PUT = errorHandler(async (request, { params }) => {
   const body = await request.json();
 
   const shop = await getShopByDomain(domain!);
-  const { name, domain: newDomain, description } = createShopSchema.parse(body);
-  const updatedShop = await Shop.update(shop.id, { name, domain: newDomain, description });
+  const validatedData = createShopSchema.parse(body);
+  
+  // Extract domain separately since it might have a different name
+  const { domain: newDomain, ...updateData } = validatedData;
+  
+  const updatedShop = await Shop.update(shop.id, { 
+    ...updateData, 
+    domain: newDomain 
+  });
   return NextResponse.json(updatedShop);
 });
 

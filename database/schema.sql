@@ -37,6 +37,8 @@ CREATE TABLE shops (
   country VARCHAR(100) NOT NULL,
   free_shipping_threshold DECIMAL(10,2) DEFAULT 50,
   currency VARCHAR(10) NOT NULL,
+  logo VARCHAR(500),
+  banner VARCHAR(500),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

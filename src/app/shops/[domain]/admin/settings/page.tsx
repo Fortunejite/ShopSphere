@@ -21,27 +21,17 @@ import {
   AlertCircle,
   CheckCircle,
   Upload,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Loader2,
+  X
 } from 'lucide-react';
 import { ProductLoading } from '@/components/Loading';
 import { useAppSelector } from '@/hooks/redux.hook';
+import { uploadPhoto } from '@/lib/uploadPhoto';
+import { createShopSchema } from '@/lib/schema/shop';
+import Image from 'next/image';
 
-const shopSettingsSchema = z.object({
-  name: z.string().min(1, 'Shop name is required'),
-  description: z.string().max(500, 'Description must be less than 500 characters').optional(),
-  domain: z.string().min(3, 'Domain must be at least 3 characters'),
-  currency: z.string().min(1, 'Currency is required'),
-  email: z.string().email('Invalid email address'),
-  phone: z.string(),
-  address: z.string(),
-  city: z.string(),
-  state: z.string(),
-  postal_code: z.string(),
-  country: z.string(),
-  free_shipping_threshold: z.number().min(0).default(50).optional(),
-});
-
-type ShopSettingsFormData = z.infer<typeof shopSettingsSchema>;
+type ShopSettingsFormData = z.infer<typeof createShopSchema>;
 
 export default function AdminSettingsPage() {
   const { domain } = useParams();
@@ -50,9 +40,11 @@ export default function AdminSettingsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [isLogoUploading, setIsLogoUploading] = useState(false);
+  const [isBannerUploading, setIsBannerUploading] = useState(false);
 
   const form = useForm<ShopSettingsFormData>({
-    resolver: zodResolver(shopSettingsSchema),
+    resolver: zodResolver(createShopSchema),
     defaultValues: {
       name: '',
       description: '',
@@ -66,6 +58,9 @@ export default function AdminSettingsPage() {
       postal_code: '',
       country: 'US',
       free_shipping_threshold: 50,
+      logo: '',
+      banner: '',
+      category_id: 1, // Default category, will be updated when shop data loads
     }
   });
 
@@ -84,17 +79,51 @@ export default function AdminSettingsPage() {
         postal_code: shop.postal_code || '',
         country: shop.country || 'US',
         free_shipping_threshold: shop.free_shipping_threshold || 50,
+        logo: shop.logo || '',
+        banner: shop.banner || '',
+        category_id: shop.category_id || 1,
       });
       setIsLoading(false);
     }
   }, [shop, form]);
+
+  const handleImageUpload = async (file: File, type: 'logo' | 'banner') => {
+    try {
+      const uploadSetter = type === 'logo' ? setIsLogoUploading : setIsBannerUploading;
+      uploadSetter(true);
+
+      const result = await uploadPhoto(file);
+      
+      if (result.success) {
+        form.setValue(type, result.url);
+        setMessage({ type: 'success', text: `${type === 'logo' ? 'Logo' : 'Banner'} uploaded successfully!` });
+        setTimeout(() => setMessage(null), 3000);
+      } else {
+        setMessage({ type: 'error', text: result.error || 'Upload failed' });
+      }
+    } catch (error) {
+      setMessage({ 
+        type: 'error', 
+        text: error instanceof Error ? error.message : 'Upload failed' 
+      });
+    } finally {
+      const uploadSetter = type === 'logo' ? setIsLogoUploading : setIsBannerUploading;
+      uploadSetter(false);
+    }
+  };
+
+  const handleImageRemove = (type: 'logo' | 'banner') => {
+    form.setValue(type, '');
+    setMessage({ type: 'success', text: `${type === 'logo' ? 'Logo' : 'Banner'} removed successfully!` });
+    setTimeout(() => setMessage(null), 3000);
+  };
 
   const onSubmit = async (data: ShopSettingsFormData) => {
     try {
       setIsSaving(true);
       setMessage(null);
 
-      await axios.put(`/api/shops/${domain}/settings`, data);
+      await axios.put(`/api/shops/${domain}`, data);
       
       setMessage({ type: 'success', text: 'Settings updated successfully!' });
     } catch (error) {
@@ -297,43 +326,148 @@ export default function AdminSettingsPage() {
                   Appearance
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-6">
+                {/* Logo Upload */}
                 <div>
                   <Label>Shop Logo</Label>
-                  <div className="mt-2 flex items-center space-x-4">
-                    <div className="w-20 h-20 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center">
-                      <ImageIcon className="w-8 h-8 text-gray-400" />
-                    </div>
-                    <div>
-                      <Button type="button" variant="outline" size="sm">
-                        <Upload className="w-4 h-4 mr-2" />
-                        Upload Logo
+                  <div className="mt-3">
+                    {form.watch('logo') ? (
+                      <div className="relative inline-block">
+                        <Image
+                          src={form.watch('logo') ?? ''}
+                          alt="Shop logo"
+                          width={80}
+                          height={80}
+                          className="w-20 h-20 object-cover rounded-lg border-2 border-gray-200"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          className="absolute -top-2 -right-2 w-6 h-6 p-0 rounded-full"
+                          onClick={() => handleImageRemove('logo')}
+                          disabled={isSaving}
+                        >
+                          <X className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="w-20 h-20 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center">
+                        <ImageIcon className="w-8 h-8 text-gray-400" />
+                      </div>
+                    )}
+                    
+                    <div className="mt-3">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleImageUpload(file, 'logo');
+                        }}
+                        disabled={isSaving || isLogoUploading}
+                        className="hidden"
+                        id="logo-upload"
+                      />
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        size="sm"
+                        disabled={isSaving || isLogoUploading}
+                        asChild
+                      >
+                        <label htmlFor="logo-upload" className="cursor-pointer">
+                          {isLogoUploading ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Uploading...
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="w-4 h-4 mr-2" />
+                              Upload Logo
+                            </>
+                          )}
+                        </label>
                       </Button>
-                      <p className="text-xs text-gray-500 mt-1">
-                        PNG, JPG up to 2MB. Recommended: 200x200px
+                      <p className="text-xs text-gray-500 mt-2">
+                        PNG, JPG up to 5MB. Recommended: 200x200px
                       </p>
                     </div>
                   </div>
                 </div>
 
+                {/* Banner Upload */}
                 <div>
                   <Label>Banner Image</Label>
-                  <div className="mt-2 flex items-center space-x-4">
-                    <div className="w-32 h-20 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center">
-                      <ImageIcon className="w-6 h-6 text-gray-400" />
-                    </div>
-                    <div>
-                      <Button type="button" variant="outline" size="sm">
-                        <Upload className="w-4 h-4 mr-2" />
-                        Upload Banner
+                  <div className="mt-3">
+                    {form.watch('banner') ? (
+                      <div className="relative inline-block">
+                        <Image
+                          src={form.watch('banner') ?? ''}
+                          alt="Shop banner"
+                          width={240}
+                          height={80}
+                          className="w-60 h-20 object-cover rounded-lg border-2 border-gray-200"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          className="absolute -top-2 -right-2 w-6 h-6 p-0 rounded-full"
+                          onClick={() => handleImageRemove('banner')}
+                          disabled={isSaving}
+                        >
+                          <X className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="w-60 h-20 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center">
+                        <ImageIcon className="w-6 h-6 text-gray-400" />
+                      </div>
+                    )}
+                    
+                    <div className="mt-3">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleImageUpload(file, 'banner');
+                        }}
+                        disabled={isSaving || isBannerUploading}
+                        className="hidden"
+                        id="banner-upload"
+                      />
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        size="sm"
+                        disabled={isSaving || isBannerUploading}
+                        asChild
+                      >
+                        <label htmlFor="banner-upload" className="cursor-pointer">
+                          {isBannerUploading ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Uploading...
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="w-4 h-4 mr-2" />
+                              Upload Banner
+                            </>
+                          )}
+                        </label>
                       </Button>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-gray-500 mt-2">
                         PNG, JPG up to 5MB. Recommended: 1200x400px
                       </p>
                     </div>
                   </div>
                 </div>
 
+                {/* Theme Color */}
                 <div>
                   <Label>Theme Color</Label>
                   <div className="mt-2 flex items-center space-x-4">

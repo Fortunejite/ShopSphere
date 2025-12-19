@@ -17,6 +17,8 @@ export interface ShopAttributes {
   country: string;
   free_shipping_threshold?: number;
   currency: string;
+  logo?: string;
+  banner?: string;
   created_at?: Date;
   updated_at?: Date;
 }
@@ -46,9 +48,9 @@ export class Shop {
       INSERT INTO ${Shop.tableName} (
         owner_id, name, domain, category_id, description, status, currency, 
         email, phone, address, city, state, postal_code, country, free_shipping_threshold,
-        created_at, updated_at
+        logo, banner, created_at, updated_at
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
       RETURNING *
     `;
 
@@ -68,6 +70,8 @@ export class Shop {
       shop.postal_code,
       shop.country,
       shop.free_shipping_threshold,
+      shop.logo,
+      shop.banner,
       shop.created_at,
       shop.updated_at,
     ];

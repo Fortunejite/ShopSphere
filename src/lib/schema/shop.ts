@@ -24,4 +24,6 @@ export const createShopSchema = z.object({
   postal_code: z.string().min(1, 'Postal code is required'),
   country: z.string().min(1, 'Country is required'),
   free_shipping_threshold: z.number().min(0, 'Free shipping threshold must be 0 or greater').optional(),
+  logo: z.string().optional(),
+  banner: z.string().optional(),
 });
