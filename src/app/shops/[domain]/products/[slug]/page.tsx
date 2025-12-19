@@ -418,7 +418,7 @@ export default function ProductDetailsPage() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center gap-2 text-sm text-gray-600">
             <Link href='/' className="hover:text-gray-900">
-              {shop?.name}
+              Home
             </Link>
             <span>/</span>
             <Link href='/products' className="hover:text-gray-900">

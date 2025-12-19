@@ -96,19 +96,19 @@ const Variants = ({ formData, updateFormData }: Props) => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label>Attributes (e.g., Color: Red, Size: Large)</Label>
+                  <Label>Attributes (e.g., color: Red, size: Large)</Label>
                   <div className="space-y-2 mt-1">
                     {Object.entries(variant.attributes).map(
                       ([key, value], attrIndex) => (
                         <div key={attrIndex} className="flex gap-2">
                           <Input
-                            placeholder="Attribute (e.g., Color)"
+                            placeholder="Attribute (e.g., color)"
                             value={key}
                             onChange={(e) => {
                               const updatedVariants = [...formData.variants];
                               const newAttributes = { ...variant.attributes };
                               delete newAttributes[key];
-                              newAttributes[e.target.value] = value;
+                              newAttributes[e.target.value.toLowerCase()] = value;
                               updatedVariants[index] = {
                                 ...variant,
                                 attributes: newAttributes,

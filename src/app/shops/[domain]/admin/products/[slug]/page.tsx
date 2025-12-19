@@ -31,8 +31,7 @@ import {
   Loader2
 } from 'lucide-react';
 import axios from 'axios';
-import { updateProductSchema } from '@/lib/schema/product';
-import ProductStepForm, { type ProductFormData } from '@/components/productForm/ProductStepForm';
+
 import { useAppSelector } from '@/hooks/redux.hook';
 import { PageLoading } from '@/components/Loading';
 import { formatCurrency, formatPrice } from '@/lib/currency';
@@ -83,7 +82,6 @@ export default function ProductDetailsPage() {
   const [selectedImage, setSelectedImage] = useState<string>('');
   
   // Edit and Delete state
-  const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState('');
@@ -154,36 +152,7 @@ export default function ProductDetailsPage() {
     return categories.filter(cat => product?.category_ids.includes(cat.id));
   };
 
-  const handleEditProduct = async (formData: ProductFormData) => {
-    if (!product) return;
 
-    setIsSubmitting(true);
-    setError('');
-
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { slug: formSlug, ...updateData } = formData;
-      const validatedData = updateProductSchema.parse(updateData);
-      const response = await axios.put(`/api/shops/${domain}/products/${product.slug}`, validatedData);
-      
-      // Update the product state with new data
-      setProduct(response.data);
-      
-      setSuccess('Product updated successfully!');
-      setIsEditOpen(false);
-      
-      setTimeout(() => setSuccess(''), 3000);
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        setError(error.response?.data?.message || 'Failed to update product. Please try again.');
-      } else {
-        setError('Failed to update product. Please try again.');
-      }
-      throw error; // Re-throw to let ProductStepForm handle validation errors
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   const handleDeleteProduct = async () => {
     if (!product) return;
@@ -214,10 +183,7 @@ export default function ProductDetailsPage() {
     }
   };
 
-  const openEditModal = () => {
-    setError('');
-    setIsEditOpen(true);
-  };
+
 
   const openDeleteModal = () => {
     setError('');
@@ -289,9 +255,11 @@ export default function ProductDetailsPage() {
               View Live
             </Button>
           </Link>
-          <Button variant="outline" size="sm" onClick={openEditModal}>
-            <Edit className="w-4 h-4 mr-2" />
-            Edit
+          <Button variant="outline" size="sm" asChild>
+            <Link href={`/admin/products/${product.slug}/edit`}>
+              <Edit className="w-4 h-4 mr-2" />
+              Edit
+            </Link>
           </Button>
           <Button variant="destructive" size="sm" onClick={openDeleteModal}>
             <Trash2 className="w-4 h-4 mr-2" />
@@ -711,43 +679,6 @@ export default function ProductDetailsPage() {
           </Tabs>
         </div>
       </div>
-
-      {/* Edit Modal */}
-      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Edit Product</DialogTitle>
-            <DialogDescription>
-              Update your product information
-            </DialogDescription>
-          </DialogHeader>
-          <ProductStepForm 
-            onSubmit={handleEditProduct}
-            submitLabel="Update Product"
-            isSubmitting={isSubmitting}
-            initialData={product ? {
-              name: product.name,
-              slug: product.slug,
-              description: product.description || '',
-              price: product.price,
-              discount: product.discount,
-              image: product.image,
-              thumbnails: product.thumbnails,
-              stock_quantity: product.stock_quantity,
-              status: product.status,
-              is_featured: product.is_featured,
-              category_ids: product.category_ids,
-              variants: product.variants || [],
-              weight: product.weight,
-              length: product.length,
-              width: product.width,
-              height: product.height,
-            } : undefined}
-            error={error}
-            isEdit={true}
-          />
-        </DialogContent>
-      </Dialog>
 
       {/* Delete Confirmation Modal */}
       <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
