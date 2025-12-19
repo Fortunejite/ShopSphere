@@ -3,7 +3,6 @@
 import { useAppSelector } from '@/hooks/redux.hook';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { 
   ShoppingBag, 
   Star, 
@@ -14,6 +13,7 @@ import {
   Clock
 } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function ShopHomePage() {
   const { shop } = useAppSelector((s) => s.shop);
@@ -23,34 +23,48 @@ export default function ShopHomePage() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="bg-white py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto text-center">
-          <Badge variant="secondary" className="mb-4">
-            {shop.category || 'Online Store'}
-          </Badge>
-          
-          <h1 className="text-4xl md:text-6xl font-bold text-neutral-900 mb-6">
-            Welcome to {shop.name}
-          </h1>
-          
-          <p className="text-xl text-neutral-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-            {shop.description || 'Discover amazing products and great deals in our carefully curated collection.'}
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="text-lg px-8" asChild>
-              <Link href={`/shops/${shop.domain}/products`}>
-                <ShoppingBag className="w-5 h-5 mr-2" />
-                Shop Now
-              </Link>
-            </Button>
+      <section className="relative">
+        {shop.banner ? (
+          // Hero with banner image
+          <div className="relative h-[300px] md:h-[400px] overflow-hidden">
+            <Image
+              src={shop.banner}
+              alt={`${shop.name} banner`}
+              fill
+              className="object-cover"
+              priority
+            />
+            {/* Dark overlay for better text readability */}
+            <div className="absolute inset-0 bg-black/40" />
             
-            <Button variant="outline" size="lg" className="text-lg px-8">
-              Learn More
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
+            {/* Content overlay */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+                
+                <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 drop-shadow-lg">
+                  Welcome to {shop.name}
+                </h1>
+                
+                <p className="text-xl text-white/90 mb-8 max-w-3xl mx-auto leading-relaxed drop-shadow-md">
+                  {shop.description || 'Discover amazing products and great deals in our carefully curated collection.'}
+                </p>
+              </div>
+            </div>
           </div>
-        </div>
+        ) : (
+          // Hero without banner image (original layout)
+          <div className="bg-white py-16 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto text-center">
+              <h1 className="text-4xl md:text-6xl font-bold text-neutral-900 mb-6">
+                Welcome to {shop.name}
+              </h1>
+              
+              <p className="text-xl text-neutral-600 mb-8 max-w-3xl mx-auto leading-relaxed">
+                {shop.description || 'Discover amazing products and great deals in our carefully curated collection.'}
+              </p>
+            </div>
+          </div>
+        )}
       </section>
 
       {/* Features Section */}
@@ -193,15 +207,6 @@ export default function ShopHomePage() {
           </Button>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="bg-white border-t border-neutral-200 py-8 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto text-center">
-          <p className="text-neutral-600">
-            © 2024 {shop.name}. Powered by <span className="font-medium">ShopSphere</span>.
-          </p>
-        </div>
-      </footer>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { ShopWithOwner } from '@/models/Shop';
 import {
   Store,
@@ -48,22 +49,21 @@ const ShopNavbar = ({ shop, cart }: Props) => {
     <header className="bg-white border-b border-neutral-200 sticky top-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo and Shop Name */}
-          <div className="flex items-center space-x-4">
-            <Link href='/' className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-neutral-900 rounded-lg flex items-center justify-center">
-                <Store className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-neutral-900">
-                  {shop.name}
-                </h1>
-                <p className="text-xs text-neutral-600 hidden sm:block">
-                  {shop.description || 'Online Store'}
-                </p>
+          {/* Logo */}
+            <Link href='/' className="flex items-center space-x-4">
+              <div className="relative w-12 h-12 bg-neutral-900 rounded-lg flex items-center justify-center overflow-hidden">
+                {shop.logo ? (
+                  <Image
+                    src={shop.logo}
+                    alt={shop.name}
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  <Store className="w-8 h-8 text-white" />
+                )}
               </div>
             </Link>
-          </div>
 
           {/* Navigation Links - Desktop */}
           <nav className="hidden lg:flex items-center space-x-6">
