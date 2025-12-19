@@ -8,7 +8,6 @@ import {
   Home,
   Package,
   ShoppingCart,
-  Search,
   Heart,
   User,
   Menu,
@@ -23,7 +22,6 @@ import {
 } from 'lucide-react';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
-import { Input } from './ui/input';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
 import { CartWithProducts } from '@/models/Cart';
@@ -91,17 +89,6 @@ const ShopNavbar = ({ shop, cart }: Props) => {
               </Link>
             )}
           </nav>
-
-          {/* Search Bar - Desktop */}
-          <div className="hidden md:flex items-center flex-1 max-w-lg mx-8">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 w-4 h-4" />
-              <Input
-                placeholder="Search products..."
-                className="pl-10 pr-4 py-2 w-full border-neutral-200 focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
-              />
-            </div>
-          </div>
 
           {/* Right Actions */}
           <div className="flex items-center space-x-2">
@@ -251,17 +238,6 @@ const ShopNavbar = ({ shop, cart }: Props) => {
             >
               {isMobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
             </Button>
-          </div>
-        </div>
-
-        {/* Mobile Search - Always visible on mobile */}
-        <div className="md:hidden pb-3">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 w-4 h-4" />
-            <Input
-              placeholder="Search products..."
-              className="pl-10 pr-4 py-2 w-full border-neutral-200"
-            />
           </div>
         </div>
 
