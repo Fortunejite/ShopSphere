@@ -25,7 +25,7 @@ export default function ShopFooter({ shop }: ShopFooterProps) {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-white border-t border-neutral-200">
+    <footer className="bg-neutral-900 border-t border-neutral-800">
       {/* Main footer content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -41,14 +41,14 @@ export default function ShopFooter({ shop }: ShopFooterProps) {
                   className="w-10 h-10 object-cover rounded-lg"
                 />
               ) : (
-                <div className="w-10 h-10 bg-neutral-100 rounded-lg flex items-center justify-center">
-                  <Store className="w-6 h-6 text-neutral-600" />
+                <div className="w-10 h-10 bg-neutral-800 rounded-lg flex items-center justify-center">
+                  <Store className="w-6 h-6 text-neutral-400" />
                 </div>
               )}
               <div>
-                <h3 className="text-lg font-bold text-neutral-900">{shop.name}</h3>
+                <h3 className="text-lg font-bold text-white">{shop.name}</h3>
                 {shop.description && (
-                  <p className="text-sm text-neutral-600 line-clamp-2">{shop.description}</p>
+                  <p className="text-sm text-neutral-400 line-clamp-2">{shop.description}</p>
                 )}
               </div>
             </div>
@@ -56,12 +56,12 @@ export default function ShopFooter({ shop }: ShopFooterProps) {
 
           {/* Quick Links */}
           <div className="space-y-4">
-            <h4 className="text-sm font-semibold text-neutral-900 uppercase tracking-wider">Quick Links</h4>
+            <h4 className="text-sm font-semibold text-white uppercase tracking-wider">Quick Links</h4>
             <ul className="space-y-3">
               <li>
                 <Link 
                   href={`/shops/${shop.domain}`}
-                  className="text-neutral-600 hover:text-neutral-900 transition-colors text-sm"
+                  className="text-neutral-400 hover:text-white transition-colors text-sm"
                 >
                   Home
                 </Link>
@@ -69,7 +69,7 @@ export default function ShopFooter({ shop }: ShopFooterProps) {
               <li>
                 <Link 
                   href={`/products`}
-                  className="text-neutral-600 hover:text-neutral-900 transition-colors text-sm"
+                  className="text-neutral-400 hover:text-white transition-colors text-sm"
                 >
                   All Products
                 </Link>
@@ -77,7 +77,7 @@ export default function ShopFooter({ shop }: ShopFooterProps) {
               <li>
                 <Link 
                   href={`/cart`}
-                  className="text-neutral-600 hover:text-neutral-900 transition-colors text-sm"
+                  className="text-neutral-400 hover:text-white transition-colors text-sm"
                 >
                   Shopping Cart
                 </Link>
@@ -85,7 +85,7 @@ export default function ShopFooter({ shop }: ShopFooterProps) {
               <li>
                 <Link 
                   href={`/orders`}
-                  className="text-neutral-600 hover:text-neutral-900 transition-colors text-sm"
+                  className="text-neutral-400 hover:text-white transition-colors text-sm"
                 >
                   Track Orders
                 </Link>
@@ -95,14 +95,14 @@ export default function ShopFooter({ shop }: ShopFooterProps) {
 
           {/* Contact Information */}
           <div className="space-y-4">
-            <h4 className="text-sm font-semibold text-neutral-900 uppercase tracking-wider">Contact Us</h4>
+            <h4 className="text-sm font-semibold text-white uppercase tracking-wider">Contact Us</h4>
             <div className="space-y-3">
               {shop.email && (
                 <div className="flex items-center space-x-3 text-sm">
-                  <Mail className="w-4 h-4 text-neutral-400" />
+                  <Mail className="w-4 h-4 text-neutral-500" />
                   <a 
                     href={`mailto:${shop.email}`}
-                    className="text-neutral-600 hover:text-neutral-900 transition-colors"
+                    className="text-neutral-400 hover:text-white transition-colors"
                   >
                     {shop.email}
                   </a>
@@ -110,10 +110,10 @@ export default function ShopFooter({ shop }: ShopFooterProps) {
               )}
               {shop.phone && (
                 <div className="flex items-center space-x-3 text-sm">
-                  <Phone className="w-4 h-4 text-neutral-400" />
+                  <Phone className="w-4 h-4 text-neutral-500" />
                   <a 
                     href={`tel:${shop.phone}`}
-                    className="text-neutral-600 hover:text-neutral-900 transition-colors"
+                    className="text-neutral-400 hover:text-white transition-colors"
                   >
                     {shop.phone}
                   </a>
@@ -121,8 +121,8 @@ export default function ShopFooter({ shop }: ShopFooterProps) {
               )}
               {(shop.address || shop.city || shop.state) && (
                 <div className="flex items-start space-x-3 text-sm">
-                  <MapPin className="w-4 h-4 text-neutral-400 mt-0.5" />
-                  <div className="text-neutral-600">
+                  <MapPin className="w-4 h-4 text-neutral-500 mt-0.5" />
+                  <div className="text-neutral-400">
                     {shop.address && <div>{shop.address}</div>}
                     {(shop.city || shop.state) && (
                       <div>
@@ -139,15 +139,15 @@ export default function ShopFooter({ shop }: ShopFooterProps) {
 
           {/* Features & Trust */}
           <div className="space-y-4">
-            <h4 className="text-sm font-semibold text-neutral-900 uppercase tracking-wider">Why Choose Us</h4>
+            <h4 className="text-sm font-semibold text-white uppercase tracking-wider">Why Choose Us</h4>
             <div className="space-y-3">
               <div className="flex items-center space-x-3 text-sm">
-                <Shield className="w-4 h-4 text-green-500" />
-                <span className="text-neutral-600">Secure Payment</span>
+                <Shield className="w-4 h-4 text-green-400" />
+                <span className="text-neutral-400">Secure Payment</span>
               </div>
               <div className="flex items-center space-x-3 text-sm">
-                <Truck className="w-4 h-4 text-blue-500" />
-                <span className="text-neutral-600">
+                <Truck className="w-4 h-4 text-blue-400" />
+                <span className="text-neutral-400">
                   {shop.free_shipping_threshold 
                     ? `Free shipping over ${shop.currency === 'USD' ? '$' : shop.currency}${shop.free_shipping_threshold}`
                     : 'Fast Delivery'
@@ -155,39 +155,39 @@ export default function ShopFooter({ shop }: ShopFooterProps) {
                 </span>
               </div>
               <div className="flex items-center space-x-3 text-sm">
-                <Clock className="w-4 h-4 text-orange-500" />
-                <span className="text-neutral-600">24/7 Support</span>
+                <Clock className="w-4 h-4 text-orange-400" />
+                <span className="text-neutral-400">24/7 Support</span>
               </div>
               <div className="flex items-center space-x-3 text-sm">
-                <Heart className="w-4 h-4 text-red-500" />
-                <span className="text-neutral-600">Customer Satisfaction</span>
+                <Heart className="w-4 h-4 text-red-400" />
+                <span className="text-neutral-400">Customer Satisfaction</span>
               </div>
             </div>
 
             {/* Social Media Links (placeholder) */}
             <div className="pt-4">
-              <h5 className="text-xs font-medium text-neutral-700 mb-3">Follow Us</h5>
+              <h5 className="text-xs font-medium text-neutral-300 mb-3">Follow Us</h5>
               <div className="flex space-x-3">
                 <a 
                   href="#" 
-                  className="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center hover:bg-neutral-200 transition-colors"
+                  className="w-8 h-8 bg-neutral-800 rounded-full flex items-center justify-center hover:bg-neutral-700 transition-colors"
                   aria-label="Facebook"
                 >
-                  <Facebook className="w-4 h-4 text-neutral-600" />
+                  <Facebook className="w-4 h-4 text-neutral-400" />
                 </a>
                 <a 
                   href="#" 
-                  className="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center hover:bg-neutral-200 transition-colors"
+                  className="w-8 h-8 bg-neutral-800 rounded-full flex items-center justify-center hover:bg-neutral-700 transition-colors"
                   aria-label="Twitter"
                 >
-                  <Twitter className="w-4 h-4 text-neutral-600" />
+                  <Twitter className="w-4 h-4 text-neutral-400" />
                 </a>
                 <a 
                   href="#" 
-                  className="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center hover:bg-neutral-200 transition-colors"
+                  className="w-8 h-8 bg-neutral-800 rounded-full flex items-center justify-center hover:bg-neutral-700 transition-colors"
                   aria-label="Instagram"
                 >
-                  <Instagram className="w-4 h-4 text-neutral-600" />
+                  <Instagram className="w-4 h-4 text-neutral-400" />
                 </a>
               </div>
             </div>
@@ -196,11 +196,11 @@ export default function ShopFooter({ shop }: ShopFooterProps) {
       </div>
 
       {/* Bottom footer */}
-      <div className="border-t border-neutral-200 bg-neutral-50">
+      <div className="border-t border-neutral-800 bg-neutral-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="text-sm text-neutral-600 text-center">
+          <div className="text-sm text-neutral-400 text-center">
             © {currentYear} {shop.name}. All rights reserved. 
-            <span className="ml-1">Powered by <span className="font-medium text-neutral-900">ShopSphere</span>.</span>
+            <span className="ml-1">Powered by <span className="font-medium text-white">ShopSphere</span>.</span>
           </div>
         </div>
       </div>

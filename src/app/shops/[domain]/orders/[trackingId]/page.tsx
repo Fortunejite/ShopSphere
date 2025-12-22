@@ -442,7 +442,7 @@ export default function OrderDetailsPage() {
               </Card>
             )}
 
-            {/* Actions */}
+            {/* Actions TODO: Implement actions*/}
             <Card>
               <CardHeader>
                 <CardTitle>Actions</CardTitle>
@@ -486,11 +486,11 @@ export default function OrderDetailsPage() {
                   </p>
                   <div className="flex items-center gap-2 mb-2">
                     <Phone className="w-4 h-4" />
-                    <span>1-800-123-4567</span>
+                    <span>{shop!.phone}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <MessageCircle className="w-4 h-4" />
-                    <span>support@example.com</span>
+                    <span>{shop!.email}</span>
                   </div>
                 </div>
               </CardContent>
