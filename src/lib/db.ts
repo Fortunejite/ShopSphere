@@ -3,13 +3,16 @@ import { Pool, types } from 'pg'
 
 types.setTypeParser(1700, (val) => val === null ? null : parseFloat(val));
 
-const pool = new Pool({
-  user: 'fortune',
-  host: 'localhost',
-  database: 'shop_sphere',
-  password: '1234',
-  port: 5432,
-})
+// dev
+// const pool = new Pool({
+//   user: 'fortune',
+//   host: 'localhost',
+//   database: 'shop_sphere',
+//   password: '1234',
+//   port: 5432,
+// })
+
+const pool = new Pool({ connectionString: process.env.DATABASE_CONNECTION_STRING });
 
 export class Database {
   static async query(text: string, params?: any[]) {

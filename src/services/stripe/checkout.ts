@@ -22,7 +22,7 @@ export const checkoutItems = async ({ items, domain, currency, user, trackingId,
         currency: currency.toLowerCase(),
         product_data: {
           name: item.product.name,
-          // images: [item.product.image], TODO: add product images once stored in cloud
+          images: [item.product.image],
         },
         unit_amount: toStripeAmount(price, currency),
       },
