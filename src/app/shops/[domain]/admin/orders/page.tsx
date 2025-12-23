@@ -85,9 +85,12 @@ export default function AdminOrdersPage() {
         status: newStatus,
         admin_notes: adminNotes
       });
-      
-      // Refresh orders
-      fetchOrders();
+      const order = orders.find(o => o.tracking_id === trackingId);
+      if (order) {
+        order.status = newStatus as typeof order.status;
+        order.admin_notes = adminNotes || order.admin_notes;
+        setOrders([...orders]);
+      }
     } catch (error) {
       console.error('Error updating order status:', error);
       alert('Failed to update order status');

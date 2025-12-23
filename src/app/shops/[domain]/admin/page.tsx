@@ -38,7 +38,7 @@ interface DashboardStats {
   activeProducts: number;
   totalCustomers: number;
   monthlyCustomers: number;
-  pendingOrders: number;
+  confirmedOrders: number;
   lowStockProducts: number;
   revenueGrowth: number;
   orderGrowth: number;
@@ -269,8 +269,8 @@ export default function AdminDashboardPage() {
 
         {/* Alerts & Quick Actions */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* Pending Orders Alert */}
-          {stats && stats.pendingOrders > 0 && (
+          {/* Confirmed Orders Alert */}
+          {stats && stats.confirmedOrders > 0 && (
             <Card className="border-yellow-200 bg-yellow-50">
               <CardContent className="p-6">
                 <div className="flex items-start justify-between">
@@ -278,15 +278,15 @@ export default function AdminDashboardPage() {
                     <Clock className="w-5 h-5 text-yellow-600 mr-3" />
                     <div>
                       <p className="font-medium text-yellow-800">
-                        {stats.pendingOrders} Pending Orders
+                        {stats.confirmedOrders} Confirmed Orders
                       </p>
                       <p className="text-sm text-yellow-700 mt-1">
-                        Orders waiting for confirmation
+                        Confirmed orders waiting to be processed
                       </p>
                     </div>
                   </div>
                   <Button size="sm" variant="outline" asChild>
-                    <Link href="/admin/orders?status=pending">
+                    <Link href="/admin/orders?status=confirmed">
                       View
                     </Link>
                   </Button>

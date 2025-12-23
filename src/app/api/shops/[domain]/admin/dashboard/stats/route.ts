@@ -133,12 +133,12 @@ export const GET = errorHandler(async (req, { params }) => {
     [shop.id, currentYear, currentMonth],
   );
 
-  // Pending orders
-  const pendingOrdersResult = await Database.query(
+  // Confirmed orders
+  const confirmedOrdersResult = await Database.query(
     `
-      SELECT COUNT(*) as pending_orders
+      SELECT COUNT(*) as confirmed_orders
       FROM orders 
-      WHERE shop_id = $1 AND status = 'pending'
+      WHERE shop_id = $1 AND status = 'confirmed'
     `,
     [shop.id],
   );
@@ -175,7 +175,7 @@ export const GET = errorHandler(async (req, { params }) => {
     activeProducts: activeProductCount,
     totalCustomers: totalCustomersResult.rows[0]?.total_customers || 0,
     monthlyCustomers: monthlyCustomersResult.rows[0]?.monthly_customers || 0,
-    pendingOrders: pendingOrdersResult.rows[0]?.pending_orders || 0,
+    confirmedOrders: confirmedOrdersResult.rows[0]?.confirmed_orders || 0,
     lowStockProducts: lowStockCount,
     revenueGrowth: Math.round(revenueGrowth * 10) / 10, // Round to 1 decimal place
     orderGrowth: Math.round(orderGrowth * 10) / 10,

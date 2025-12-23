@@ -582,15 +582,13 @@ export class Order {
     const query = `
       SELECT 
         COUNT(*) as total_orders,
-        COALESCE(SUM(final_amount), 0) as total_revenue,
+        COALESCE(SUM(CASE WHEN status NOT IN ('pending', 'cancelled', 'refunded') THEN final_amount ELSE 0 END), 0) as total_revenue,
         COUNT(CASE WHEN status = 'confirmed' THEN 1 END) as confirmed_orders,
         COUNT(CASE WHEN status IN ('delivered', 'completed') THEN 1 END) as completed_orders,
         COUNT(CASE WHEN status = 'cancelled' THEN 1 END) as cancelled_orders
       FROM ${Order.tableName}
       WHERE shop_id = $1 AND created_at >= NOW() - INTERVAL '${days} days'
     `;
-
-    // TODO: Adjust total_revenue to not include pending/cancelled/refunded orders
 
     const result = await database.query(query, [shopId]);
     const row = result.rows[0];

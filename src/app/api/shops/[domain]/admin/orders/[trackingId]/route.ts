@@ -86,15 +86,6 @@ export const PATCH = errorHandler(async (request, { params }) => {
     );
   }
 
-  // Update payment status if provided
-  if (validatedData.payment_status && validatedData.payment_status !== existingOrder.payment_status) {
-    await Order.updatePaymentStatus(
-      existingOrder.id,
-      validatedData.payment_status,
-      validatedData.payment_method
-    );
-  }
-
   // Get updated order with products
   const orderWithProducts = await Order.findByTrackingIdWithProducts(trackingId);
 
