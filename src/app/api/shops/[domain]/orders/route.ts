@@ -5,6 +5,7 @@ import { Cart } from '@/models/Cart';
 import { errorHandler } from '@/lib/errorHandler';
 import { requireAuth } from '@/lib/apiAuth';
 import { getShopByDomain } from '@/lib/shop';
+import { checkoutItems } from '@/services/stripe/checkout';
 
 const createOrderSchema = z.object({
   shipping_address: z.object({
@@ -84,6 +85,10 @@ export const POST = errorHandler(async (request, { params }) => {
   const user = await requireAuth();
   const shop = await getShopByDomain(domain);
 
+  if (!shop.stripe_account_connected) {
+    throw Object.assign(new Error('Shop is not connected to Stripe'), { status: 400 });
+  }
+
   // Parse request body
   const body = await request.json();
   const validatedData = createOrderSchema.parse(body);
@@ -123,17 +128,44 @@ export const POST = errorHandler(async (request, { params }) => {
 
   // Create the order
   const order = await Order.create(orderData);
+  let checkoutUrl: string | null = null;
+
+  try {
+    checkoutUrl = await checkoutItems({
+      items: cart.items,
+      domain: shop.domain,
+      currency: shop.currency,
+      user,
+      stripeAccountId: shop.stripe_account_id,
+      trackingId: order.tracking_id,
+    });
+  } catch (error) {
+    console.error('Error creating checkout session:', error);
+    await Order.delete(order.id);
+    return NextResponse.json(
+      {
+        error: 'Failed to create checkout session',
+      },
+      { status: 500 }
+    );
+  }
+
+  if (!checkoutUrl) {
+    await Order.delete(order.id);
+    return NextResponse.json(
+      {
+        error: 'Failed to create checkout session',
+      },
+      { status: 500 }
+    );
+  }
 
   // Clear the user's cart after successful order creation
   await Cart.clearCart(user.id, shop.id);
-
-  // Return the created order with product details
-  const orderWithProducts = await Order.findByIdWithProducts(order.id);
-
   return NextResponse.json(
     {
       message: 'Order created successfully',
-      order: orderWithProducts,
+      checkoutUrl,
     },
     { status: 201 }
   );

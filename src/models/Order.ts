@@ -673,4 +673,12 @@ export class Order {
       total_items: row.enriched_items?.reduce((sum: number, item: OrderItemWithProduct) => sum + item.quantity, 0) || 0,
     }));
   }
+
+  /**
+   * Delete order by ID
+   */
+  static async delete(id: number): Promise<void> {
+    const query = `DELETE FROM ${Order.tableName} WHERE id = $1`;
+    await database.query(query, [id]);
+  }
 }

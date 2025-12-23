@@ -147,7 +147,7 @@ export default function CheckoutPage() {
       const response = await axios.post(`/api/shops/${domain}/orders`, orderData);
       
       // Redirect to order confirmation page
-      router.push(`/orders/${response.data.order.tracking_id}?success=true`);
+      router.push(response.data.checkoutUrl);
     } catch (error) {
       console.error('Error creating order:', error);
       if (axios.isAxiosError(error)) {

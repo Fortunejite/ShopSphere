@@ -19,6 +19,8 @@ export interface ShopAttributes {
   currency: string;
   logo?: string;
   banner?: string;
+  stripe_account_id: string;
+  stripe_account_connected?: boolean;
   created_at?: Date;
   updated_at?: Date;
 }
@@ -48,9 +50,9 @@ export class Shop {
       INSERT INTO ${Shop.tableName} (
         owner_id, name, domain, category_id, description, status, currency, 
         email, phone, address, city, state, postal_code, country, free_shipping_threshold,
-        logo, banner, created_at, updated_at
+        logo, banner, stripe_account_id, created_at, updated_at
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
       RETURNING *
     `;
 
@@ -72,6 +74,7 @@ export class Shop {
       shop.free_shipping_threshold,
       shop.logo,
       shop.banner,
+      shop.stripe_account_id,
       shop.created_at,
       shop.updated_at,
     ];
@@ -118,6 +121,18 @@ export class Shop {
       JOIN ${Shop.categoriesTableName} c ON s.category_id = c.id
       WHERE s.domain = $1`,
       [domain]
+    );
+    return result.rows[0] || null;
+  }
+
+  /**
+   * Find shop by Stripe account ID
+   */
+  static async findByStripeAccountId(stripeAccountId: string): Promise<ShopAttributes | null> {
+    const result = await database.query(
+      `SELECT * FROM ${Shop.tableName}
+      WHERE stripe_account_id = $1`,
+      [stripeAccountId]
     );
     return result.rows[0] || null;
   }
