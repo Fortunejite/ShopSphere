@@ -26,6 +26,7 @@ CREATE TABLE shops (
   domain VARCHAR(255) UNIQUE NOT NULL,
   name VARCHAR(255) NOT NULL,
   description TEXT,
+  tagline VARCHAR(100),
   category_id INTEGER REFERENCES categories(id),
   status VARCHAR(50) DEFAULT 'active',
   email VARCHAR(255) NOT NULL,

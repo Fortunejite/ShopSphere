@@ -40,6 +40,7 @@ export default function NewShopPage() {
     domain: '',
     category_id: undefined as number | undefined,
     description: '' as string | undefined,
+    tagline: '' as string | undefined,
     currency: 'USD',
     email: '',
     phone: '',
@@ -355,6 +356,23 @@ export default function NewShopPage() {
                     rows={4}
                   />
                   {formErrors.description && <p className="text-sm text-red-500">{formErrors.description}</p>}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="tagline">Tagline (Optional)</Label>
+                  <Input
+                    id="tagline"
+                    name="tagline"
+                    placeholder="Enter a catchy tagline for your shop"
+                    value={formData.tagline || ""}
+                    onChange={handleInputChange}
+                    className={formErrors.tagline ? 'border-red-500' : ''}
+                    disabled={isSubmitting}
+                  />
+                  {formErrors.tagline && <p className="text-sm text-red-500">{formErrors.tagline}</p>}
+                  <p className="text-sm text-gray-500">
+                    A short, memorable phrase that captures your shop&apos;s essence (max 100 characters)
+                  </p>
                 </div>
 
                 {/* Logo Upload */}

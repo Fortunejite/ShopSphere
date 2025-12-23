@@ -48,6 +48,7 @@ export default function AdminSettingsPage() {
     defaultValues: {
       name: '',
       description: '',
+      tagline: '',
       domain: '',
       currency: 'USD',
       email: '',
@@ -69,6 +70,7 @@ export default function AdminSettingsPage() {
       form.reset({
         name: shop.name || '',
         description: shop.description || '',
+        tagline: shop.tagline || '',
         domain: shop.domain || '',
         currency: shop.currency || 'USD',
         email: shop.email || '',
@@ -208,6 +210,23 @@ export default function AdminSettingsPage() {
                       {form.formState.errors.description.message}
                     </p>
                   )}
+                </div>
+
+                <div>
+                  <Label htmlFor="tagline">Tagline</Label>
+                  <Input
+                    id="tagline"
+                    {...form.register('tagline')}
+                    placeholder="Enter a catchy tagline for your shop"
+                  />
+                  {form.formState.errors.tagline && (
+                    <p className="text-sm text-red-600 mt-1">
+                      {form.formState.errors.tagline.message}
+                    </p>
+                  )}
+                  <p className="text-xs text-gray-500 mt-1">
+                    A short, memorable phrase that captures your shop&apos;s essence (max 100 characters)
+                  </p>
                 </div>
 
                 <div>

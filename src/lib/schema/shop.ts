@@ -13,6 +13,7 @@ export const createShopSchema = z.object({
     ),
   category_id: z.number().min(1, 'Category is required'),
   description: z.string().optional(),
+  tagline: z.string().max(100, 'Tagline must be less than 100 characters').optional(),
   currency: z.enum(Object.keys(currencySymbols) as [string, ...string[]], {
     required_error: 'Currency is required',
   }),
