@@ -3,9 +3,6 @@ import { database } from "@/lib/db";
 
 export interface ProductVariant {
   attributes: Record<string, string>;
-  price: number;
-  discount: number;
-  stock_quantity: number;
   is_default: boolean;
 }
 

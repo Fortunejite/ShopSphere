@@ -99,9 +99,7 @@ export default function CheckoutPage() {
 
   const calculateTotals = () => {
     const subtotal = cartItems.reduce((total, item) => {
-      const itemPrice = item.variant_index !== undefined && item.product.variants[item.variant_index] 
-        ? item.product.variants[item.variant_index].price * (1 - item.product.variants[item.variant_index].discount / 100)
-        : item.product.price * (1 - item.product.discount / 100);
+      const itemPrice = item.product.price * (1 - item.product.discount / 100);
       return total + (itemPrice * item.quantity);
     }, 0);
 
@@ -345,8 +343,8 @@ export default function CheckoutPage() {
                 <div className="space-y-3">
                   {cartItems.map((item) => {
                     const variant = item.variant_index !== undefined ? item.product.variants[item.variant_index] : null;
-                    const price = variant ? variant.price : item.product.price;
-                    const discount = variant ? variant.discount : item.product.discount;
+                    const price = item.product.price;
+                    const discount = item.product.discount;
                     const finalPrice = price * (1 - discount / 100);
 
                     return (

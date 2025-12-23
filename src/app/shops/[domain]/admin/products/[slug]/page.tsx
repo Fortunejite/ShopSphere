@@ -64,11 +64,7 @@ interface Product {
 }
 
 interface ProductVariant {
-  id?: number;
   attributes: Record<string, string>;
-  price: number;
-  discount: number;
-  stock_quantity: number;
   is_default: boolean;
 }
 
@@ -139,13 +135,6 @@ export default function ProductDetailsPage() {
       case 'out_of_stock': return <AlertCircle className="w-3 h-3" />;
       default: return <Clock className="w-3 h-3" />;
     }
-  };
-
-  const calculateTotalStock = () => {
-    if (product?.variants && product.variants.length > 0) {
-      return product.variants.reduce((total, variant) => total + variant.stock_quantity, 0);
-    }
-    return product?.stock_quantity || 0;
   };
 
   const getProductCategories = () => {
@@ -225,7 +214,6 @@ export default function ProductDetailsPage() {
   }
 
   const pricing = formatPrice(product.price, product.discount, shop!.currency);
-  const totalStock = calculateTotalStock();
   const productCategories = getProductCategories();
 
   return (
@@ -328,7 +316,7 @@ export default function ProductDetailsPage() {
               <div>
                 <p className="text-sm font-medium text-gray-600">Stock</p>
                 <div className="flex items-center mt-1">
-                  <span className="text-lg font-bold">{totalStock}</span>
+                  <span className="text-lg font-bold">{product.stock_quantity}</span>
                   <span className="text-sm text-gray-500 ml-1">units</span>
                 </div>
               </div>
@@ -513,12 +501,6 @@ export default function ProductDetailsPage() {
                         <label className="text-sm font-medium text-gray-600">Stock Quantity</label>
                         <p className="text-2xl font-bold">{product.stock_quantity}</p>
                       </div>
-                      {product.variants && product.variants.length > 0 && (
-                        <div>
-                          <label className="text-sm font-medium text-gray-600">Total Variant Stock</label>
-                          <p className="text-lg">{totalStock} units</p>
-                        </div>
-                      )}
                     </div>
                   </div>
                 </CardContent>
@@ -559,21 +541,6 @@ export default function ProductDetailsPage() {
                                     </Badge>
                                   </div>
                                 ))}
-                              </div>
-                            </div>
-                            
-                            <div className="grid grid-cols-3 gap-2 text-sm">
-                              <div>
-                                <label className="text-gray-600">Price</label>
-                                <p className="font-medium">{variant.price}</p>
-                              </div>
-                              <div>
-                                <label className="text-gray-600">Discount</label>
-                                <p className="font-medium">{variant.discount}%</p>
-                              </div>
-                              <div>
-                                <label className="text-gray-600">Stock</label>
-                                <p className="font-medium">{variant.stock_quantity}</p>
                               </div>
                             </div>
                           </div>
@@ -659,7 +626,7 @@ export default function ProductDetailsPage() {
                     </div>
                     
                     <div className="text-center p-4 bg-purple-50 rounded-lg">
-                      <div className="text-2xl font-bold text-purple-600">{totalStock}</div>
+                      <div className="text-2xl font-bold text-purple-600">{product.stock_quantity}</div>
                       <div className="text-sm text-purple-800">Available Stock</div>
                     </div>
                   </div>

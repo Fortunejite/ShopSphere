@@ -66,19 +66,10 @@ export class Cart {
                 THEN (p.variants->(item->>'variant_index')::integer->>'price')::decimal
                 ELSE p.price
               END,
-              'subtotal', CASE 
-                WHEN item->>'variant_index' IS NOT NULL AND p.variants IS NOT NULL
-                THEN (
-                  (p.variants->(item->>'variant_index')::integer->>'price')::decimal * 
-                  (1 - COALESCE((p.variants->(item->>'variant_index')::integer->>'discount')::decimal, 0) / 100) * 
-                  (item->>'quantity')::integer
-                )
-                ELSE (
-                  p.price * 
+              'subtotal', p.price * 
                   (1 - COALESCE(p.discount, 0) / 100) * 
                   (item->>'quantity')::integer
                 )
-              END
             )
           ) FILTER (WHERE item IS NOT NULL),
           '[]'::json
@@ -123,19 +114,10 @@ export class Cart {
                 THEN (p.variants->(item->>'variant_index')::integer->>'price')::decimal
                 ELSE p.price
               END,
-              'subtotal', CASE 
-                WHEN item->>'variant_index' IS NOT NULL AND p.variants IS NOT NULL
-                THEN (
-                  (p.variants->(item->>'variant_index')::integer->>'price')::decimal * 
-                  (1 - COALESCE((p.variants->(item->>'variant_index')::integer->>'discount')::decimal, 0) / 100) * 
-                  (item->>'quantity')::integer
-                )
-                ELSE (
-                  p.price * 
-                  (1 - COALESCE(p.discount, 0) / 100) * 
-                  (item->>'quantity')::integer
-                )
-              END
+              'subtotal', p.price * 
+                (1 - COALESCE(p.discount, 0) / 100) * 
+                (item->>'quantity')::integer
+              )
             )
           ) FILTER (WHERE item IS NOT NULL),
           '[]'::json
@@ -327,21 +309,10 @@ export class Cart {
     const query = `
       SELECT 
         COALESCE(
-          SUM(
-            CASE 
-              WHEN item->>'variant_index' IS NOT NULL AND p.variants IS NOT NULL
-              THEN (
-                (p.variants->(item->>'variant_index')::integer->>'price')::decimal * 
-                (1 - COALESCE((p.variants->(item->>'variant_index')::integer->>'discount')::decimal, 0) / 100) * 
-                (item->>'quantity')::integer
-              )
-              ELSE (
-                p.price * 
-                (1 - COALESCE(p.discount, 0) / 100) * 
-                (item->>'quantity')::integer
-              )
-            END
-          ), 
+          SUM(p.price * 
+            (1 - COALESCE(p.discount, 0) / 100) * 
+            (item->>'quantity')::integer
+          )), 
           0
         ) as total_amount
       FROM ${Cart.tableName} c
@@ -384,13 +355,7 @@ export class Cart {
         continue;
       }
 
-      let availableStock = product.stock_quantity;
-
-      // Check variant-specific stock
-      if (cartItem.variant_index !== undefined && product.variants && product.variants[cartItem.variant_index]) {
-        const variant = product.variants[cartItem.variant_index];
-        availableStock = variant.stock_quantity;
-      }
+      const availableStock = product.stock_quantity;
 
       // Check stock availability
       if (availableStock < cartItem.quantity) {

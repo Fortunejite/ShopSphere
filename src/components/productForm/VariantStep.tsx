@@ -4,8 +4,6 @@ import { X } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { ProductFormData, UpdateFormData } from './ProductStepForm';
-import { getCurrencySymbol } from "@/lib/currency";
-import { useAppSelector } from "@/hooks/redux.hook";
 
 interface Props {
   formData: ProductFormData
@@ -13,7 +11,6 @@ interface Props {
 }
 
 const Variants = ({ formData, updateFormData }: Props) => {
-  const shop = useAppSelector(state => state.shop.shop);
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -25,9 +22,6 @@ const Variants = ({ formData, updateFormData }: Props) => {
           onClick={() => {
             const newVariant: ProductVariant = {
               attributes: {},
-              price: formData.price,
-              discount: formData.discount,
-              stock_quantity: formData.stock_quantity,
               is_default: formData.variants.length === 0,
             };
             updateFormData('variants', [...formData.variants, newVariant]);
@@ -169,61 +163,6 @@ const Variants = ({ formData, updateFormData }: Props) => {
                     >
                       Add Attribute
                     </Button>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div>
-                    <Label>Price ({getCurrencySymbol(shop!.currency)})</Label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={variant.price}
-                      onChange={(e) => {
-                        const updatedVariants = [...formData.variants];
-                        updatedVariants[index] = {
-                          ...variant,
-                          price: parseFloat(e.target.value) || 0,
-                        };
-                        updateFormData('variants', updatedVariants);
-                      }}
-                    />
-                  </div>
-
-                  <div>
-                    <Label>Discount (%)</Label>
-                    <Input
-                      type="number"
-                      min="0"
-                      max="100"
-                      value={variant.discount}
-                      onChange={(e) => {
-                        const updatedVariants = [...formData.variants];
-                        updatedVariants[index] = {
-                          ...variant,
-                          discount: parseFloat(e.target.value) || 0,
-                        };
-                        updateFormData('variants', updatedVariants);
-                      }}
-                    />
-                  </div>
-
-                  <div>
-                    <Label>Stock Quantity</Label>
-                    <Input
-                      type="number"
-                      min="0"
-                      value={variant.stock_quantity}
-                      onChange={(e) => {
-                        const updatedVariants = [...formData.variants];
-                        updatedVariants[index] = {
-                          ...variant,
-                          stock_quantity: parseInt(e.target.value) || 0,
-                        };
-                        updateFormData('variants', updatedVariants);
-                      }}
-                    />
                   </div>
                 </div>
               </div>

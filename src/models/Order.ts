@@ -109,9 +109,7 @@ export class Order {
       quantity: item.quantity,
       variant_index: item.variant_index,
       unit_price_at_purchase: item.variant_price || item.product.price,
-      discount_at_purchase: item.variant_index !== undefined && item.product.variants?.[item.variant_index]
-        ? item.product.variants[item.variant_index].discount || 0
-        : item.product.discount || 0,
+      discount_at_purchase: item.product.discount || 0,
       subtotal: item.subtotal,
     }));
 

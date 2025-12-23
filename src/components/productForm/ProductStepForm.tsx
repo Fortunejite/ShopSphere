@@ -27,14 +27,7 @@ import Variants from './VariantStep';
 import ImageStep from './ImageStep';
 import ShippingStep from './ShippingStep';
 import { useAppSelector } from '@/hooks/redux.hook';
-
-interface ProductVariant {
-  attributes: Record<string, string>;
-  price: number;
-  discount: number;
-  stock_quantity: number;
-  is_default: boolean;
-}
+import { ProductVariant } from '@/models/Product';
 
 export interface ProductFormData {
   name: string;

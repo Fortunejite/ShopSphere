@@ -149,19 +149,9 @@ export default function ProductDetailsPage() {
     }
   };
 
-  const getCurrentPrice = () => {
-    if (selectedVariant) {
-      return formatPrice(selectedVariant.price, selectedVariant.discount, shop!.currency);
-    }
-    return formatPrice(product?.price || 0, product?.discount || 0, shop!.currency);
-  };
+  const getCurrentPrice = () => formatPrice(product?.price || 0, product?.discount || 0, shop!.currency);
 
-  const getCurrentStock = () => {
-    if (selectedVariant) {
-      return selectedVariant.stock_quantity;
-    }
-    return product?.stock_quantity || 0;
-  };
+  const getCurrentStock = () => product?.stock_quantity || 0;
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const renderStars = (rating: number = 0) => {

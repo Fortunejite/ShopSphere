@@ -3,9 +3,6 @@ import { z } from 'zod';
 export const variantsSchema = z.object({
   variants: z.array(z.object({
     attributes: z.record(z.string(), z.string()),
-    price: z.number().min(0, 'Variant price must be non-negative'),
-    discount: z.number().min(0, 'Variant discount must be non-negative').max(100, 'Discount cannot exceed 100%'),
-    stock_quantity: z.number().int().min(0, 'Variant stock quantity must be non-negative'),
     is_default: z.boolean(),
   })).default([]),
 });

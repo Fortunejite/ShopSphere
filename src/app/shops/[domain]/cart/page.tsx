@@ -35,7 +35,6 @@ import {
 } from '@/redux/cartSlice';
 import { cn } from '@/lib/utils';
 import { CartItemWithProduct } from '@/models/Cart';
-import { getVariaintStock } from '@/lib/product';
 import { formatCurrency } from '@/lib/currency';
 
 export default function CartPage() {
@@ -141,22 +140,10 @@ export default function CartPage() {
       .join(', ');
   };
 
-  const getItemPrice = (item: CartItemWithProduct) => {
-    if (
-      item.variant_index !== undefined &&
-      item.product.variants?.[item.variant_index]
-    ) {
-      const variant = item.product.variants[item.variant_index];
-      return {
-        price: variant.price,
-        discount: variant.discount || 0,
-      };
-    }
-    return {
-      price: item.product.price,
-      discount: item.product.discount || 0,
-    };
-  };
+  const getItemPrice = (item: CartItemWithProduct) => ({
+    price: item.product.price,
+    discount: item.product.discount || 0,
+  });
 
   if (cartStatus === 'loading' && !cart) {
     return (
@@ -262,10 +249,7 @@ export default function CartPage() {
                     const pricing = getItemPrice(item);
                     const isItemUpdating = isUpdating === key;
                     const currentQuantity = quantities[key] || item.quantity;
-                    const totalStock =
-                      item.variant_index !== undefined
-                        ? getVariaintStock(item.product, item.variant_index)
-                        : item.product.stock_quantity;
+                    const totalStock = item.product.stock_quantity;
                     const variantText = getVariantDisplayText(item);
                     const finalPrice =
                       pricing.price * (1 - pricing.discount / 100);

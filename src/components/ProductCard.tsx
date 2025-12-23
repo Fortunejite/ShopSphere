@@ -6,7 +6,6 @@ import { Card, CardContent, CardFooter } from './ui/card';
 import Image from 'next/image';
 import Link from 'next/link';
 import { formatPrice } from '@/lib/currency';
-import { getTotalStock, inStock } from '@/lib/product';
 import {
   addToCart,
   itemInCart,
@@ -63,7 +62,7 @@ const ProductCard = ({
   const { shop } = reduxState.shop;
 
   const pricing = formatPrice(product.price, product.discount);
-  const stockStatus = getStockStatus(getTotalStock(product));
+  const stockStatus = getStockStatus(product.stock_quantity);
   const isInCart = itemInCart(reduxState, product.id);
 
   const handleAddToCart = async () => {
@@ -171,18 +170,18 @@ const ProductCard = ({
                         ? () => router.push(`/products/${product.slug}`)
                         : toggleCart
                     }
-                    disabled={!inStock(product) || cartStatus === 'loading'}
+                    disabled={product.stock_quantity === 0 || cartStatus === 'loading'}
                   >
                     <ShoppingCart className="w-4 h-4 mr-1" />
-                    {product.variants.length > 0
+                    {product.stock_quantity === 0 
+                      ? 'Out of Stock'
+                      : product.variants.length > 0
                       ? 'Select Options'
                       : cartStatus === 'loading'
                       ? 'Adding...'
-                      : !inStock(product)
-                      ? 'Out of Stock'
                       : isInCart
                       ? 'Remove from Cart'
-                      : 'Add to Cart'}
+                    : 'Add to Cart'}
                   </Button>
                 </div>
               </div>
@@ -267,14 +266,14 @@ const ProductCard = ({
               ? () => router.push(`/products/${product.slug}`)
               : toggleCart
           }
-          disabled={!inStock(product) || cartStatus === 'loading'}
+          disabled={product.stock_quantity === 0 || cartStatus === 'loading'}
         >
           <ShoppingCart className="w-4 h-4 mr-2" />
           {product.variants.length > 0
             ? 'Select Options'
             : cartStatus === 'loading'
             ? 'Adding...'
-            : !inStock(product)
+            : product.stock_quantity === 0
             ? 'Out of Stock'
             : isInCart
             ? 'Remove from Cart'

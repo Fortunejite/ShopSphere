@@ -17,28 +17,7 @@ import { updateProductSchema } from '@/lib/schema/product';
 import axios from 'axios';
 import ProductStepForm from '@/components/productForm/ProductStepForm';
 import { ProductLoading } from '@/components/Loading';
-
-interface Product {
-  id: number;
-  name: string;
-  slug: string;
-  description?: string;
-  price: number;
-  discount: number;
-  image: string;
-  thumbnails: string[];
-  stock_quantity: number;
-  status: 'active' | 'inactive' | 'out_of_stock';
-  is_featured: boolean;
-  category_ids: number[];
-  weight: number;
-  length: number;
-  width: number;
-  height: number;
-  created_at: string;
-  updated_at: string;
-  shop_id: number;
-}
+import { ProductAttributes } from '@/models/Product';
 
 interface ProductFormData {
   name: string;
@@ -62,7 +41,7 @@ export default function EditProductPage() {
   const { domain, slug } = useParams();
   const router = useRouter();
   
-  const [product, setProduct] = useState<Product | null>(null);
+  const [product, setProduct] = useState<ProductAttributes | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
