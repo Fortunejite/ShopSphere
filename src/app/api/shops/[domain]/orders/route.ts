@@ -18,20 +18,8 @@ const createOrderSchema = z.object({
     postal_code: z.string().min(1, 'Postal code is required'),
     country: z.string().min(1, 'Country is required'),
   }),
-  billing_address: z.object({
-    name: z.string().min(1, 'Name is required'),
-    phone: z.string().min(1, 'Phone is required'),
-    address_line_1: z.string().min(1, 'Address is required'),
-    address_line_2: z.string().optional(),
-    city: z.string().min(1, 'City is required'),
-    state: z.string().min(1, 'State is required'),
-    postal_code: z.string().min(1, 'Postal code is required'),
-    country: z.string().min(1, 'Country is required'),
-  }).optional(),
   payment_method: z.string().optional(),
   notes: z.string().optional(),
-  tax_rate: z.number().min(0).max(100).optional().default(0),
-  shipping_cost: z.number().min(0).optional().default(0),
   discount_amount: z.number().min(0).optional().default(0),
 });
 
@@ -118,11 +106,8 @@ export const POST = errorHandler(async (request, { params }) => {
     shop_id: shop.id,
     items: cart.items,
     shipping_address: validatedData.shipping_address,
-    billing_address: validatedData.billing_address || validatedData.shipping_address,
     payment_method: validatedData.payment_method,
     notes: validatedData.notes,
-    tax_rate: validatedData.tax_rate,
-    shipping_cost: validatedData.shipping_cost,
     discount_amount: validatedData.discount_amount,
   };
 

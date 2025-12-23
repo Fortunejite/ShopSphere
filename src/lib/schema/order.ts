@@ -15,11 +15,8 @@ export const addressSchema = z.object({
 // Create order schema
 export const createOrderSchema = z.object({
   shipping_address: addressSchema,
-  billing_address: addressSchema.optional(),
   payment_method: z.string().optional(),
   notes: z.string().max(500).optional(),
-  tax_rate: z.number().min(0).max(100).default(0),
-  shipping_cost: z.number().min(0).default(0),
   discount_amount: z.number().min(0).default(0),
 });
 

@@ -110,7 +110,6 @@ CREATE TABLE orders (
   payment_method VARCHAR(50),
 
   shipping_address JSONB,
-  billing_address JSONB,
 
   notes TEXT,
   admin_notes TEXT,

@@ -34,8 +34,6 @@ export interface OrderAttributes {
   
   total_amount: number;
   discount_amount: number;
-  tax_amount: number;
-  shipping_amount: number;
   final_amount: number;
   
   items: OrderItem[];
@@ -45,7 +43,6 @@ export interface OrderAttributes {
   payment_method?: string;
   
   shipping_address?: AddressInfo;
-  billing_address?: AddressInfo;
   
   notes?: string;
   admin_notes?: string;
@@ -68,11 +65,8 @@ export interface CreateOrderData {
   shop_id: number;
   items: CartItemWithProduct[];
   shipping_address: AddressInfo;
-  billing_address?: AddressInfo;
   payment_method?: string;
   notes?: string;
-  tax_rate?: number;
-  shipping_cost?: number;
   discount_amount?: number;
 }
 
@@ -100,18 +94,14 @@ export class Order {
       shop_id,
       items,
       shipping_address,
-      billing_address,
       payment_method,
       notes,
-      tax_rate = 0,
-      shipping_cost = 0,
       discount_amount = 0,
     } = orderData;
 
     // Calculate totals
     const total_amount = items.reduce((sum, item) => sum + item.subtotal, 0);
-    const tax_amount = total_amount * (tax_rate / 100);
-    const final_amount = total_amount + tax_amount + shipping_cost - discount_amount;
+    const final_amount = total_amount - discount_amount;
 
     // Convert cart items to order items
     const orderItems: OrderItem[] = items.map(item => ({
@@ -129,11 +119,11 @@ export class Order {
 
     const query = `
       INSERT INTO ${Order.tableName} (
-        user_id, shop_id, tracking_id, total_amount, discount_amount, tax_amount, 
-        shipping_amount, final_amount, items, status, payment_status, payment_method,
-        shipping_address, billing_address, notes, created_at, updated_at
+        user_id, shop_id, tracking_id, total_amount, discount_amount,
+        final_amount, items, status, payment_status, payment_method,
+        shipping_address, notes, created_at, updated_at
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
       RETURNING *
     `;
 
@@ -143,15 +133,12 @@ export class Order {
       tracking_id,
       total_amount,
       discount_amount,
-      tax_amount,
-      shipping_cost,
       final_amount,
       JSON.stringify(orderItems),
       'pending',
       'pending',
       payment_method,
       JSON.stringify(shipping_address),
-      billing_address ? JSON.stringify(billing_address) : null,
       notes,
     ];
 

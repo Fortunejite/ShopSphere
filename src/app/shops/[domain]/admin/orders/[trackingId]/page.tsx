@@ -375,14 +375,6 @@ export default function AdminOrderDetailsPage() {
                       <span>{formatCurrency(-order.discount_amount, shop!.currency)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between text-sm">
-                    <span>Shipping:</span>
-                    <span>{formatCurrency(order.shipping_amount, shop!.currency)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span>Tax:</span>
-                    <span>{formatCurrency(order.tax_amount, shop!.currency)}</span>
-                  </div>
                   <div className="flex justify-between font-bold text-lg border-t pt-2">
                     <span>Total:</span>
                     <span>{formatCurrency(order.final_amount, shop!.currency)}</span>
@@ -526,35 +518,6 @@ export default function AdminOrderDetailsPage() {
                     <div className="flex items-center gap-1 mt-2 text-gray-600">
                       <Phone className="w-3 h-3" />
                       <span>{order.shipping_address.phone}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Billing Address */}
-            {order.billing_address && order.billing_address !== order.shipping_address && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <CreditCard className="w-5 h-5" />
-                    Billing Address
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-sm space-y-1">
-                    <p className="font-medium">{order.billing_address.name}</p>
-                    <p>{order.billing_address.address_line_1}</p>
-                    {order.billing_address.address_line_2 && (
-                      <p>{order.billing_address.address_line_2}</p>
-                    )}
-                    <p>
-                      {order.billing_address.city}, {order.billing_address.state} {order.billing_address.postal_code}
-                    </p>
-                    <p>{order.billing_address.country}</p>
-                    <div className="flex items-center gap-1 mt-2 text-gray-600">
-                      <Phone className="w-3 h-3" />
-                      <span>{order.billing_address.phone}</span>
                     </div>
                   </div>
                 </CardContent>

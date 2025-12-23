@@ -11,7 +11,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 import { 
@@ -49,7 +48,6 @@ export default function CheckoutPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
-  const [useBillingAsShipping, setUseBillingAsShipping] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(checkoutSchema),
@@ -64,20 +62,8 @@ export default function CheckoutPage() {
         postal_code: '',
         country: 'US',
       },
-      billing_address: {
-        name: '',
-        phone: '',
-        address_line_1: '',
-        address_line_2: '',
-        city: '',
-        state: '',
-        postal_code: '',
-        country: 'US',
-      },
       payment_method: 'credit_card',
       notes: '',
-      tax_rate: 8.25,
-      shipping_cost: 9.99,
       discount_amount: 0,
       use_billing_as_shipping: false,
     }
@@ -118,17 +104,11 @@ export default function CheckoutPage() {
     }, 0);
 
     const discountAmount = form.watch('discount_amount') || 0;
-    const taxRate = form.watch('tax_rate') || 0;
-    const shippingCost = form.watch('shipping_cost') || 0;
-    
-    const taxAmount = (subtotal - discountAmount) * (taxRate / 100);
-    const total = subtotal - discountAmount + taxAmount + shippingCost;
+    const total = subtotal - discountAmount;
 
     return {
       subtotal: subtotal,
       discount: discountAmount,
-      tax: taxAmount,
-      shipping: shippingCost,
       total: total
     };
   };
@@ -137,14 +117,7 @@ export default function CheckoutPage() {
     try {
       setIsSubmitting(true);
       setError('');
-
-      // Prepare order data
-      const orderData = {
-        ...data,
-        billing_address: useBillingAsShipping ? data.shipping_address : data.billing_address
-      };
-
-      const response = await axios.post(`/api/shops/${domain}/orders`, orderData);
+      const response = await axios.post(`/api/shops/${domain}/orders`, data);
       
       // Redirect to order confirmation page
       router.push(response.data.checkoutUrl);
@@ -320,132 +293,6 @@ export default function CheckoutPage() {
               </CardContent>
             </Card>
 
-            {/* Billing Address */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CreditCard className="w-5 h-5" />
-                  Billing Address
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="use_billing_as_shipping"
-                    checked={useBillingAsShipping}
-                    onCheckedChange={(checked) => {
-                      setUseBillingAsShipping(checked as boolean);
-                      if (checked) {
-                        const shippingAddress = form.getValues('shipping_address');
-                        form.setValue('billing_address', shippingAddress);
-                      }
-                    }}
-                  />
-                  <Label htmlFor="use_billing_as_shipping">
-                    Same as shipping address
-                  </Label>
-                </div>
-
-                {!useBillingAsShipping && (
-                  <>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="billing_name">Full Name *</Label>
-                        <Input
-                          id="billing_name"
-                          {...form.register('billing_address.name')}
-                          placeholder="John Doe"
-                        />
-                        {form.formState.errors.billing_address?.name && (
-                          <p className="text-sm text-red-600 mt-1">
-                            {form.formState.errors.billing_address.name.message}
-                          </p>
-                        )}
-                      </div>
-                      <div>
-                        <Label htmlFor="billing_phone">Phone Number *</Label>
-                        <Input
-                          id="billing_phone"
-                          {...form.register('billing_address.phone')}
-                          placeholder="(555) 123-4567"
-                        />
-                        {form.formState.errors.billing_address?.phone && (
-                          <p className="text-sm text-red-600 mt-1">
-                            {form.formState.errors.billing_address.phone.message}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label htmlFor="billing_address_1">Address Line 1 *</Label>
-                      <Input
-                        id="billing_address_1"
-                        {...form.register('billing_address.address_line_1')}
-                        placeholder="123 Main Street"
-                      />
-                      {form.formState.errors.billing_address?.address_line_1 && (
-                        <p className="text-sm text-red-600 mt-1">
-                          {form.formState.errors.billing_address.address_line_1.message}
-                        </p>
-                      )}
-                    </div>
-
-                    <div>
-                      <Label htmlFor="billing_address_2">Address Line 2</Label>
-                      <Input
-                        id="billing_address_2"
-                        {...form.register('billing_address.address_line_2')}
-                        placeholder="Apt, Suite, Unit, Building, Floor, etc."
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div>
-                        <Label htmlFor="billing_city">City *</Label>
-                        <Input
-                          id="billing_city"
-                          {...form.register('billing_address.city')}
-                          placeholder="New York"
-                        />
-                        {form.formState.errors.billing_address?.city && (
-                          <p className="text-sm text-red-600 mt-1">
-                            {form.formState.errors.billing_address.city.message}
-                          </p>
-                        )}
-                      </div>
-                      <div>
-                        <Label htmlFor="billing_state">State *</Label>
-                        <Input
-                          id="billing_state"
-                          {...form.register('billing_address.state')}
-                          placeholder="NY"
-                        />
-                        {form.formState.errors.billing_address?.state && (
-                          <p className="text-sm text-red-600 mt-1">
-                            {form.formState.errors.billing_address.state.message}
-                          </p>
-                        )}
-                      </div>
-                      <div>
-                        <Label htmlFor="billing_postal_code">ZIP Code *</Label>
-                        <Input
-                          id="billing_postal_code"
-                          {...form.register('billing_address.postal_code')}
-                          placeholder="10001"
-                        />
-                        {form.formState.errors.billing_address?.postal_code && (
-                          <p className="text-sm text-red-600 mt-1">
-                            {form.formState.errors.billing_address.postal_code.message}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </>
-                )}
-              </CardContent>
-            </Card>
-
             {/* Payment Method */}
             <Card>
               <CardHeader>
@@ -465,16 +312,6 @@ export default function CheckoutPage() {
                       className="w-4 h-4"
                     />
                     <Label htmlFor="credit_card">Credit Card</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="radio"
-                      id="cash_on_delivery"
-                      {...form.register('payment_method')}
-                      value="cash_on_delivery"
-                      className="w-4 h-4"
-                    />
-                    <Label htmlFor="cash_on_delivery">Cash on Delivery</Label>
                   </div>
                 </div>
               </CardContent>
@@ -552,14 +389,6 @@ export default function CheckoutPage() {
                       <span>{formatCurrency(-totals.discount, shop!.currency)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between">
-                    <span>Shipping:</span>
-                    <span>{formatCurrency(totals.shipping, shop!.currency)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Tax:</span>
-                    <span>{formatCurrency(totals.tax, shop!.currency)}</span>
-                  </div>
                   <div className="flex justify-between font-bold text-lg border-t pt-2">
                     <span>Total:</span>
                     <span>{formatCurrency(totals.total, shop!.currency)}</span>
