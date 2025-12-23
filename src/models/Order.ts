@@ -575,7 +575,7 @@ export class Order {
   static async getShopStats(shopId: number, days: number = 30): Promise<{
     total_orders: number;
     total_revenue: number;
-    pending_orders: number;
+    confirmed_orders: number;
     completed_orders: number;
     cancelled_orders: number;
   }> {
@@ -583,7 +583,7 @@ export class Order {
       SELECT 
         COUNT(*) as total_orders,
         COALESCE(SUM(final_amount), 0) as total_revenue,
-        COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending_orders,
+        COUNT(CASE WHEN status = 'confirmed' THEN 1 END) as confirmed_orders,
         COUNT(CASE WHEN status IN ('delivered', 'completed') THEN 1 END) as completed_orders,
         COUNT(CASE WHEN status = 'cancelled' THEN 1 END) as cancelled_orders
       FROM ${Order.tableName}
@@ -598,7 +598,7 @@ export class Order {
     return {
       total_orders: parseInt(row.total_orders),
       total_revenue: parseFloat(row.total_revenue),
-      pending_orders: parseInt(row.pending_orders),
+      confirmed_orders: parseInt(row.confirmed_orders),
       completed_orders: parseInt(row.completed_orders),
       cancelled_orders: parseInt(row.cancelled_orders),
     };

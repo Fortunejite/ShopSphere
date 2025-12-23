@@ -69,7 +69,6 @@ export class Cart {
               'subtotal', p.price * 
                   (1 - COALESCE(p.discount, 0) / 100) * 
                   (item->>'quantity')::integer
-                )
             )
           ) FILTER (WHERE item IS NOT NULL),
           '[]'::json
@@ -117,7 +116,6 @@ export class Cart {
               'subtotal', p.price * 
                 (1 - COALESCE(p.discount, 0) / 100) * 
                 (item->>'quantity')::integer
-              )
             )
           ) FILTER (WHERE item IS NOT NULL),
           '[]'::json

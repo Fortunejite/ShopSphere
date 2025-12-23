@@ -39,7 +39,7 @@ export default function AdminOrdersPage() {
   const [stats, setStats] = useState({
     total_revenue: 0,
     total_orders: 0,
-    pending_orders: 0,
+    confirmed_orders: 0,
     completed_orders: 0
   });
 
@@ -162,8 +162,8 @@ export default function AdminOrdersPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Pending Orders</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.pending_orders}</p>
+                  <p className="text-sm font-medium text-gray-600">Confirmed Orders</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.confirmed_orders}</p>
                 </div>
                 <Clock className="w-8 h-8 text-yellow-500" />
               </div>
