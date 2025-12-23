@@ -21,7 +21,8 @@ import {
   Copy,
   Download,
   MessageCircle,
-  Phone
+  Phone,
+  Loader2
 } from 'lucide-react';
 import { ProductLoading } from '@/components/Loading';
 import { OrderWithProducts } from '@/models/Order';
@@ -38,6 +39,7 @@ export default function OrderDetailsPage() {
   
   const [order, setOrder] = useState<OrderWithProducts | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [paying, setPaying] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -157,6 +159,23 @@ export default function OrderDetailsPage() {
       order.status !== 'cancelled' && order.status !== 'refunded'
     );
   };
+
+  const handelPayNow = async () => {
+    setPaying(true);
+    try {
+      const { data } = await axios.get(`/api/shops/${domain}/orders/${trackingId}/pay`);
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+      } else {
+        setError('Failed to initiate payment.');
+        setPaying(false);
+      }
+    } catch (error) {
+      console.error('Error initiating payment:', error);
+      setError('Failed to initiate payment.');
+      setPaying(false);
+    }
+  }
 
   if (isLoading) {
     return <ProductLoading text="Loading order details..." fullPage />;
@@ -355,14 +374,6 @@ export default function OrderDetailsPage() {
                       <span>{formatCurrency(-order.discount_amount, shop!.currency)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between text-sm">
-                    <span>Shipping:</span>
-                    <span>{formatCurrency(order.shipping_amount, shop!.currency)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span>Tax:</span>
-                    <span>{formatCurrency(order.tax_amount, shop!.currency)}</span>
-                  </div>
                   <div className="flex justify-between font-bold text-lg border-t pt-2">
                     <span>Total:</span>
                     <span>{formatCurrency(order.final_amount, shop!.currency)}</span>
@@ -411,6 +422,15 @@ export default function OrderDetailsPage() {
                   <span className="text-sm text-gray-600">Total Paid:</span>
                   <span className="font-medium">{formatCurrency(order.final_amount, shop!.currency)}</span>
                 </div>
+                {order.payment_status === 'pending' && (
+                  <Button className="w-full" onClick={handelPayNow} disabled={paying}>
+                    {paying ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <span className="mr-2">Pay Now to Confirm Order</span>
+                    )}
+                  </Button>
+                )}
               </CardContent>
             </Card>
 

@@ -41,7 +41,7 @@ export const GET = errorHandler(async (req, { params }) => {
     `
       SELECT COALESCE(SUM(total_amount), 0) as total_revenue
       FROM orders 
-      WHERE shop_id = $1 AND status NOT IN ('cancelled', 'refunded')
+      WHERE shop_id = $1 AND status NOT IN ('cancelled', 'refunded', 'pending')
     `,
     [shop.id],
   );
@@ -52,7 +52,7 @@ export const GET = errorHandler(async (req, { params }) => {
       SELECT COALESCE(SUM(total_amount), 0) as monthly_revenue
       FROM orders 
       WHERE shop_id = $1 
-        AND status NOT IN ('cancelled', 'refunded')
+        AND status NOT IN ('cancelled', 'refunded', 'pending')
         AND EXTRACT(YEAR FROM created_at) = $2 
         AND EXTRACT(MONTH FROM created_at) = $3
     `,
@@ -65,7 +65,7 @@ export const GET = errorHandler(async (req, { params }) => {
       SELECT COALESCE(SUM(total_amount), 0) as last_month_revenue
       FROM orders 
       WHERE shop_id = $1 
-        AND status NOT IN ('cancelled', 'refunded')
+        AND status NOT IN ('cancelled', 'refunded', 'pending')
         AND EXTRACT(YEAR FROM created_at) = $2 
         AND EXTRACT(MONTH FROM created_at) = $3
     `,

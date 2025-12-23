@@ -592,6 +592,8 @@ export class Order {
       WHERE shop_id = $1 AND created_at >= NOW() - INTERVAL '${days} days'
     `;
 
+    // TODO: Adjust total_revenue to not include pending/cancelled/refunded orders
+
     const result = await database.query(query, [shopId]);
     const row = result.rows[0];
     

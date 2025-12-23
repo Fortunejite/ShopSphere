@@ -15,7 +15,6 @@ import {
   DollarSign,
   Edit,
   Save,
-  MoreHorizontal
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { OrderWithProducts } from '@/models/Order';
@@ -25,14 +24,12 @@ import { useAppSelector } from '@/hooks/redux.hook';
 
 
 export default function OrderCard({ 
-  order, 
-  onStatusUpdate, 
-  onPaymentUpdate, 
-  onViewDetails 
+  order,
+  onStatusUpdate,
+  onViewDetails
 }: {
   order: OrderWithProducts;
   onStatusUpdate: (id: string, status: string, notes?: string) => void;
-  onPaymentUpdate: (id: string, status: string) => void;
   onViewDetails: () => void;
 }) {
   const shop = useAppSelector(state => state.shop.shop);
@@ -105,7 +102,6 @@ export default function OrderCard({
                       onChange={(e) => setNewStatus(e.target.value as typeof newStatus)}
                       className="px-2 py-1 border border-gray-300 rounded text-sm"
                     >
-                      <option value="pending">Pending</option>
                       <option value="confirmed">Confirmed</option>
                       <option value="processing">Processing</option>
                       <option value="shipped">Shipped</option>
@@ -198,6 +194,7 @@ export default function OrderCard({
                 size="sm"
                 onClick={() => setIsEditingStatus(true)}
                 className="flex items-center gap-2"
+                disabled={order.payment_status === 'pending'}
               >
                 <Edit className="w-4 h-4" />
                 Update Status
@@ -225,25 +222,6 @@ export default function OrderCard({
                 </Button>
               </div>
             )}
-
-            {order.payment_status === 'pending' && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onPaymentUpdate(order.tracking_id, 'paid')}
-                className="text-green-600 hover:text-green-700"
-              >
-                Mark Paid
-              </Button>
-            )}
-
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-2"
-            >
-              <MoreHorizontal className="w-4 h-4" />
-            </Button>
           </div>
         </div>
       </CardContent>

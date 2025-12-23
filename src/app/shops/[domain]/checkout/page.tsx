@@ -16,7 +16,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   ShoppingCart,
   CreditCard,
-  Truck,
   MapPin,
   CheckCircle,
   AlertCircle,
@@ -30,6 +29,7 @@ import { createOrderSchema } from '@/lib/schema/order';
 import Image from 'next/image';
 import { formatCurrency } from '@/lib/currency';
 import { useAppSelector } from '@/hooks/redux.hook';
+import { useSession } from 'next-auth/react';
 
 const checkoutSchema = createOrderSchema.extend({
   use_billing_as_shipping: z.boolean().optional().default(false),
@@ -41,6 +41,8 @@ type CheckoutFormData = z.infer<typeof checkoutSchema>;
 
 export default function CheckoutPage() {
   const { domain } = useParams();
+  const { data: session } = useSession();
+  const user = session?.user;
   const router = useRouter();
   const shop = useAppSelector(state => state.shop.shop);
 
@@ -53,11 +55,11 @@ export default function CheckoutPage() {
     resolver: zodResolver(checkoutSchema),
     defaultValues: {
       shipping_address: {
-        name: '',
-        phone: '',
-        address_line_1: '',
+        name: user?.username || '',
+        phone: user?.phone_number || '',
+        address_line_1: user?.address || '',
         address_line_2: '',
-        city: '',
+        city: user?.city || '',
         state: '',
         postal_code: '',
         country: 'US',
@@ -422,10 +424,6 @@ export default function CheckoutPage() {
                 </Button>
 
                 <div className="text-xs text-gray-500 text-center mt-4">
-                  <div className="flex items-center justify-center gap-1 mb-2">
-                    <Truck className="w-3 h-3" />
-                    <span>Free shipping on orders over $50</span>
-                  </div>
                   <p>
                     By placing this order, you agree to our Terms of Service and Privacy Policy.
                   </p>

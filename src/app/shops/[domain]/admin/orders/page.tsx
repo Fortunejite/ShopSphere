@@ -94,20 +94,6 @@ export default function AdminOrdersPage() {
     }
   };
 
-  const updatePaymentStatus = async (trackingId: string, paymentStatus: string) => {
-    try {
-      await axios.patch(`/api/shops/${domain}/admin/orders/${trackingId}/payment`, {
-        payment_status: paymentStatus
-      });
-      
-      // Refresh orders
-      fetchOrders();
-    } catch (error) {
-      console.error('Error updating payment status:', error);
-      alert('Failed to update payment status');
-    }
-  };
-
   const filteredOrders = orders.filter(order =>
     searchTerm === '' ||
     order.tracking_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -278,7 +264,6 @@ export default function AdminOrdersPage() {
                 key={order.id} 
                 order={order}
                 onStatusUpdate={updateOrderStatus}
-                onPaymentUpdate={updatePaymentStatus}
                 onViewDetails={() => router.push(`/admin/orders/${order.tracking_id}`)}
               />
             ))}

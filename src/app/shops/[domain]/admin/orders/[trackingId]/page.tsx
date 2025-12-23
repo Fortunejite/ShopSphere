@@ -42,9 +42,7 @@ export default function AdminOrderDetailsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [isEditingStatus, setIsEditingStatus] = useState(false);
-  const [isEditingPayment, setIsEditingPayment] = useState(false);
   const [newStatus, setNewStatus] = useState('');
-  const [newPaymentStatus, setNewPaymentStatus] = useState('');
   const [adminNotes, setAdminNotes] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -62,7 +60,6 @@ export default function AdminOrderDetailsPage() {
       const orderData = resData.order
       setOrder(orderData);
       setNewStatus(orderData.status);
-      setNewPaymentStatus(orderData.payment_status);
       setAdminNotes(orderData.admin_notes || '');
     } catch (error) {
       console.error('Error fetching order details:', error);
@@ -94,24 +91,6 @@ export default function AdminOrderDetailsPage() {
     } catch (error) {
       console.error('Error updating order status:', error);
       alert('Failed to update order status');
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
-  const updatePaymentStatus = async () => {
-    try {
-      setIsUpdating(true);
-      await axios.patch(`/api/shops/${domain}/admin/orders/${order!.tracking_id}/payment`, {
-        payment_status: newPaymentStatus
-      });
-      
-      // Refresh order data
-      await fetchOrderDetails();
-      setIsEditingPayment(false);
-    } catch (error) {
-      console.error('Error updating payment status:', error);
-      alert('Failed to update payment status');
     } finally {
       setIsUpdating(false);
     }
@@ -242,6 +221,7 @@ export default function AdminOrderDetailsPage() {
                   <Button
                     variant="outline"
                     size="sm"
+                    disabled={order.payment_status === 'pending'}
                     onClick={() => setIsEditingStatus(!isEditingStatus)}
                   >
                     <Edit className="w-4 h-4 mr-2" />
@@ -261,7 +241,6 @@ export default function AdminOrderDetailsPage() {
                         onChange={(e) => setNewStatus(e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
-                        <option value="pending">Pending</option>
                         <option value="confirmed">Confirmed</option>
                         <option value="processing">Processing</option>
                         <option value="shipped">Shipped</option>
@@ -434,64 +413,25 @@ export default function AdminOrderDetailsPage() {
                     <CreditCard className="w-5 h-5" />
                     Payment
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsEditingPayment(!isEditingPayment)}
-                  >
-                    <Edit className="w-4 h-4 mr-2" />
-                    {isEditingPayment ? 'Cancel' : 'Edit'}
-                  </Button>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {isEditingPayment ? (
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Payment Status
-                      </label>
-                      <select
-                        value={newPaymentStatus}
-                        onChange={(e) => setNewPaymentStatus(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="pending">Pending</option>
-                        <option value="paid">Paid</option>
-                        <option value="failed">Failed</option>
-                        <option value="refunded">Refunded</option>
-                      </select>
-                    </div>
-                    <Button
-                      onClick={updatePaymentStatus}
-                      disabled={isUpdating}
-                      size="sm"
-                      className="flex items-center gap-2"
-                    >
-                      <Save className="w-4 h-4" />
-                      {isUpdating ? 'Updating...' : 'Update Payment'}
-                    </Button>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Status:</span>
+                  <Badge className={getPaymentStatusColor(order.payment_status)}>
+                    {order.payment_status.charAt(0).toUpperCase() + order.payment_status.slice(1)}
+                  </Badge>
+                </div>
+                {order.payment_method && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Method:</span>
+                    <span className="text-sm capitalize">{order.payment_method.replace('_', ' ')}</span>
                   </div>
-                ) : (
-                  <>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Status:</span>
-                      <Badge className={getPaymentStatusColor(order.payment_status)}>
-                        {order.payment_status.charAt(0).toUpperCase() + order.payment_status.slice(1)}
-                      </Badge>
-                    </div>
-                    {order.payment_method && (
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Method:</span>
-                        <span className="text-sm capitalize">{order.payment_method.replace('_', ' ')}</span>
-                      </div>
-                    )}
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Total Amount:</span>
-                      <span className="font-medium">{formatCurrency(order.final_amount, shop!.currency)}</span>
-                    </div>
-                  </>
                 )}
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Total Amount:</span>
+                  <span className="font-medium">{formatCurrency(order.final_amount, shop!.currency)}</span>
+                </div>
               </CardContent>
             </Card>
 
