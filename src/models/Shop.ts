@@ -6,6 +6,7 @@ export interface ShopAttributes {
   name: string;
   domain: string;
   category_id: number;
+  tagline?: string;
   description?: string;
   status: 'active' | 'inactive' | 'suspended';
   email: string;
@@ -48,11 +49,11 @@ export class Shop {
 
     const query = `
       INSERT INTO ${Shop.tableName} (
-        owner_id, name, domain, category_id, description, status, currency, 
+        owner_id, name, domain, category_id, tagline, description, status, currency, 
         email, phone, address, city, state, postal_code, country, free_shipping_threshold,
         logo, banner, stripe_account_id, created_at, updated_at
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
       RETURNING *
     `;
 
@@ -61,6 +62,7 @@ export class Shop {
       shop.name,
       shop.domain,
       shop.category_id,
+      shop.tagline,
       shop.description,
       shop.status,
       shop.currency,

@@ -3,6 +3,8 @@
  * Currently returns a placeholder URL - to be implemented with actual upload logic later
  */
 
+import { uploadImage } from "@/services/firebase/storage";
+
 export interface UploadResult {
   url: string;
   success: boolean;
@@ -26,15 +28,13 @@ export async function uploadPhoto(file: File): Promise<UploadResult> {
       };
     }
 
-    // Simulate upload delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    const url = await uploadImage(file);
     
-    // For now, convert file to data URL for testing
-    // In production, this would upload to a cloud service and return the URL
-    const dataUrl = await fileToDataUrl(file);
+    // Local test, convert file to data URL for testing
+    // const dataUrl = await fileToDataUrl(file);
     
     return {
-      url: dataUrl,
+      url,
       success: true
     };
   } catch (error) {
@@ -51,14 +51,14 @@ export async function uploadPhoto(file: File): Promise<UploadResult> {
  * @param file - The file to convert
  * @returns Promise that resolves to data URL
  */
-function fileToDataUrl(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = () => reject(new Error('Failed to read file'));
-    reader.readAsDataURL(file);
-  });
-}
+// function fileToDataUrl(file: File): Promise<string> {
+//   return new Promise((resolve, reject) => {
+//     const reader = new FileReader();
+//     reader.onload = () => resolve(reader.result as string);
+//     reader.onerror = () => reject(new Error('Failed to read file'));
+//     reader.readAsDataURL(file);
+//   });
+// }
 
 /**
  * Uploads multiple photos and returns array of URLs

@@ -135,7 +135,7 @@ export default function ShopHomePage() {
                 </h1>
                 
                 <p className="text-xl text-white/90 mb-8 max-w-3xl mx-auto leading-relaxed drop-shadow-md">
-                  {shop.description || 'Discover amazing products and great deals in our carefully curated collection.'}
+                  {shop.tagline}
                 </p>
               </div>
             </div>
@@ -149,7 +149,7 @@ export default function ShopHomePage() {
               </h1>
               
               <p className="text-xl text-neutral-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-                {shop.description || 'Discover amazing products and great deals in our carefully curated collection.'}
+                {shop.tagline}
               </p>
             </div>
           </div>
