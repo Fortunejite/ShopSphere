@@ -14,7 +14,6 @@ import { Eye, EyeOff, Loader2, CheckCircle } from 'lucide-react';
 import { createUserSchema } from '@/lib/schema/auth';
 import { z } from 'zod';
 import axios from 'axios';
-import AuthGuard from '@/components/AuthGuard';
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -116,7 +115,6 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-neutral-50 to-neutral-100 p-4">
-      <AuthGuard reversed />
       <div className="w-full max-w-md space-y-6">
         {/* Logo and Header */}
         <div className="text-center space-y-2">
