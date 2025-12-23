@@ -10,7 +10,7 @@ export function middleware(req: NextRequest) {
   // }
 
   const hostParts = host.split('.');
-  if (hostParts.length < 3) {
+  if (hostParts.length < 4) {
     return NextResponse.next();
   }
   const subdomain = hostParts[0];
