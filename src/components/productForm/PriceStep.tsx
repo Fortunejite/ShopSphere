@@ -1,9 +1,9 @@
-import { Checkbox } from "@radix-ui/react-checkbox";
-import { Label } from "@radix-ui/react-label";
 import { Input } from "../ui/input";
 import { ProductFormData, UpdateFormData } from './ProductStepForm';
 import { useAppSelector } from "@/hooks/redux.hook";
 import { formatCurrency, getCurrencySymbol } from "@/lib/currency";
+import { Checkbox } from "../ui/checkbox";
+import { Label } from "../ui/label";
 
 interface Props {
   formData: ProductFormData
