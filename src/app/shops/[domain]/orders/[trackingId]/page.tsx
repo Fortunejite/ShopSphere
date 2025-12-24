@@ -473,17 +473,10 @@ export default function OrderDetailsPage() {
                   Download Receipt
                 </Button>
                 
-                {(order.status === 'pending' || order.status === 'confirmed') && (
+                {(order.status === 'pending') && (
                   <Button variant="outline" className="w-full text-red-600 hover:text-red-700">
                     <X className="w-4 h-4 mr-2" />
                     Cancel Order
-                  </Button>
-                )}
-
-                {order.status === 'delivered' && (
-                  <Button variant="outline" className="w-full">
-                    <Package className="w-4 h-4 mr-2" />
-                    Reorder
                   </Button>
                 )}
 

@@ -1,6 +1,7 @@
 import { errorHandler } from '@/lib/errorHandler';
 import { Order } from '@/models/Order';
 import { Shop } from '@/models/Shop';
+import { StripeEvent } from '@/models/StripeEvents';
 import { stripe } from '@/services/stripe';
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
@@ -14,7 +15,6 @@ export const POST = errorHandler(async (req) => {
   let event: Stripe.Event;
 
   try {
-    // TODO: make event idempotent to avoid processing same event multiple times
     event = await stripe.webhooks.constructEventAsync(
       await req.text(),
       req.headers.get('stripe-signature') || '',
@@ -24,6 +24,21 @@ export const POST = errorHandler(async (req) => {
     console.error('Error constructing Stripe event:', error);
     return NextResponse.json({ error: 'Invalid webhook signature' }, { status: 400 });
   }
+
+  // check if event has been processed before
+  const existingEvent = await StripeEvent.findById(event.id);
+  if (existingEvent) {
+    console.log('Event already processed:', event.id);
+    return NextResponse.json({ received: true });
+  }
+
+  // store the event
+  await StripeEvent.create({
+    event_id: event.id,
+    event_type: event.type,
+    payload: event.data.object,
+    received_at: new Date(),
+  });
 
   if (!permittedEvents.includes(event.type)) {
     console.warn('Unhandled event type:', event.type);

@@ -123,6 +123,13 @@ CREATE TABLE orders (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE stripe_events (
+  event_id VARCHAR(255) PRIMARY KEY,
+  event_type VARCHAR(100) NOT NULL,
+  payload JSONB NOT NULL,
+  received_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Indexes (PostgreSQL-compliant)
 
 CREATE INDEX idx_products_shop_id ON products (shop_id);
