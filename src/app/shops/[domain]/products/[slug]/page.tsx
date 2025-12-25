@@ -70,24 +70,24 @@ export default function ProductDetailsPage() {
   const [isInWishlist, setIsInWishlist] = useState(false);
 
   useEffect(() => {
-    if (!shop || !product || !isInCart || !quantityInitialized) return;
+    if (!shop || !product || !isInCart || !quantityInitialized) {
+      setQuantityInitialized(true);
+      return;
+    }
     dispatch(updateCartItem({
         shopDomain: shop.domain,
         product_id: product.id,
         quantity,
         variant_index: variantIndex,
       }));
+    setQuantityInitialized(true);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quantity]);
 
   useEffect(() => {
     if (!product || quantityInitialized) return;
-    if (!isInCart) {
-      setQuantityInitialized(true);
-      return;
-    }
+    if (!isInCart) return;
     setQuantity(getCartItemQuantity(reduxState, product.id, variantIndex));
-    setQuantityInitialized(true);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product]);
 
@@ -203,6 +203,10 @@ export default function ProductDetailsPage() {
       
       if (matchingVariant) {
         setSelectedVariant(matchingVariant);
+        if (isInCart) {
+          setQuantityInitialized(false);
+          setQuantity(getCartItemQuantity(reduxState, product.id, product.variants.indexOf(matchingVariant)));
+        }
       } else {
         // Clear variant if no exact match (partial selection)
         setSelectedVariant(null);
@@ -214,7 +218,7 @@ export default function ProductDetailsPage() {
     if (!product || !shop?.domain) return;
     
     // Check if item is already in cart
-    const variantIndex = selectedVariant ? product.variants.indexOf(selectedVariant) : undefined;
+    const variantIndex = selectedVariant !== null ? product.variants.indexOf(selectedVariant) : undefined;
 
     dispatch(addToCart({
       shopDomain: shop.domain,
@@ -228,7 +232,7 @@ export default function ProductDetailsPage() {
 
   const handleRemoveFromCart = async () => {
     if (!product || !shop?.domain) return;
-    const variantIndex = selectedVariant ? product.variants.indexOf(selectedVariant) : undefined;
+    const variantIndex = selectedVariant !== null ? product.variants.indexOf(selectedVariant) : undefined;
     dispatch(removeFromCart({
       shopDomain: shop.domain,
       product_id: product.id,

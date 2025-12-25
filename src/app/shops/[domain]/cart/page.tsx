@@ -119,7 +119,7 @@ export default function CartPage() {
         removeFromCart({
           shopDomain: shop.domain,
           product_id: productId,
-          variant_index: variantIndex || undefined,
+          variant_index: variantIndex !== undefined ? variantIndex : undefined,
         }),
       ).unwrap();
     } catch (error) {
@@ -130,7 +130,7 @@ export default function CartPage() {
   };
 
   const getVariantDisplayText = (item: CartItemWithProduct) => {
-    if (!item.variant_index || !item.product.variants?.[item.variant_index]) {
+    if (item.variant_index === undefined || !item.product.variants?.[item.variant_index]) {
       return null;
     }
 
@@ -226,7 +226,7 @@ export default function CartPage() {
                 <Package className="w-4 h-4 mr-2" />
                 Browse Products
               </Button>
-              <Button variant="outline" onClick={() => router.push(``)}>
+              <Button variant="outline" onClick={() => router.push('/')}>
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Store
               </Button>
