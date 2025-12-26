@@ -119,7 +119,7 @@ export default function CartPage() {
         removeFromCart({
           shopDomain: shop.domain,
           product_id: productId,
-          variant_index: variantIndex !== undefined ? variantIndex : undefined,
+          variant_index: typeof variantIndex === 'number' ? variantIndex : undefined,
         }),
       ).unwrap();
     } catch (error) {

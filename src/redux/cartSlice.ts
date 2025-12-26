@@ -174,7 +174,7 @@ export const itemInCart = (
   const cart = state.cart.cart;
   if (!cart?.items) return false;
   return cart.items.some((item) => 
-    item.product_id === productId && (variantIndex !== undefined ? item.variant_index === variantIndex : true)
+    item.product_id === productId && (typeof variantIndex === 'number' ? item.variant_index === variantIndex : true)
   );
 };
 

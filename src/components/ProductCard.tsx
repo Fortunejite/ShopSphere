@@ -86,7 +86,6 @@ const ProductCard = ({
       removeFromCart({
         shopDomain: shop.domain,
         product_id: product.id,
-        variant_index: product.variants.length > 0 ? 0 : undefined,
       }),
     );
   };

@@ -66,30 +66,22 @@ export default function ProductDetailsPage() {
   const [selectedVariant, setSelectedVariant] = useState<ProductAttributes['variants'][0] | null>(null);
   const [selectedAttributes, setSelectedAttributes] = useState<Record<string, string>>({});
   const [quantity, setQuantity] = useState(1);
-  const [quantityInitialized, setQuantityInitialized] = useState(false)
   const [isInWishlist, setIsInWishlist] = useState(false);
 
+  // Sync quantity with cart when product, variant, or cart state changes
   useEffect(() => {
-    if (!shop || !product || !isInCart || !quantityInitialized) {
-      setQuantityInitialized(true);
-      return;
+    if (!product || !shop?.domain) return;
+    
+    const currentVariantIndex = selectedVariant ? product.variants.indexOf(selectedVariant) : undefined;
+    const currentIsInCart = itemInCart(reduxState, product.id, currentVariantIndex);
+    
+    if (currentIsInCart) {
+      const cartQuantity = getCartItemQuantity(reduxState, product.id, currentVariantIndex);
+      setQuantity(cartQuantity);
+    } else {
+      setQuantity(1); // Reset to 1 when not in cart
     }
-    dispatch(updateCartItem({
-        shopDomain: shop.domain,
-        product_id: product.id,
-        quantity,
-        variant_index: variantIndex,
-      }));
-    setQuantityInitialized(true);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [quantity]);
-
-  useEffect(() => {
-    if (!product || quantityInitialized) return;
-    if (!isInCart) return;
-    setQuantity(getCartItemQuantity(reduxState, product.id, variantIndex));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [product]);
+  }, [product, selectedVariant, reduxState.cart, shop?.domain]);
 
   useEffect(() => {
     fetchProductDetails();
@@ -203,10 +195,7 @@ export default function ProductDetailsPage() {
       
       if (matchingVariant) {
         setSelectedVariant(matchingVariant);
-        if (isInCart) {
-          setQuantityInitialized(false);
-          setQuantity(getCartItemQuantity(reduxState, product.id, product.variants.indexOf(matchingVariant)));
-        }
+        // Quantity will be automatically synced via useEffect
       } else {
         // Clear variant if no exact match (partial selection)
         setSelectedVariant(null);
@@ -225,7 +214,7 @@ export default function ProductDetailsPage() {
       item: {
         product_id: product.id,
         quantity,
-        variant_index: variantIndex,
+        variant_index: typeof variantIndex === 'number' ? variantIndex : undefined,
       }
     }));
   };
@@ -236,7 +225,7 @@ export default function ProductDetailsPage() {
     dispatch(removeFromCart({
       shopDomain: shop.domain,
       product_id: product.id,
-      variant_index: variantIndex,
+      variant_index: typeof variantIndex === 'number' ? variantIndex : undefined,
     }));
   };
 
@@ -403,6 +392,20 @@ export default function ProductDetailsPage() {
     } else {
       handleAddToCart();
     }
+  };
+
+  const handleQuantityChange = (newQuantity: number) => {
+    if (isInCart && shop?.domain) {
+      // Update quantity in cart if item is already in cart
+      dispatch(updateCartItem({
+        shopDomain: shop.domain,
+        product_id: product.id,
+        quantity: newQuantity,
+        variant_index: variantIndex,
+      }));
+    }
+    // Always update local quantity state
+    setQuantity(newQuantity);
   };
 
   return (
@@ -636,8 +639,8 @@ export default function ProductDetailsPage() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    disabled={quantity <= 1 || !isValidCompleteSelection() || cartStatus === 'loading'}
+                    onClick={() => handleQuantityChange(Math.max(1, quantity - 1))}
+                    disabled={quantity <= 1 || !isValidCompleteSelection() || (cartStatus === 'loading' && isInCart)}
                   >
                     <Minus className="w-4 h-4" />
                   </Button>
@@ -645,8 +648,8 @@ export default function ProductDetailsPage() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => setQuantity(Math.min(currentStock, quantity + 1))}
-                    disabled={quantity >= currentStock || !isValidCompleteSelection() || cartStatus === 'loading'}
+                    onClick={() => handleQuantityChange(Math.min(currentStock, quantity + 1))}
+                    disabled={quantity >= currentStock || !isValidCompleteSelection() || (cartStatus === 'loading' && isInCart)}
                   >
                     <Plus className="w-4 h-4" />
                   </Button>
