@@ -26,15 +26,17 @@ import {
   X
 } from 'lucide-react';
 import { ProductLoading } from '@/components/Loading';
-import { useAppSelector } from '@/hooks/redux.hook';
+import { useAppDispatch, useAppSelector } from '@/hooks/redux.hook';
 import { uploadPhoto } from '@/lib/uploadPhoto';
 import { createShopSchema } from '@/lib/schema/shop';
 import Image from 'next/image';
+import { updateShop } from '@/redux/shopSlice';
 
 type ShopSettingsFormData = z.infer<typeof createShopSchema>;
 
 export default function AdminSettingsPage() {
   const { domain } = useParams();
+  const dispatch = useAppDispatch();
   const { shop } = useAppSelector(state => state.shop);
   
   const [isLoading, setIsLoading] = useState(true);
@@ -126,8 +128,8 @@ export default function AdminSettingsPage() {
       setMessage(null);
 
       await axios.put(`/api/shops/${domain}`, data);
-      
       setMessage({ type: 'success', text: 'Settings updated successfully!' });
+      dispatch(updateShop(data));
     } catch (error) {
       console.error('Error updating settings:', error);
       setMessage({ type: 'error', text: 'Failed to update settings. Please try again.' });

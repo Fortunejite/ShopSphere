@@ -32,7 +32,11 @@ const initialState: IInitialState = {
 const shopSlice = createSlice({
   name: 'shop',
   initialState,
-  reducers: {},
+  reducers: {
+    updateShop(state, action) {
+      state.shop = {... state.shop, ...action.payload};
+    }
+  },
   extraReducers: (builder) => {
     // Handle fetchShop
     builder
@@ -51,4 +55,5 @@ const shopSlice = createSlice({
   },
 });
 
+export const { updateShop } = shopSlice.actions;
 export default shopSlice.reducer;
