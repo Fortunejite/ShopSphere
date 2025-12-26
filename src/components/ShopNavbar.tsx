@@ -40,7 +40,7 @@ const ShopNavbar = ({ shop, cart }: Props) => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   const handleSignOut = () => {
-    signOut({ callbackUrl: '/' });
+    signOut({ redirect: false });
   };
 
   return (

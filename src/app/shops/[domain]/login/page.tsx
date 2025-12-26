@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,6 +27,9 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [authError, setAuthError] = useState('');
   const router = useRouter();
+  const searchParams = useSearchParams();
+  // get query param next for redirect after login
+  const next = searchParams?.get('next') ?? '/';
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -54,11 +57,10 @@ export default function LoginPage() {
         password: validatedData.password,
         redirect: false,
       });
-
       if (result?.error) {
         setAuthError('Invalid email or password. Please try again.');
       } else if (result?.ok) {
-        router.push('/');
+        router.push(next);
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
