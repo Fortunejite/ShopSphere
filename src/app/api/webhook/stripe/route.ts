@@ -1,4 +1,5 @@
 import { errorHandler } from '@/lib/errorHandler';
+import { emitInventoryEvent } from '@/lib/inventory';
 import { Order } from '@/models/Order';
 import { Shop } from '@/models/Shop';
 import { StripeEvent } from '@/models/StripeEvents';
@@ -62,6 +63,7 @@ export const POST = errorHandler(async (req) => {
       }
 
       await Order.updatePaymentStatus(order.id, 'paid');
+      await emitInventoryEvent('ORDER_PAID', order.id);
       break;
 
     case "account.updated":
