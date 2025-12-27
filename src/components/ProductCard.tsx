@@ -1,5 +1,5 @@
 import { ProductAttributes } from '@/models/Product';
-import { Eye, ShoppingCart, Star, Heart, StarHalf } from 'lucide-react';
+import { Eye, ShoppingCart, Star, Heart, StarHalf, Loader2 } from 'lucide-react';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { Card, CardContent, CardFooter } from './ui/card';
@@ -10,10 +10,10 @@ import {
   addToCart,
   itemInCart,
   removeFromCart,
-  selectCartStatus,
 } from '@/redux/cartSlice';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux.hook';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 const getStockStatus = (quantity: number) => {
   if (quantity === 0)
@@ -57,9 +57,12 @@ const ProductCard = ({
 }) => {
   const router = useRouter();
   const reduxState = useAppSelector((state) => state);
-  const cartStatus = useAppSelector(selectCartStatus);
   const dispatch = useAppDispatch();
   const { shop } = reduxState.shop;
+  
+  // Individual loading state for this product card
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingAction, setLoadingAction] = useState<'add' | 'remove' | null>(null);
 
   const pricing = formatPrice(product.price, product.discount);
   const stockStatus = getStockStatus(product.stock_quantity);
@@ -68,28 +71,57 @@ const ProductCard = ({
   const handleAddToCart = async () => {
     if (!product || !shop?.domain) return;
 
-    dispatch(
-      addToCart({
-        shopDomain: shop.domain,
-        item: {
-          product_id: product.id,
-          quantity: 1,
-          variant_index: product.variants.length > 0 ? 0 : undefined,
-          product,
-          subtotal: product.price,
-        },
-      }),
-    );
+    setIsLoading(true);
+    setLoadingAction('add');
+    try {
+      const result = dispatch(
+        addToCart({
+          shopDomain: shop.domain,
+          item: {
+            product_id: product.id,
+            quantity: 1,
+            variant_index: product.variants.length > 0 ? 0 : undefined,
+            product,
+            subtotal: product.price,
+          },
+        }),
+      );
+      
+      // Check if it's a thunk action and wait for it
+      if ('unwrap' in result) {
+        await result.unwrap();
+      }
+    } catch (error) {
+      console.error('Failed to add to cart:', error);
+    } finally {
+      setIsLoading(false);
+      setLoadingAction(null);
+    }
   };
 
   const handleRemoveFromCart = async () => {
     if (!product || !shop?.domain) return;
-    dispatch(
-      removeFromCart({
-        shopDomain: shop.domain,
-        product_id: product.id,
-      }),
-    );
+    
+    setIsLoading(true);
+    setLoadingAction('remove');
+    try {
+      const result = dispatch(
+        removeFromCart({
+          shopDomain: shop.domain,
+          product_id: product.id,
+        }),
+      );
+      
+      // Check if it's a thunk action and wait for it
+      if ('unwrap' in result) {
+        await result.unwrap();
+      }
+    } catch (error) {
+      console.error('Failed to remove from cart:', error);
+    } finally {
+      setIsLoading(false);
+      setLoadingAction(null);
+    }
   };
 
   const toggleCart = () => {
@@ -171,15 +203,19 @@ const ProductCard = ({
                         ? () => router.push(`/products/${product.slug}`)
                         : toggleCart
                     }
-                    disabled={product.stock_quantity === 0 || cartStatus === 'loading'}
+                    disabled={product.stock_quantity === 0 || isLoading}
                   >
-                    <ShoppingCart className="w-4 h-4 mr-1" />
+                    {isLoading ? (
+                      <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                    ) : (
+                      <ShoppingCart className="w-4 h-4 mr-1" />
+                    )}
                     {product.stock_quantity === 0 
                       ? 'Out of Stock'
                       : product.variants.length > 0
                       ? 'Select Options'
-                      : cartStatus === 'loading'
-                      ? 'Adding...'
+                      : isLoading
+                      ? loadingAction === 'add' ? 'Adding...' : 'Removing...'
                       : isInCart
                       ? 'Remove from Cart'
                     : 'Add to Cart'}
@@ -267,13 +303,17 @@ const ProductCard = ({
               ? () => router.push(`/products/${product.slug}`)
               : toggleCart
           }
-          disabled={product.stock_quantity === 0 || cartStatus === 'loading'}
+          disabled={product.stock_quantity === 0 || isLoading}
         >
-          <ShoppingCart className="w-4 h-4 mr-2" />
+          {isLoading ? (
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+          ) : (
+            <ShoppingCart className="w-4 h-4 mr-2" />
+          )}
           {product.variants.length > 0
             ? 'Select Options'
-            : cartStatus === 'loading'
-            ? 'Adding...'
+            : isLoading
+            ? loadingAction === 'add' ? 'Adding...' : 'Removing...'
             : product.stock_quantity === 0
             ? 'Out of Stock'
             : isInCart
