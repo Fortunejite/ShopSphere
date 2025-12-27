@@ -81,7 +81,7 @@ export default function ProductDetailsPage() {
     } else {
       setQuantity(1); // Reset to 1 when not in cart
     }
-  }, [product, selectedVariant, reduxState.cart, shop?.domain]);
+  }, [product, selectedVariant, reduxState.cart, shop?.domain, reduxState]);
 
   useEffect(() => {
     fetchProductDetails();

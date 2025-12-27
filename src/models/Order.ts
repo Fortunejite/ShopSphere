@@ -108,7 +108,7 @@ export class Order {
       product_id: item.product_id,
       quantity: item.quantity,
       variant_index: item.variant_index,
-      unit_price_at_purchase: item.variant_price || item.product.price,
+      unit_price_at_purchase: item.product.price,
       discount_at_purchase: item.product.discount || 0,
       subtotal: item.subtotal,
     }));
