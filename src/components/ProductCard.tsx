@@ -75,6 +75,8 @@ const ProductCard = ({
           product_id: product.id,
           quantity: 1,
           variant_index: product.variants.length > 0 ? 0 : undefined,
+          product,
+          subtotal: product.price,
         },
       }),
     );

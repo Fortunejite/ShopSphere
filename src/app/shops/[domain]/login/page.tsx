@@ -1,8 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { signIn } from 'next-auth/react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,10 +13,12 @@ import { loginUserSchema } from '@/lib/schema/auth';
 import Image from 'next/image';
 import { z } from 'zod';
 import { useAppSelector } from '@/hooks/redux.hook';
+import { useAuthWithCartMerge } from '@/hooks/useAuthWithCartMerge';
 // import AuthGuard from '@/components/AuthGuard';
 
 export default function LoginPage() {
   const { shop } = useAppSelector(state => state.shop);
+  const { loginWithCartMerge, isMergingCart } = useAuthWithCartMerge();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -26,7 +27,6 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [authError, setAuthError] = useState('');
-  const router = useRouter();
   const searchParams = useSearchParams();
   // get query param next for redirect after login
   const next = searchParams?.get('next') ?? '/';
@@ -52,16 +52,9 @@ export default function LoginPage() {
       // Validate form data
       const validatedData = loginUserSchema.parse(formData);
       
-      const result = await signIn('credentials', {
-        email: validatedData.email,
-        password: validatedData.password,
-        redirect: false,
-      });
-      if (result?.error) {
-        setAuthError('Invalid email or password. Please try again.');
-      } else if (result?.ok) {
-        router.push(next);
-      }
+      // Use the cart merge hook for authentication
+      await loginWithCartMerge(validatedData, next);
+      
     } catch (error) {
       if (error instanceof z.ZodError) {
         const fieldErrors: Record<string, string> = {};
@@ -72,7 +65,7 @@ export default function LoginPage() {
         });
         setErrors(fieldErrors);
       } else {
-        setAuthError('An unexpected error occurred. Please try again.');
+        setAuthError(error instanceof Error ? error.message : 'An unexpected error occurred. Please try again.');
       }
     } finally {
       setIsLoading(false);
@@ -180,12 +173,12 @@ export default function LoginPage() {
               <Button 
                 type="submit" 
                 className="w-full" 
-                disabled={isLoading}
+                disabled={isLoading || isMergingCart}
               >
-                {isLoading ? (
+                {isLoading || isMergingCart ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Signing In...
+                    {isMergingCart ? 'Syncing Cart...' : 'Signing In...'}
                   </>
                 ) : (
                   'Sign In'

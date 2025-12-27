@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -15,10 +14,12 @@ import { createUserSchema } from '@/lib/schema/auth';
 import { z } from 'zod';
 import axios from 'axios';
 import { useAppSelector } from '@/hooks/redux.hook';
+import { useAuthWithCartMerge } from '@/hooks/useAuthWithCartMerge';
 // import AuthGuard from '@/components/AuthGuard';
 
 export default function SignupPage() {
   const { shop } = useAppSelector(state => state.shop);
+  const { signupWithCartMerge, isMergingCart } = useAuthWithCartMerge();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -32,7 +33,6 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [authError, setAuthError] = useState('');
   const [success, setSuccess] = useState(false);
-  const router = useRouter();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -56,14 +56,10 @@ export default function SignupPage() {
       // Validate form data
       const validatedData = createUserSchema.parse(formData);
       
-      const response = await axios.post('/api/auth/register', validatedData);
-
-      if (response.data) {
-        setSuccess(true);
-        setTimeout(() => {
-          router.push('/');
-        }, 2000);
-      }
+      // Use the cart merge hook for registration and authentication
+      await signupWithCartMerge(validatedData, '/');
+      
+      setSuccess(true);
     } catch (error) {
       if (error instanceof z.ZodError) {
         const fieldErrors: Record<string, string> = {};
@@ -100,14 +96,8 @@ export default function SignupPage() {
                 </div>
                 <h2 className="text-2xl font-bold text-neutral-900">Account Created!</h2>
                 <p className="text-neutral-600">
-                  Your account has been created successfully. You&apos;ll be redirected to the home page shortly.
+                  Your account has been created successfully and you&apos;ve been signed in.
                 </p>
-                <Button 
-                  onClick={() => router.push('/login')}
-                  className="w-full"
-                >
-                  Go to Login
-                </Button>
               </div>
             </CardContent>
           </Card>
@@ -279,12 +269,12 @@ export default function SignupPage() {
               <Button 
                 type="submit" 
                 className="w-full" 
-                disabled={isLoading}
+                disabled={isLoading || isMergingCart}
               >
-                {isLoading ? (
+                {isLoading || isMergingCart ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Creating Account...
+                    {isMergingCart ? 'Syncing Cart...' : 'Creating Account...'}
                   </>
                 ) : (
                   'Create Account'

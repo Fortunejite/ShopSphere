@@ -18,7 +18,6 @@ export interface CartAttributes {
 
 export interface CartItemWithProduct extends CartItem {
   product: ProductAttributes;
-  variant_price?: number;
   subtotal: number;
 }
 
@@ -376,42 +375,65 @@ export class Cart {
   }
 
   /**
-   * Merge carts (useful when user logs in and has items in both guest and user carts)
+   * Merge carts - can merge from source cart data or between user carts
    */
   static async mergeCarts(
-    source_user_id: number, 
     target_user_id: number, 
-    shop_id: number
+    shop_id: number,
+    source_items?: CartItem[], // Items from local storage or another cart
+    source_user_id?: number   // For merging between authenticated users
   ): Promise<CartAttributes | null> {
-    const sourceCart = await database.query(
-      `SELECT * FROM ${Cart.tableName} WHERE user_id = $1 AND shop_id = $2`,
-      [source_user_id, shop_id]
-    );
+    let sourceItems: CartItem[] = [];
 
+    // If source_items provided (from local storage), use those
+    if (source_items) {
+      sourceItems = source_items;
+    } 
+    // Otherwise, get items from source user's cart
+    else if (source_user_id) {
+      const sourceCart = await database.query(
+        `SELECT * FROM ${Cart.tableName} WHERE user_id = $1 AND shop_id = $2`,
+        [source_user_id, shop_id]
+      );
+
+      if (sourceCart.rows.length > 0) {
+        sourceItems = sourceCart.rows[0].items || [];
+      }
+    }
+
+    // If no source items, nothing to merge
+    if (sourceItems.length === 0) {
+      const targetCart = await database.query(
+        `SELECT * FROM ${Cart.tableName} WHERE user_id = $1 AND shop_id = $2`,
+        [target_user_id, shop_id]
+      );
+      return targetCart.rows[0] || null;
+    }
+
+    // Get or create target cart
     const targetCart = await database.query(
       `SELECT * FROM ${Cart.tableName} WHERE user_id = $1 AND shop_id = $2`,
       [target_user_id, shop_id]
     );
 
-    if (sourceCart.rows.length === 0) {
-      return targetCart.rows[0] || null;
-    }
+    let targetItems: CartItem[] = [];
+    let cartId: number;
 
     if (targetCart.rows.length === 0) {
-      // Update source cart to target user
-      const result = await database.query(
-        `UPDATE ${Cart.tableName} 
-         SET user_id = $1, updated_at = CURRENT_TIMESTAMP 
-         WHERE user_id = $2 AND shop_id = $3 RETURNING *`,
-        [target_user_id, source_user_id, shop_id]
+      // Create new cart for target user
+      const insertResult = await database.query(
+        `INSERT INTO ${Cart.tableName} (user_id, shop_id, items, created_at, updated_at)
+         VALUES ($1, $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) RETURNING *`,
+        [target_user_id, shop_id, JSON.stringify(sourceItems)]
       );
-      return result.rows[0];
+      return insertResult.rows[0];
+    } else {
+      // Merge with existing cart
+      targetItems = targetCart.rows[0].items || [];
+      cartId = targetCart.rows[0].id;
     }
 
-    // Merge items from both carts
-    const sourceItems = sourceCart.rows[0].items || [];
-    const targetItems = targetCart.rows[0].items || [];
-    
+    // Merge items - combine quantities for same product/variant
     const mergedItems = [...targetItems];
 
     for (const sourceItem of sourceItems) {
@@ -427,19 +449,21 @@ export class Cart {
       }
     }
 
-    // Update target cart and delete source cart
+    // Update target cart
     const updateResult = await database.query(
       `UPDATE ${Cart.tableName} 
        SET items = $1, updated_at = CURRENT_TIMESTAMP 
-       WHERE user_id = $2 AND shop_id = $3 RETURNING *`,
-      [JSON.stringify(mergedItems), target_user_id, shop_id]
+       WHERE id = $2 RETURNING *`,
+      [JSON.stringify(mergedItems), cartId]
     );
 
-    // Delete source cart
-    await database.query(
-      `DELETE FROM ${Cart.tableName} WHERE user_id = $1 AND shop_id = $2`,
-      [source_user_id, shop_id]
-    );
+    // If merging from another user's cart, delete source cart
+    if (source_user_id) {
+      await database.query(
+        `DELETE FROM ${Cart.tableName} WHERE user_id = $1 AND shop_id = $2`,
+        [source_user_id, shop_id]
+      );
+    }
 
     return updateResult.rows[0];
   }

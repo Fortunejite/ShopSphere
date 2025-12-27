@@ -11,7 +11,7 @@ interface IInitialState {
 
 // Thunks for handling async operations
 export const fetchShop = createAsyncThunk(
-  'catgegory/fetchShop',
+  'shop/fetchShop',
   async (domain: string, { rejectWithValue }) => {
     try {
       const response = await axios.get(`/api/shops/${domain}`);

@@ -209,12 +209,19 @@ export default function ProductDetailsPage() {
     // Check if item is already in cart
     const variantIndex = selectedVariant !== null ? product.variants.indexOf(selectedVariant) : undefined;
 
+    // Calculate price with discount
+    const basePrice = product.price;
+    const discount = product.discount || 0;
+    const finalPrice = basePrice * (1 - discount / 100);
+
     dispatch(addToCart({
       shopDomain: shop.domain,
       item: {
         product_id: product.id,
         quantity,
         variant_index: typeof variantIndex === 'number' ? variantIndex : undefined,
+        product,
+        subtotal: finalPrice * quantity,
       }
     }));
   };

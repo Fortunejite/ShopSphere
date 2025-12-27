@@ -18,7 +18,8 @@ import { ShopWithOwner } from '@/models/Shop';
 import ShopNavbar from '@/components/ShopNavbar';
 import ShopFooter from '@/components/ShopFooter';
 import { PageLoading } from '@/components/Loading';
-import { fetchCart } from '@/redux/cartSlice';
+import { fetchCart, setCartAuthenticationStatus } from '@/redux/cartSlice';
+import { useSession } from 'next-auth/react';
 
 const ShopUnavailable = ({ shop }: { shop: ShopWithOwner }) => {
   return (
@@ -98,15 +99,22 @@ export default function HomeLayout({
   const { domain } = useParams();
 
   const dispatch = useAppDispatch();
+  const { status: sessionStatus } = useSession();
   const { status, shop } = useAppSelector((s) => s.shop);
   const { cart } = useAppSelector((s) => s.cart);
 
   useEffect(() => {
     if (domain) {
       dispatch(fetchShop(domain as string));
-      dispatch(fetchCart(domain as string));
     }
   }, [dispatch, domain]);
+
+  useEffect(() => {
+    if (!domain || sessionStatus === 'loading') return;
+    const userIsAuthenticated = sessionStatus === 'authenticated';
+    dispatch(setCartAuthenticationStatus(userIsAuthenticated));
+    dispatch(fetchCart(domain as string));
+  }, [dispatch, domain, sessionStatus]);
 
   if (status === 'failed') return notFound();
   if (status === 'loading' || !shop) {
