@@ -28,7 +28,7 @@ export default function LoginPage() {
   const router = useRouter();
 
   const searchParams = useSearchParams();
-  const next = searchParams.get('next') ?? '/';
+  const next = searchParams.get('next') ?? '/shops';
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

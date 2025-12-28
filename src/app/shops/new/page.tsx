@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,8 +27,11 @@ import axios from 'axios';
 import { useAppSelector } from '@/hooks/redux.hook';
 import { uploadPhoto } from '@/lib/uploadPhoto';
 import Image from 'next/image';
+import { useSession } from 'next-auth/react';
 
 export default function NewShopPage() {
+  const { status: authStatus } = useSession();
+  const pathname = usePathname();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -202,6 +205,15 @@ export default function NewShopPage() {
       setIsSubmitting(false);
     }
   };
+
+  if (authStatus === 'loading') {
+    return null
+  }
+
+  if (authStatus === 'unauthenticated') {
+    router.push(`/login?next=${pathname}`);
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

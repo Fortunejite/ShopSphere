@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,8 +28,11 @@ import axios from 'axios';
 import { useAppSelector } from '@/hooks/redux.hook';
 import { ShopWithOwner } from '@/models/Shop';
 import { generateURL } from '@/lib/domain';
+import { useSession } from 'next-auth/react';
 
 export default function ShopsPage() {
+  const { status: authStatus } = useSession();
+  const pathname = usePathname();
   const [shops, setShops] = useState<ShopWithOwner[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -101,6 +104,15 @@ export default function ShopsPage() {
     setError('');
     setIsDeleteOpen(true);
   };
+
+  if (authStatus === 'loading') {
+    return null
+  }
+
+  if (authStatus === 'unauthenticated') {
+    router.push(`/login?next=${pathname}`);
+    return null;
+  }
 
   // Filter shops based on search term and category
   const filteredShops = shops.filter(shop => {
