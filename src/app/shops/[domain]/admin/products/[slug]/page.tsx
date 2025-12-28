@@ -217,41 +217,43 @@ export default function ProductDetailsPage() {
   const productCategories = getProductCategories();
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
+    <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-y-4 sm:gap-y-0">
+        <div className="flex flex-col xs:flex-row xs:items-center xs:space-x-4 space-y-2 xs:space-y-0">
           <Button 
             variant="outline" 
             onClick={() => router.back()}
+            size="sm"
+            className="w-fit"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Products
+            <ArrowLeft className="w-4 h-4 mr-2 flex-shrink-0" />
+            <span>Back to Products</span>
           </Button>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{product.name}</h1>
-            <p className="text-sm text-gray-500">Product Details</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 line-clamp-2">{product.name}</h1>
+            <p className="text-xs sm:text-sm text-gray-500">Product Details</p>
           </div>
         </div>
         
-        <div className="flex items-center space-x-2">
+        <div className="flex flex-col xs:flex-row items-stretch xs:items-center gap-2 w-full xs:w-auto">
           <Link 
             href={`/products/${product.slug}`}
           >
-            <Button variant="outline" size="sm">
-              <ExternalLink className="w-4 h-4 mr-2" />
-              View Live
+            <Button variant="outline" size="sm" className="w-full xs:w-auto">
+              <ExternalLink className="w-4 h-4 mr-2 flex-shrink-0" />
+              <span>View Live</span>
             </Button>
           </Link>
-          <Button variant="outline" size="sm" asChild>
+          <Button variant="outline" size="sm" asChild className="w-full xs:w-auto">
             <Link href={`/admin/products/${product.slug}/edit`}>
-              <Edit className="w-4 h-4 mr-2" />
-              Edit
+              <Edit className="w-4 h-4 mr-2 flex-shrink-0" />
+              <span>Edit</span>
             </Link>
           </Button>
-          <Button variant="destructive" size="sm" onClick={openDeleteModal}>
-            <Trash2 className="w-4 h-4 mr-2" />
-            Delete
+          <Button variant="destructive" size="sm" onClick={openDeleteModal} className="w-full xs:w-auto">
+            <Trash2 className="w-4 h-4 mr-2 flex-shrink-0" />
+            <span>Delete</span>
           </Button>
         </div>
       </div>

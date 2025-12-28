@@ -176,9 +176,11 @@ export default function CheckoutPage() {
               <Button
                 variant="ghost"
                 onClick={() => router.back()}
+                className="text-sm sm:text-base"
               >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Cart
+                <ArrowLeft className="w-4 h-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Back to Cart</span>
+                <span className="sm:hidden">Back</span>
               </Button>
               <h1 className="text-2xl font-bold">Checkout</h1>
             </div>

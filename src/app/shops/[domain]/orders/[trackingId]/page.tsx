@@ -222,45 +222,47 @@ export default function OrderDetailsPage() {
 
       {/* Header */}
       <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-y-4 sm:gap-y-0">
+            <div className="flex flex-col xs:flex-row xs:items-center xs:gap-4 space-y-2 xs:space-y-0">
               <Button
                 variant="ghost"
                 onClick={() => router.push('/orders')}
+                size="sm"
+                className="w-fit"
               >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Orders
+                <ArrowLeft className="w-4 h-4 mr-2 flex-shrink-0" />
+                <span className="xs:inline">Back to Orders</span>
               </Button>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
                   Order #{order.tracking_id}
                 </h1>
-                <p className="text-gray-600 mt-1">
+                <p className="text-sm sm:text-base text-gray-600 mt-1">
                   Placed on {new Date(order.created_at).toLocaleDateString()}
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <Badge className={cn('flex items-center gap-1', getStatusColor(order.status))}>
+            <div className="flex flex-col xs:flex-row items-stretch xs:items-center gap-2 xs:gap-3 w-full xs:w-auto">
+              <Badge className={cn('flex items-center justify-center gap-1 py-1 px-2', getStatusColor(order.status))}>
                 {getStatusIcon(order.status)}
-                {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                <span className="text-xs font-medium">{order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span>
               </Badge>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={copyTrackingId}
-                className="flex items-center gap-2"
+                className="flex items-center justify-center gap-2 w-full xs:w-auto"
               >
-                <Copy className="w-4 h-4" />
-                Copy ID
+                <Copy className="w-4 h-4 flex-shrink-0" />
+                <span>Copy ID</span>
               </Button>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">

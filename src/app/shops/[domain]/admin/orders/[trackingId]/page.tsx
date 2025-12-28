@@ -168,18 +168,20 @@ export default function AdminOrderDetailsPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-6 py-6">
+        <div className="max-w-7xl mx-auto px-2 sm:px-6 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Button
                 variant="ghost"
                 onClick={() => router.push('/admin/orders')}
+                className="text-sm sm:text-base"
               >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Orders
+                <ArrowLeft className="w-4 h-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Back to Cart</span>
+                <span className="sm:hidden">Back</span>
               </Button>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">
+                <h1 className="text-lg sm:text-2xl font-bold text-gray-900">
                   Order #{order.tracking_id}
                 </h1>
                 <p className="text-gray-600 mt-1">
@@ -187,7 +189,7 @@ export default function AdminOrderDetailsPage() {
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row items-center gap-3">
               <Badge className={cn('flex items-center gap-1', getStatusColor(order.status))}>
                 {getStatusIcon(order.status)}
                 {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
@@ -297,8 +299,8 @@ export default function AdminOrderDetailsPage() {
               <CardContent>
                 <div className="space-y-4">
                   {order.items.map((item, index) => (
-                    <div key={index} className="flex gap-4 p-4 border rounded-lg">
-                      <div className="relative w-20 h-20 bg-gray-100 rounded-lg overflow-hidden">
+                    <div key={index} className="flex flex-col sm:flex-row gap-4 p-4 border rounded-lg">
+                      <div className="relative w-20 h-20 sm:w-20 sm:h-20 bg-gray-100 rounded-lg overflow-hidden mx-auto sm:mx-0 flex-shrink-0">
                         <Image
                           src={item.product.image}
                           alt={item.product.name}

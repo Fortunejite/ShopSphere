@@ -85,46 +85,50 @@ export default function OrderCard({
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           {/* Order Info */}
           <div className="flex-1">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <div className="flex items-center gap-3 mb-2">
+            <div className="flex flex-col sm:flex-row items-start justify-between mb-4 gap-3">
+              <div className="flex-1">
+                <div className="flex flex-col xs:flex-row xs:items-center gap-2 xs:gap-3 mb-2">
                   <h3 className="font-semibold text-lg">
                     Order #{order.tracking_id}
                   </h3>
-                  {!isEditingStatus ? (
-                    <Badge className={cn('flex items-center gap-1', getStatusColor(order.status))}>
-                      {getStatusIcon(order.status)}
-                      {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                  <div className="flex flex-wrap items-center gap-2">
+                    {!isEditingStatus ? (
+                      <Badge className={cn('flex items-center gap-1 text-xs', getStatusColor(order.status))}>
+                        {getStatusIcon(order.status)}
+                        {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                      </Badge>
+                    ) : (
+                      <select
+                        value={newStatus}
+                        onChange={(e) => setNewStatus(e.target.value as typeof newStatus)}
+                        className="px-2 py-1 border border-gray-300 rounded text-sm"
+                      >
+                        <option value="confirmed">Confirmed</option>
+                        <option value="processing">Processing</option>
+                        <option value="shipped">Shipped</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="cancelled">Cancelled</option>
+                        <option value="refunded">Refunded</option>
+                      </select>
+                    )}
+                    <Badge className={cn('text-xs', getPaymentStatusColor(order.payment_status))}>
+                      {order.payment_status.charAt(0).toUpperCase() + order.payment_status.slice(1)}
                     </Badge>
-                  ) : (
-                    <select
-                      value={newStatus}
-                      onChange={(e) => setNewStatus(e.target.value as typeof newStatus)}
-                      className="px-2 py-1 border border-gray-300 rounded text-sm"
-                    >
-                      <option value="confirmed">Confirmed</option>
-                      <option value="processing">Processing</option>
-                      <option value="shipped">Shipped</option>
-                      <option value="delivered">Delivered</option>
-                      <option value="cancelled">Cancelled</option>
-                      <option value="refunded">Refunded</option>
-                    </select>
-                  )}
-                  <Badge className={getPaymentStatusColor(order.payment_status)}>
-                    {order.payment_status.charAt(0).toUpperCase() + order.payment_status.slice(1)}
-                  </Badge>
+                  </div>
                 </div>
-                <div className="flex items-center gap-4 text-sm text-gray-600">
+                <div className="flex flex-col xs:flex-row xs:items-center gap-2 xs:gap-4 text-sm text-gray-600">
                   <div className="flex items-center gap-1">
-                    <Calendar className="w-4 h-4" />
+                    <Calendar className="w-4 h-4 flex-shrink-0" />
                     <span>{new Date(order.created_at).toLocaleDateString()}</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <Users className="w-4 h-4" />
-                    <span>{order.shipping_address?.name || 'N/A'}</span>
+                    <Users className="w-4 h-4 flex-shrink-0" />
+                    <span className="truncate">{order.shipping_address?.name || 'N/A'}</span>
                   </div>
-                  <span>{formatCurrency(order.final_amount, shop!.currency)}</span>
-                  <span>{order.total_items} items</span>
+                  <div className="flex items-center gap-2 xs:gap-4">
+                    <span className="font-medium">{formatCurrency(order.final_amount, shop!.currency)}</span>
+                    <span>{order.total_items} items</span>
+                  </div>
                 </div>
               </div>
             </div>

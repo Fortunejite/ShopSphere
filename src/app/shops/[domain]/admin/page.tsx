@@ -162,25 +162,25 @@ export default function AdminDashboardPage() {
     <div className="min-h-screen bg-gray-50 transition-all duration-300">
       {/* Header */}
       <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-              <p className="text-gray-600 mt-1">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-y-4 sm:gap-y-0">
+            <div className="flex-1">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+              <p className="text-sm sm:text-base text-gray-600 mt-1">
                 Welcome back! Here&apos;s what&apos;s happening with {shop?.name || 'your shop'}.
               </p>
             </div>
-            <div className="flex items-center gap-3">
-              <Button asChild variant="outline">
+            <div className="flex flex-col xs:flex-row items-stretch xs:items-center gap-2 xs:gap-3 w-full xs:w-auto">
+              <Button asChild variant="outline" size="sm" className="w-full xs:w-auto">
                 <Link href="/admin/products/new">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Product
+                  <Plus className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span>Add Product</span>
                 </Link>
               </Button>
-              <Button asChild variant="outline">
+              <Button asChild variant="outline" size="sm" className="w-full xs:w-auto">
                 <Link href="/admin/settings">
-                  <Settings className="w-4 h-4 mr-2" />
-                  Settings
+                  <Settings className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span>Settings</span>
                 </Link>
               </Button>
             </div>
@@ -188,7 +188,7 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {isStatsLoading ? (

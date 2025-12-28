@@ -136,8 +136,8 @@ const ProductCard = ({
     return (
       <Card className="group hover:shadow-lg transition-all duration-200">
         <CardContent className="p-4">
-          <div className="flex gap-4">
-            <div className="relative w-24 h-24 shrink-0">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="relative w-full h-48 sm:w-24 sm:h-24 shrink-0">
               <Image
                 src={product.image}
                 alt={product.name}
@@ -145,23 +145,26 @@ const ProductCard = ({
                 className="object-cover rounded-lg"
               />
               {product.discount > 0 && (
-                <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs">
+                <Badge className="absolute top-2 left-2 sm:-top-2 sm:-right-2 bg-red-500 text-white text-xs">
                   -{product.discount}%
                 </Badge>
               )}
             </div>
 
-            <div className="flex-1 min-w-0">
-              <div className="flex justify-between items-start mb-2">
-                <div>
-                  <h3 className="font-semibold text-lg text-gray-900 line-clamp-1">
+            <div className="flex-1 min-w-0 space-y-3">
+              {/* Title and Price */}
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
+                <div className="flex-1">
+                  <h3 className="font-semibold text-lg text-gray-900 line-clamp-2">
                     {product.name}
                   </h3>
-                  <p className="text-sm text-gray-600 line-clamp-2">
-                    {product.description}
-                  </p>
+                  {product.description && (
+                    <p className="text-sm text-gray-600 line-clamp-2 mt-1 hidden sm:block">
+                      {product.description}
+                    </p>
+                  )}
                 </div>
-                <div className="text-right">
+                <div className="text-left sm:text-right">
                   <div className="flex items-center gap-2">
                     <span className="text-xl font-bold text-gray-900">
                       {pricing.discounted}
@@ -175,9 +178,16 @@ const ProductCard = ({
                 </div>
               </div>
 
-              {/* TODO: ADD Rating system */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
+              {/* Description on mobile */}
+              {product.description && (
+                <p className="text-sm text-gray-600 line-clamp-2 sm:hidden">
+                  {product.description}
+                </p>
+              )}
+
+              {/* Stock Status and Actions */}
+              <div className="flex flex-col xs:flex-row items-stretch xs:items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
                   {/* {product.rating && (
                       <div className="flex items-center gap-1">
                         {renderStars(product.rating)}
@@ -190,10 +200,10 @@ const ProductCard = ({
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" asChild>
+                  <Button variant="outline" size="sm" asChild className="flex-1 xs:flex-none">
                     <Link href={`/products/${product.slug}`}>
                       <Eye className="w-4 h-4 mr-1" />
-                      View
+                      <span className="xs:inline">View</span>
                     </Link>
                   </Button>
                   <Button
@@ -204,21 +214,24 @@ const ProductCard = ({
                         : toggleCart
                     }
                     disabled={product.stock_quantity === 0 || isLoading}
+                    className="flex-1 xs:flex-none"
                   >
                     {isLoading ? (
-                      <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                      <Loader2 className="w-4 h-4 mr-1 animate-spin flex-shrink-0" />
                     ) : (
-                      <ShoppingCart className="w-4 h-4 mr-1" />
+                      <ShoppingCart className="w-4 h-4 mr-1 flex-shrink-0" />
                     )}
-                    {product.stock_quantity === 0 
-                      ? 'Out of Stock'
-                      : product.variants.length > 0
-                      ? 'Select Options'
-                      : isLoading
-                      ? loadingAction === 'add' ? 'Adding...' : 'Removing...'
-                      : isInCart
-                      ? 'Remove from Cart'
-                    : 'Add to Cart'}
+                    <span className="truncate">
+                      {product.stock_quantity === 0 
+                        ? 'Out of Stock'
+                        : product.variants.length > 0
+                        ? 'Select Options'
+                        : isLoading
+                        ? loadingAction === 'add' ? 'Adding...' : 'Removing...'
+                        : isInCart
+                        ? 'Remove'
+                      : 'Add to Cart'}
+                    </span>
                   </Button>
                 </div>
               </div>

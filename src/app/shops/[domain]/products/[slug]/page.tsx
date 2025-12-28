@@ -721,7 +721,7 @@ export default function ProductDetailsPage() {
         {/* Product Details Tabs */}
         <div className="mt-12">
           <Tabs defaultValue="description" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="description">Description</TabsTrigger>
               <TabsTrigger value="specifications">Specifications</TabsTrigger>
               <TabsTrigger value="shipping">Shipping</TabsTrigger>

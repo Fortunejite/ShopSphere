@@ -183,45 +183,48 @@ export default function CartPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
               <Button variant="ghost" size="sm" onClick={() => router.back()}>
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Continue Shopping
               </Button>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
                   Shopping Cart
                 </h1>
-                <p className="text-gray-600">
+                <p className="text-sm sm:text-base text-gray-600">
                   {itemCount} {itemCount === 1 ? 'item' : 'items'} in your cart
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <ShoppingCart className="w-5 h-5 text-gray-400" />
-              <span className="text-lg font-semibold">
-                {formatCurrency(cartTotal, shop!.currency)}
-              </span>
+            <div className="flex items-center justify-between sm:justify-end gap-2">
+              <span className="text-sm sm:text-base text-gray-600">Total:</span>
+              <div className="flex items-center gap-2">
+                <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+                <span className="text-lg sm:text-xl font-semibold">
+                  {formatCurrency(cartTotal, shop!.currency)}
+                </span>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         {isEmpty ? (
           // Empty Cart State
-          <div className="text-center py-16">
-            <ShoppingBag className="w-20 h-20 mx-auto mb-6 text-gray-300" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          <div className="text-center py-12 sm:py-16">
+            <ShoppingBag className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-6 text-gray-300" />
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
               Your cart is empty
             </h2>
-            <p className="text-gray-600 mb-8 max-w-md mx-auto">
+            <p className="text-sm sm:text-base text-gray-600 mb-8 max-w-md mx-auto px-4">
               Looks like you haven&apos;t added any items to your cart yet.
               Start shopping to fill it up!
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center px-4">
               <Button onClick={() => router.push(`/products`)} className="px-8">
                 <Package className="w-4 h-4 mr-2" />
                 Browse Products
@@ -233,13 +236,13 @@ export default function CartPage() {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
             {/* Cart Items */}
-            <div className="lg:col-span-2 space-y-4">
+            <div className="xl:col-span-2 space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Package className="w-5 h-5" />
+                  <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                    <Package className="w-4 h-4 sm:w-5 sm:h-5" />
                     Cart Items ({itemCount})
                   </CardTitle>
                 </CardHeader>
@@ -258,67 +261,71 @@ export default function CartPage() {
                       <div
                         key={key}
                         className={cn(
-                          'flex gap-4 p-4 border rounded-lg transition-opacity',
+                          'flex flex-col sm:flex-row gap-4 p-3 sm:p-4 border rounded-lg transition-opacity',
                           isItemUpdating && 'opacity-50',
                         )}
                       >
-                        {/* Product Image */}
-                        <div className="relative w-20 h-20 bg-gray-100 rounded-lg overflow-hidden shrink-0">
-                          <Image
-                            src={item.product.image}
-                            alt={item.product.name}
-                            fill
-                            className="object-cover"
-                          />
-                          {pricing.discount > 0 && (
-                            <Badge
-                              variant="destructive"
-                              className="absolute top-1 right-1 text-xs"
-                            >
-                              -{pricing.discount}%
-                            </Badge>
-                          )}
-                        </div>
-
-                        {/* Product Info */}
-                        <div className="flex-1 min-w-0">
-                          <Link
-                            href={`/products/${item.product.slug}`}
-                            className="block"
-                          >
-                            <h3 className="font-medium text-gray-900 hover:text-blue-600 transition-colors truncate">
-                              {item.product.name}
-                            </h3>
-                          </Link>
-
-                          {variantText && (
-                            <p className="text-sm text-gray-500 mt-1">
-                              {variantText}
-                            </p>
-                          )}
-
-                          <div className="flex items-center gap-2 mt-2">
-                            <span className="font-semibold text-gray-900">
-                              {formatCurrency(finalPrice, shop!.currency)}
-                            </span>
+                        {/* Mobile layout: Image and basic info on top */}
+                        <div className="flex gap-3 sm:gap-4">
+                          {/* Product Image */}
+                          <div className="relative w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 rounded-lg overflow-hidden shrink-0">
+                            <Image
+                              src={item.product.image}
+                              alt={item.product.name}
+                              fill
+                              className="object-cover"
+                            />
                             {pricing.discount > 0 && (
-                              <span className="text-sm text-gray-500 line-through">
-                                {formatCurrency(pricing.price, shop!.currency)}
-                              </span>
+                              <Badge
+                                variant="destructive"
+                                className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 text-xs px-1 py-0"
+                              >
+                                -{pricing.discount}%
+                              </Badge>
                             )}
                           </div>
 
-                          {/* Stock Status */}
-                          {item.product.stock_quantity < 5 && (
-                            <Badge variant="outline" className="mt-2 text-xs">
-                              Only {item.product.stock_quantity} left
-                            </Badge>
-                          )}
+                          {/* Product Info */}
+                          <div className="flex-1 min-w-0">
+                            <Link
+                              href={`/products/${item.product.slug}`}
+                              className="block"
+                            >
+                              <h3 className="font-medium text-sm sm:text-base text-gray-900 hover:text-blue-600 transition-colors line-clamp-2">
+                                {item.product.name}
+                              </h3>
+                            </Link>
+
+                            {variantText && (
+                              <p className="text-xs sm:text-sm text-gray-500 mt-1 line-clamp-1">
+                                {variantText}
+                              </p>
+                            )}
+
+                            <div className="flex items-center gap-2 mt-1 sm:mt-2">
+                              <span className="font-semibold text-sm sm:text-base text-gray-900">
+                                {formatCurrency(finalPrice, shop!.currency)}
+                              </span>
+                              {pricing.discount > 0 && (
+                                <span className="text-xs sm:text-sm text-gray-500 line-through">
+                                  {formatCurrency(pricing.price, shop!.currency)}
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Stock Status - Mobile */}
+                            {item.product.stock_quantity < 5 && (
+                              <Badge variant="outline" className="mt-1 text-xs">
+                                Only {item.product.stock_quantity} left
+                              </Badge>
+                            )}
+                          </div>
                         </div>
 
-                        {/* Quantity Controls */}
-                        <div className="flex flex-col items-end gap-2">
-                          <div className="flex items-center gap-2">
+                        {/* Mobile layout: Quantity and total on bottom row */}
+                        <div className="flex items-center justify-between sm:flex-col sm:items-end gap-2 pt-2 sm:pt-0 border-t sm:border-t-0">
+                          {/* Quantity Controls */}
+                          <div className="flex items-center gap-1 sm:gap-2">
                             <Button
                               size="sm"
                               variant="outline"
@@ -330,6 +337,7 @@ export default function CartPage() {
                                 )
                               }
                               disabled={currentQuantity <= 1 || isItemUpdating}
+                              className="h-8 w-8 p-0"
                             >
                               <Minus className="w-3 h-3" />
                             </Button>
@@ -363,7 +371,7 @@ export default function CartPage() {
                                   );
                                 }
                               }}
-                              className="w-16 text-center"
+                              className="w-12 sm:w-16 h-8 text-center text-sm"
                               disabled={isItemUpdating}
                             />
 
@@ -383,13 +391,15 @@ export default function CartPage() {
                               disabled={
                                 currentQuantity >= totalStock || isItemUpdating
                               }
+                              className="h-8 w-8 p-0"
                             >
                               <Plus className="w-3 h-3" />
                             </Button>
                           </div>
 
+                          {/* Price and Remove */}
                           <div className="text-right">
-                            <p className="font-semibold">
+                            <p className="font-semibold text-sm sm:text-base">
                               {formatCurrency(finalPrice * currentQuantity, shop!.currency)}
                             </p>
                             <Button
@@ -402,10 +412,10 @@ export default function CartPage() {
                                 )
                               }
                               disabled={isItemUpdating}
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50 mt-1"
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50 mt-1 h-8 px-2"
                             >
                               <Trash2 className="w-3 h-3 mr-1" />
-                              Remove
+                              <span className="hidden sm:inline">Remove</span>
                             </Button>
                           </div>
                         </div>
@@ -417,10 +427,10 @@ export default function CartPage() {
             </div>
 
             {/* Order Summary */}
-            <div className="space-y-6">
+            <div className="space-y-4 lg:space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Order Summary</CardTitle>
+                  <CardTitle className="text-lg sm:text-xl">Order Summary</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex justify-between text-sm">
@@ -439,7 +449,7 @@ export default function CartPage() {
                   </div>
 
                   <div className="border-t pt-4">
-                    <div className="flex justify-between font-semibold text-lg">
+                    <div className="flex justify-between font-semibold text-base sm:text-lg">
                       <span>Total</span>
                       <span>{formatCurrency(cartTotal, shop!.currency)}</span>
                     </div>
@@ -458,10 +468,10 @@ export default function CartPage() {
               </Card>
 
               {/* Features */}
-              <Card>
+              <Card className="hidden sm:block">
                 <CardContent className="pt-6 space-y-3">
                   <div className="flex items-center gap-3 text-sm">
-                    <Truck className="w-5 h-5 text-green-600" />
+                    <Truck className="w-5 h-5 text-green-600 shrink-0" />
                     <div>
                       <p className="font-medium">Free Shipping</p>
                       <p className="text-gray-500">On orders over $50</p>
@@ -469,7 +479,7 @@ export default function CartPage() {
                   </div>
 
                   <div className="flex items-center gap-3 text-sm">
-                    <Package className="w-5 h-5 text-blue-600" />
+                    <Package className="w-5 h-5 text-blue-600 shrink-0" />
                     <div>
                       <p className="font-medium">Easy Returns</p>
                       <p className="text-gray-500">30-day return policy</p>
@@ -477,7 +487,7 @@ export default function CartPage() {
                   </div>
 
                   <div className="flex items-center gap-3 text-sm">
-                    <Heart className="w-5 h-5 text-red-500" />
+                    <Heart className="w-5 h-5 text-red-500 shrink-0" />
                     <div>
                       <p className="font-medium">Customer Support</p>
                       <p className="text-gray-500">24/7 help available</p>
