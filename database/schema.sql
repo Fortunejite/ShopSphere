@@ -28,7 +28,7 @@ CREATE TABLE shops (
   description TEXT,
   tagline VARCHAR(100),
   category_id INTEGER REFERENCES categories(id),
-  status VARCHAR(50) DEFAULT 'active',
+  status VARCHAR(50) DEFAULT 'active' NOT NULL,
   email VARCHAR(255) NOT NULL,
   phone VARCHAR(20) NOT NULL,
   address VARCHAR(255) NOT NULL,

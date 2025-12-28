@@ -49,11 +49,11 @@ export class Shop {
 
     const query = `
       INSERT INTO ${Shop.tableName} (
-        owner_id, name, domain, category_id, tagline, description, status, currency, 
+        owner_id, name, domain, category_id, tagline, description, currency, 
         email, phone, address, city, state, postal_code, country, free_shipping_threshold,
         logo, banner, stripe_account_id, created_at, updated_at
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
       RETURNING *
     `;
 
@@ -64,7 +64,6 @@ export class Shop {
       shop.category_id,
       shop.tagline,
       shop.description,
-      shop.status,
       shop.currency,
       shop.email,
       shop.phone,
