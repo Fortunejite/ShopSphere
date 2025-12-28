@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -16,6 +17,7 @@ import { z } from 'zod';
 import axios from 'axios';
 
 export default function SignupPage() {
+  const { status } = useSession();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -30,6 +32,9 @@ export default function SignupPage() {
   const [authError, setAuthError] = useState('');
   const [success, setSuccess] = useState(false);
   const router = useRouter();
+
+  const searchParams = useSearchParams();
+  const next = searchParams.get('next') ?? '/';
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -84,6 +89,11 @@ export default function SignupPage() {
       setIsLoading(false);
     }
   };
+
+  if (status === 'authenticated') {
+    router.push(next);
+    return null;
+  }
 
   if (success) {
     return (
@@ -301,7 +311,7 @@ export default function SignupPage() {
 
               {/* Sign In Link */}
               <Button variant="outline" className="w-full" asChild>
-                <Link href="/login">
+                <Link href={`/login${next ? `?next=${encodeURIComponent(next)}` : ''}`}>
                   Sign In
                 </Link>
               </Button>

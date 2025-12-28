@@ -15,10 +15,13 @@ import { z } from 'zod';
 import axios from 'axios';
 import { useAppSelector } from '@/hooks/redux.hook';
 import { useAuthWithCartMerge } from '@/hooks/useAuthWithCartMerge';
-// import AuthGuard from '@/components/AuthGuard';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 
 export default function SignupPage() {
   const { shop } = useAppSelector(state => state.shop);
+  const router = useRouter();
+  const { status } = useSession();
   const { signupWithCartMerge, isMergingCart } = useAuthWithCartMerge();
   const [formData, setFormData] = useState({
     email: '',
@@ -33,6 +36,8 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [authError, setAuthError] = useState('');
   const [success, setSuccess] = useState(false);
+  const searchParams = useSearchParams();
+  const next = searchParams.get('next') ?? '/';
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -57,7 +62,7 @@ export default function SignupPage() {
       const validatedData = createUserSchema.parse(formData);
       
       // Use the cart merge hook for registration and authentication
-      await signupWithCartMerge(validatedData, '/');
+      await signupWithCartMerge(validatedData, next);
       
       setSuccess(true);
     } catch (error) {
@@ -84,6 +89,11 @@ export default function SignupPage() {
     }
   };
 
+  if (status === 'authenticated') {
+    router.push(next);
+    return null;
+  }
+
   if (success) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-neutral-50 to-neutral-100 p-4">
@@ -108,7 +118,6 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-neutral-50 to-neutral-100 p-4">
-      {/* <AuthGuard reversed /> */}
       <div className="w-full max-w-md space-y-6">
         {/* Logo and Header */}
         <div className="text-center space-y-2">
@@ -295,7 +304,7 @@ export default function SignupPage() {
 
               {/* Sign In Link */}
               <Button variant="outline" className="w-full" asChild>
-                <Link href="/login">
+                <Link href={`/login${next ? `?next=${encodeURIComponent(next)}` : ''}`}>
                   Sign In
                 </Link>
               </Button>

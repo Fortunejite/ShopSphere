@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, usePathname, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import axios from 'axios';
 import { Button } from '@/components/ui/button';
@@ -28,9 +28,12 @@ import { OrderWithProducts } from '@/models/Order';
 import { cn } from '@/lib/utils';
 import { formatCurrency } from '@/lib/currency';
 import { useAppSelector } from '@/hooks/redux.hook';
+import { useSession } from 'next-auth/react';
 
 export default function OrdersPage() {
   const { domain } = useParams();
+  const { status: authStatus } = useSession();
+  const pathname = usePathname();
   const router = useRouter();
   const shop = useAppSelector(state => state.shop.shop);
 
@@ -119,8 +122,13 @@ export default function OrdersPage() {
     )
   );
 
-  if (isLoading) {
+  if (isLoading || authStatus === 'loading') {
     return <ProductLoading text="Loading your orders..." fullPage />;
+  }
+  
+  if (authStatus === 'unauthenticated') {
+    router.push(`/login?next=${pathname}`);
+    return null;
   }
 
   return (

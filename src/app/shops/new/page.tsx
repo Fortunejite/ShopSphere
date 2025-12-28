@@ -27,7 +27,6 @@ import axios from 'axios';
 import { useAppSelector } from '@/hooks/redux.hook';
 import { uploadPhoto } from '@/lib/uploadPhoto';
 import Image from 'next/image';
-import AuthGuard from '@/components/AuthGuard';
 
 export default function NewShopPage() {
   const router = useRouter();
@@ -206,8 +205,6 @@ export default function NewShopPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <AuthGuard />
-      
       {/* Header */}
       <div className="bg-white border-b">
         <div className="max-w-4xl mx-auto px-6 py-6">

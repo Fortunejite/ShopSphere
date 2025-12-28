@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, usePathname, useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -41,7 +41,8 @@ type CheckoutFormData = z.infer<typeof checkoutSchema>;
 
 export default function CheckoutPage() {
   const { domain } = useParams();
-  const { data: session } = useSession();
+  const { data: session, status: authStatus } = useSession();
+  const pathname = usePathname();
   const user = session?.user;
   const router = useRouter();
   const shop = useAppSelector(state => state.shop.shop);
@@ -133,8 +134,13 @@ export default function CheckoutPage() {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || authStatus === 'loading') {
     return <ProductLoading text="Loading checkout..." fullPage />;
+  }
+
+  if (authStatus === 'unauthenticated') {
+    router.push(`/login?next=${pathname}`);
+    return null;
   }
 
   if (error && cartItems.length === 0) {

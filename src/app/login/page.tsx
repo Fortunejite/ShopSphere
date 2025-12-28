@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,6 +16,7 @@ import Image from 'next/image';
 import { z } from 'zod';
 
 export default function LoginPage() {
+  const { status } = useSession();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -24,6 +26,9 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [authError, setAuthError] = useState('');
   const router = useRouter();
+
+  const searchParams = useSearchParams();
+  const next = searchParams.get('next') ?? '/';
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -73,6 +78,11 @@ export default function LoginPage() {
       setIsLoading(false);
     }
   };
+
+  if (status === 'authenticated') {
+    router.push(next);
+    return null;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-neutral-50 to-neutral-100 p-4">
@@ -200,7 +210,7 @@ export default function LoginPage() {
 
               {/* Sign Up Link */}
               <Button variant="outline" className="w-full" asChild>
-                <Link href="/signup">
+                <Link href={`/signup${next ? `?next=${encodeURIComponent(next)}` : ''}`}>
                   Create Account
                 </Link>
               </Button>

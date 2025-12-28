@@ -28,7 +28,6 @@ import axios from 'axios';
 import { useAppSelector } from '@/hooks/redux.hook';
 import { ShopWithOwner } from '@/models/Shop';
 import { generateURL } from '@/lib/domain';
-import AuthGuard from '@/components/AuthGuard';
 
 export default function ShopsPage() {
   const [shops, setShops] = useState<ShopWithOwner[]>([]);
@@ -114,7 +113,6 @@ export default function ShopsPage() {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-neutral-50 to-neutral-100 p-4 md:p-6">
-      <AuthGuard />
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
