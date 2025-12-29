@@ -71,6 +71,17 @@ export class User {
   }
 
   /**
+   * Find user by username
+   */
+  static async findByUsername(username: string): Promise<UserAttributes | null> {
+    const result = await database.query(
+      'SELECT * FROM users WHERE username = $1',
+      [username]
+    );
+    return result.rows[0] || null;
+  }
+
+  /**
    * Update user
    */
   static async update(id: number, userData: Partial<UserAttributes>): Promise<UserAttributes> {
