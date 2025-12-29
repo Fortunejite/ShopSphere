@@ -121,10 +121,10 @@ export default function ProductDetailsPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-green-100 text-green-800';
-      case 'inactive': return 'bg-gray-100 text-gray-800';
-      case 'out_of_stock': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'active': return 'bg-success/10 text-success';
+      case 'inactive': return 'bg-muted/10 text-muted-foreground';
+      case 'out_of_stock': return 'bg-error/10 text-error';
+      default: return 'bg-muted/10 text-muted-foreground';
     }
   };
 
@@ -231,8 +231,8 @@ export default function ProductDetailsPage() {
             <span>Back to Products</span>
           </Button>
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 line-clamp-2">{product.name}</h1>
-            <p className="text-xs sm:text-sm text-gray-500">Product Details</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground line-clamp-2">{product.name}</h1>
+            <p className="text-xs sm:text-sm text-muted-foreground">Product Details</p>
           </div>
         </div>
         
@@ -260,9 +260,9 @@ export default function ProductDetailsPage() {
 
       {/* Success Message */}
       {success && (
-        <Alert className="border-green-500 bg-green-50">
-          <CheckCircle2 className="h-4 w-4 text-green-600" />
-          <AlertDescription className="text-green-700">{success}</AlertDescription>
+        <Alert className="border-success bg-success/10">
+          <CheckCircle2 className="h-4 w-4 text-success" />
+          <AlertDescription className="text-success/80">{success}</AlertDescription>
         </Alert>
       )}
 

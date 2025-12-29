@@ -17,10 +17,10 @@ import { useState } from 'react';
 
 const getStockStatus = (quantity: number) => {
   if (quantity === 0)
-    return { text: 'Out of Stock', color: 'bg-red-100 text-red-800' };
+    return { text: 'Out of Stock', color: 'bg-error text-error-foreground' };
   if (quantity < 5)
-    return { text: 'Low Stock', color: 'bg-orange-100 text-orange-800' };
-  return { text: 'In Stock', color: 'bg-green-100 text-green-800' };
+    return { text: 'Low Stock', color: 'bg-warning text-warning-foreground' };
+  return { text: 'In Stock', color: 'bg-success text-success-foreground' };
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -34,15 +34,15 @@ const renderStars = (rating: number = 0) => {
       {Array(fullStars)
         .fill(0)
         .map((_, i) => (
-          <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+          <Star key={i} className="w-4 h-4 fill-warning text-warning" />
         ))}
       {hasHalfStar && (
-        <StarHalf className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+        <StarHalf className="w-4 h-4 fill-warning text-warning" />
       )}
       {Array(emptyStars)
         .fill(0)
         .map((_, i) => (
-          <Star key={i} className="w-4 h-4 text-gray-300" />
+          <Star key={i} className="w-4 h-4 text-muted-foreground" />
         ))}
     </div>
   );
@@ -145,7 +145,7 @@ const ProductCard = ({
                 className="object-cover rounded-lg"
               />
               {product.discount > 0 && (
-                <Badge className="absolute top-2 left-2 sm:-top-2 sm:-right-2 bg-red-500 text-white text-xs">
+                <Badge className="absolute top-2 left-2 sm:-top-2 sm:-right-2 bg-error text-error-foreground text-xs">
                   -{product.discount}%
                 </Badge>
               )}
@@ -155,22 +155,22 @@ const ProductCard = ({
               {/* Title and Price */}
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
                 <div className="flex-1">
-                  <h3 className="font-semibold text-lg text-gray-900 line-clamp-2">
+                  <h3 className="font-semibold text-lg text-foreground line-clamp-2">
                     {product.name}
                   </h3>
                   {product.description && (
-                    <p className="text-sm text-gray-600 line-clamp-2 mt-1 hidden sm:block">
+                    <p className="text-sm text-muted-foreground line-clamp-2 mt-1 hidden sm:block">
                       {product.description}
                     </p>
                   )}
                 </div>
                 <div className="text-left sm:text-right">
                   <div className="flex items-center gap-2">
-                    <span className="text-xl font-bold text-gray-900">
+                    <span className="text-xl font-bold text-foreground">
                       {pricing.discounted}
                     </span>
                     {product.discount > 0 && (
-                      <span className="text-sm text-gray-500 line-through">
+                      <span className="text-sm text-muted-foreground line-through">
                         {pricing.original}
                       </span>
                     )}
@@ -180,7 +180,7 @@ const ProductCard = ({
 
               {/* Description on mobile */}
               {product.description && (
-                <p className="text-sm text-gray-600 line-clamp-2 sm:hidden">
+                <p className="text-sm text-muted-foreground line-clamp-2 sm:hidden">
                   {product.description}
                 </p>
               )}
@@ -191,7 +191,7 @@ const ProductCard = ({
                   {/* {product.rating && (
                       <div className="flex items-center gap-1">
                         {renderStars(product.rating)}
-                        <span className="text-sm text-gray-600">({product.reviews_count || 0})</span>
+                        <span className="text-sm text-muted-foreground">({product.reviews_count || 0})</span>
                       </div>
                     )} */}
                   <Badge className={stockStatus.color}>
@@ -252,12 +252,12 @@ const ProductCard = ({
           className="object-cover group-hover:scale-105 transition-transform duration-200"
         />
         {product.discount > 0 && (
-          <Badge className="absolute top-2 left-2 bg-red-500 text-white">
+          <Badge className="absolute top-2 left-2 bg-error text-error-foreground">
             -{product.discount}%
           </Badge>
         )}
         {product.is_featured && (
-          <Badge className="absolute top-2 right-2 bg-yellow-500 text-white">
+          <Badge className="absolute top-2 right-2 bg-warning text-warning-foreground">
             <Star className="w-3 h-3 mr-1" />
             Featured
           </Badge>
@@ -280,7 +280,7 @@ const ProductCard = ({
 
       <CardContent className="p-4">
         <div className="space-y-2">
-          <h3 className="font-semibold text-gray-900 line-clamp-2 min-h-10">
+          <h3 className="font-semibold text-foreground line-clamp-2 min-h-10">
             {product.name}
           </h3>
 
@@ -288,17 +288,17 @@ const ProductCard = ({
           {/* {product.rating && (
               <div className="flex items-center gap-2">
                 {renderStars(product.rating)}
-                <span className="text-sm text-gray-600">({product.reviews_count || 0})</span>
+                <span className="text-sm text-muted-foreground">({product.reviews_count || 0})</span>
               </div>
             )} */}
 
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-lg font-bold text-gray-900">
+              <span className="text-lg font-bold text-foreground">
                 {pricing.discounted}
               </span>
               {product.discount > 0 && (
-                <span className="text-sm text-gray-500 line-through ml-2">
+                <span className="text-sm text-muted-foreground line-through ml-2">
                   {pricing.original}
                 </span>
               )}

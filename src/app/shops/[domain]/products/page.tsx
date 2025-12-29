@@ -191,7 +191,7 @@ export default function ProductsPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
+      <div className="min-h-screen bg-background p-6">
         <div className="max-w-2xl mx-auto">
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
@@ -203,13 +203,13 @@ export default function ProductsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-6 py-6">
         {/* Filters and Search */}
         <div className="mb-6 space-y-4">
           {/* Search - Full Width on Mobile */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
             <Input
               type="search"
               placeholder="Search products..."
@@ -273,7 +273,7 @@ export default function ProductsPage() {
           </div>
           
           {/* Results count */}
-          <div className="flex items-center justify-between text-sm text-gray-600">
+          <div className="flex items-center justify-between text-sm text-muted-foreground">
             {/* <span>
               {isLoading ? 'Loading...' : `${totalProducts} product${totalProducts !== 1 ? 's' : ''} found`}
             </span> */}
@@ -308,11 +308,11 @@ export default function ProductsPage() {
           </div>
         ) : products.length === 0 ? (
           <div className="text-center py-12">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Package className="w-8 h-8 text-gray-400" />
+            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+              <Package className="w-8 h-8 text-muted-foreground" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No products found</h3>
-            <p className="text-gray-600 mb-4">
+            <h3 className="text-lg font-medium text-foreground mb-2">No products found</h3>
+            <p className="text-muted-foreground mb-4">
               {searchTerm || selectedCategory !== 'all'
                 ? 'Try adjusting your search or filter criteria'
                 : 'This shop doesn\'t have any products yet'
@@ -385,7 +385,7 @@ export default function ProductsPage() {
                     >
                       Load More Products
                     </Button>
-                    <div className="text-xs text-gray-400 mt-2">
+                    <div className="text-xs text-muted-foreground mt-2">
                       Showing {products.length} of {totalProducts} products
                     </div>
                   </div>
@@ -405,11 +405,11 @@ export default function ProductsPage() {
             {/* End of Products Message */}
             {!hasMore && products.length > 0 && (
               <div className="text-center py-8">
-                <div className="text-gray-500 text-sm">
+                <div className="text-muted-foreground text-sm">
                   <Package className="w-5 h-5 mx-auto mb-2" />
                   You&apos;ve reached the end of our products!
                 </div>
-                <div className="text-xs text-gray-400 mt-1">
+                <div className="text-xs text-muted-foreground mt-1">
                   {totalProducts} product{totalProducts !== 1 ? 's' : ''} total
                 </div>
               </div>
@@ -432,9 +432,9 @@ export default function ProductsPage() {
 
         {/* Progress Indicator */}
         {totalProducts > productsPerPage && products.length > 0 && (
-          <div className="fixed top-0 left-0 w-full h-1 bg-gray-200 z-50">
+          <div className="fixed top-0 left-0 w-full h-1 bg-muted z-50">
             <div 
-              className="h-full bg-blue-600 transition-all duration-300 ease-out"
+              className="h-full bg-primary transition-all duration-300 ease-out"
               style={{ 
                 width: `${Math.min(100, (products.length / totalProducts) * 100)}%` 
               }}

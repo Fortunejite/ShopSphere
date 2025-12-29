@@ -44,12 +44,12 @@ const ShopNavbar = ({ shop, cart }: Props) => {
   };
 
   return (
-    <header className="bg-white border-b border-neutral-200 sticky top-0 z-50 shadow-sm">
+    <header className="bg-card border-b border-border sticky top-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
             <Link href='/' className="flex items-center space-x-4">
-              <div className="relative w-12 h-12 bg-neutral-900 rounded-lg flex items-center justify-center overflow-hidden">
+              <div className="relative w-12 h-12 bg-primary rounded-lg flex items-center justify-center overflow-hidden">
                 {shop.logo ? (
                   <Image
                     src={shop.logo}
@@ -58,7 +58,7 @@ const ShopNavbar = ({ shop, cart }: Props) => {
                     className="object-cover"
                   />
                 ) : (
-                  <Store className="w-8 h-8 text-white" />
+                  <Store className="w-8 h-8 text-primary-foreground" />
                 )}
               </div>
             </Link>
@@ -67,14 +67,14 @@ const ShopNavbar = ({ shop, cart }: Props) => {
           <nav className="hidden lg:flex items-center space-x-6">
             <Link
               href='/'
-              className="text-neutral-700 hover:text-neutral-900 font-medium transition-colors flex items-center"
+              className="text-muted-foreground hover:text-foreground font-medium transition-colors flex items-center"
             >
               <Home className="w-4 h-4 mr-2" />
               Home
             </Link>
             <Link
               href='/products'
-              className="text-neutral-700 hover:text-neutral-900 font-medium transition-colors flex items-center"
+              className="text-muted-foreground hover:text-foreground font-medium transition-colors flex items-center"
             >
               <Package className="w-4 h-4 mr-2" />
               Products
@@ -82,7 +82,7 @@ const ShopNavbar = ({ shop, cart }: Props) => {
             {user && (
               <Link
                 href='/orders'
-                className="text-neutral-700 hover:text-neutral-900 font-medium transition-colors flex items-center"
+                className="text-muted-foreground hover:text-foreground font-medium transition-colors flex items-center"
               >
                 <ShoppingCart className="w-4 h-4 mr-2" />
                 My Orders
@@ -129,7 +129,7 @@ const ShopNavbar = ({ shop, cart }: Props) => {
               <Link href="/cart">
                 <ShoppingCart className="w-4 h-4" />
                 {cart && cart.items.length > 0 && (
-                  <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center text-xs bg-blue-600 text-white">
+                  <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center text-xs bg-primary text-primary-foreground">
                     {cart.items.length}
                   </Badge>
                 )}
@@ -167,15 +167,15 @@ const ShopNavbar = ({ shop, cart }: Props) => {
 
                 {/* User Dropdown Menu */}
                 {isUserMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-56 bg-white border border-neutral-200 rounded-lg shadow-lg py-2 z-50">
-                    <div className="px-4 py-2 border-b border-neutral-100">
-                      <p className="font-medium text-sm text-neutral-900">{user.username}</p>
-                      <p className="text-xs text-neutral-600">{user.email}</p>
+                  <div className="absolute right-0 mt-2 w-56 bg-popover border border-border rounded-lg shadow-lg py-2 z-50">
+                    <div className="px-4 py-2 border-b border-border">
+                      <p className="font-medium text-sm text-popover-foreground">{user.username}</p>
+                      <p className="text-xs text-muted-foreground">{user.email}</p>
                     </div>
                     
                     <Link
                       href="/profile"
-                      className="flex items-center px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
+                      className="flex items-center px-4 py-2 text-sm text-popover-foreground hover:bg-accent hover:text-accent-foreground"
                     >
                       <User className="w-4 h-4 mr-2" />
                       Profile
@@ -183,7 +183,7 @@ const ShopNavbar = ({ shop, cart }: Props) => {
                     
                     <Link
                       href="/orders"
-                      className="flex items-center px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
+                      className="flex items-center px-4 py-2 text-sm text-popover-foreground hover:bg-accent hover:text-accent-foreground"
                     >
                       <Package className="w-4 h-4 mr-2" />
                       My Orders
@@ -191,24 +191,24 @@ const ShopNavbar = ({ shop, cart }: Props) => {
 
                     {isShopAdmin && (
                       <>
-                        <div className="border-t border-neutral-100 my-1" />
+                        <div className="border-t border-border my-1" />
                         <Link
                           href="/admin"
-                          className="flex items-center px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
+                          className="flex items-center px-4 py-2 text-sm text-popover-foreground hover:bg-accent hover:text-accent-foreground"
                         >
                           <Shield className="w-4 h-4 mr-2" />
                           Admin Dashboard
                         </Link>
                         <Link
                           href="/admin/products"
-                          className="flex items-center px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
+                          className="flex items-center px-4 py-2 text-sm text-popover-foreground hover:bg-accent hover:text-accent-foreground"
                         >
                           <Package className="w-4 h-4 mr-2" />
                           Manage Products
                         </Link>
                         <Link
                           href="/admin/orders"
-                          className="flex items-center px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
+                          className="flex items-center px-4 py-2 text-sm text-popover-foreground hover:bg-accent hover:text-accent-foreground"
                         >
                           <ShoppingCart className="w-4 h-4 mr-2" />
                           Manage Orders
@@ -216,10 +216,10 @@ const ShopNavbar = ({ shop, cart }: Props) => {
                       </>
                     )}
 
-                    <div className="border-t border-neutral-100 my-1" />
+                    <div className="border-t border-border my-1" />
                     <button
                       onClick={handleSignOut}
-                      className="flex items-center w-full px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
+                      className="flex items-center w-full px-4 py-2 text-sm text-popover-foreground hover:bg-accent hover:text-accent-foreground"
                     >
                       <LogOut className="w-4 h-4 mr-2" />
                       Sign Out
@@ -243,7 +243,7 @@ const ShopNavbar = ({ shop, cart }: Props) => {
 
         {/* Mobile Navigation Menu */}
         <div className={cn(
-          "absolute top-full left-0 right-0 lg:hidden bg-white border-b border-neutral-200 shadow-lg z-40 overflow-hidden transition-all duration-300 ease-in-out",
+          "absolute top-full left-0 right-0 lg:hidden bg-card border-b border-border shadow-lg z-40 overflow-hidden transition-all duration-300 ease-in-out",
           isMobileMenuOpen ? "max-h-[80vh] opacity-100" : "max-h-0 opacity-0"
         )}>
           <div className="max-w-7xl mx-auto overflow-y-auto max-h-[80vh]">
@@ -251,7 +251,7 @@ const ShopNavbar = ({ shop, cart }: Props) => {
               <nav className="flex flex-col space-y-4">
               <Link
                 href='/'
-                className="text-neutral-700 hover:text-neutral-900 font-medium transition-colors flex items-center"
+                className="text-muted-foreground hover:text-foreground font-medium transition-colors flex items-center"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 <Home className="w-4 h-4 mr-3" />
@@ -259,7 +259,7 @@ const ShopNavbar = ({ shop, cart }: Props) => {
               </Link>
               <Link
                 href='/products'
-                className="text-neutral-700 hover:text-neutral-900 font-medium transition-colors flex items-center"
+                className="text-muted-foreground hover:text-foreground font-medium transition-colors flex items-center"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 <Package className="w-4 h-4 mr-3" />
@@ -270,7 +270,7 @@ const ShopNavbar = ({ shop, cart }: Props) => {
                 <>
                   <Link
                     href='/orders'
-                    className="text-neutral-700 hover:text-neutral-900 font-medium transition-colors flex items-center"
+                    className="text-muted-foreground hover:text-foreground font-medium transition-colors flex items-center"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <ShoppingCart className="w-4 h-4 mr-3" />
@@ -278,7 +278,7 @@ const ShopNavbar = ({ shop, cart }: Props) => {
                   </Link>
                   <Link
                     href='/profile'
-                    className="text-neutral-700 hover:text-neutral-900 font-medium transition-colors flex items-center"
+                    className="text-muted-foreground hover:text-foreground font-medium transition-colors flex items-center"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <User className="w-4 h-4 mr-3" />
@@ -287,14 +287,14 @@ const ShopNavbar = ({ shop, cart }: Props) => {
                   
                   {isShopAdmin && (
                     <>
-                      <div className="border-t border-neutral-200 pt-4 mt-4">
-                        <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-3">
+                      <div className="border-t border-border pt-4 mt-4">
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
                           Admin
                         </p>
                       </div>
                       <Link
                         href='/admin'
-                        className="text-neutral-700 hover:text-neutral-900 font-medium transition-colors flex items-center"
+                        className="text-muted-foreground hover:text-foreground font-medium transition-colors flex items-center"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         <Shield className="w-4 h-4 mr-3" />
@@ -302,7 +302,7 @@ const ShopNavbar = ({ shop, cart }: Props) => {
                       </Link>
                       <Link
                         href='/admin/products'
-                        className="text-neutral-700 hover:text-neutral-900 font-medium transition-colors flex items-center"
+                        className="text-muted-foreground hover:text-foreground font-medium transition-colors flex items-center"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         <Package className="w-4 h-4 mr-3" />
@@ -310,7 +310,7 @@ const ShopNavbar = ({ shop, cart }: Props) => {
                       </Link>
                       <Link
                         href='/admin/orders'
-                        className="text-neutral-700 hover:text-neutral-900 font-medium transition-colors flex items-center"
+                        className="text-muted-foreground hover:text-foreground font-medium transition-colors flex items-center"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         <ShoppingCart className="w-4 h-4 mr-3" />
@@ -324,17 +324,17 @@ const ShopNavbar = ({ shop, cart }: Props) => {
                       handleSignOut();
                       setIsMobileMenuOpen(false);
                     }}
-                    className="text-neutral-700 hover:text-neutral-900 font-medium transition-colors flex items-center w-full text-left"
+                    className="text-muted-foreground hover:text-foreground font-medium transition-colors flex items-center w-full text-left"
                   >
                     <LogOut className="w-4 h-4 mr-3" />
                     Sign Out
                   </button>
                 </>
               ) : (
-                <div className="space-y-3 border-t border-neutral-200 pt-4 mt-4">
+                <div className="space-y-3 border-t border-border pt-4 mt-4">
                   <Link
                     href='/login'
-                    className="text-neutral-700 hover:text-neutral-900 font-medium transition-colors flex items-center"
+                    className="text-muted-foreground hover:text-foreground font-medium transition-colors flex items-center"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <LogIn className="w-4 h-4 mr-3" />
@@ -342,7 +342,7 @@ const ShopNavbar = ({ shop, cart }: Props) => {
                   </Link>
                   <Link
                     href='/signup'
-                    className="bg-neutral-900 text-white px-4 py-2 rounded-md font-medium inline-block"
+                    className="bg-primary text-primary-foreground px-4 py-2 rounded-md font-medium inline-block"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Sign Up

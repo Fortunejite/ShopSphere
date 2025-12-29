@@ -142,15 +142,15 @@ export default function AdminDashboardPage() {
 
   const getStatusColor = (status: string) => {
     const colors = {
-      pending: 'bg-yellow-100 text-yellow-800',
-      confirmed: 'bg-blue-100 text-blue-800',
-      processing: 'bg-purple-100 text-purple-800',
-      shipped: 'bg-indigo-100 text-indigo-800',
-      delivered: 'bg-green-100 text-green-800',
-      cancelled: 'bg-red-100 text-red-800',
-      refunded: 'bg-gray-100 text-gray-800'
+      pending: 'bg-warning/10 text-warning',
+      confirmed: 'bg-info/10 text-info',
+      processing: 'bg-secondary/10 text-secondary-foreground',
+      shipped: 'bg-primary/10 text-primary',
+      delivered: 'bg-success/10 text-success',
+      cancelled: 'bg-error/10 text-error',
+      refunded: 'bg-muted text-muted-foreground'
     };
-    return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+    return colors[status as keyof typeof colors] || 'bg-muted text-muted-foreground';
   };
 
   const formatPercentage = (value: number) => {
@@ -159,14 +159,14 @@ export default function AdminDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 transition-all duration-300">
+    <div className="min-h-screen bg-background transition-all duration-300">
       {/* Header */}
-      <div className="bg-white border-b">
+      <div className="bg-card border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-y-4 sm:gap-y-0">
             <div className="flex-1">
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-              <p className="text-sm sm:text-base text-gray-600 mt-1">
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Admin Dashboard</h1>
+              <p className="text-sm sm:text-base text-muted-foreground mt-1">
                 Welcome back! Here&apos;s what&apos;s happening with {shop?.name || 'your shop'}.
               </p>
             </div>
@@ -214,26 +214,26 @@ export default function AdminDashboardPage() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Total Revenue</p>
-                      <p className="text-3xl font-bold text-gray-900">
+                      <p className="text-sm font-medium text-muted-foreground">Total Revenue</p>
+                      <p className="text-3xl font-bold text-foreground">
                         {formatCurrency(stats?.totalRevenue || 0, shop!.currency)}
                       </p>
                       <div className="flex items-center mt-2">
                         {stats && stats.revenueGrowth >= 0 ? (
-                          <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
+                          <TrendingUp className="w-4 h-4 text-success mr-1" />
                         ) : (
-                          <TrendingDown className="w-4 h-4 text-red-500 mr-1" />
+                          <TrendingDown className="w-4 h-4 text-error mr-1" />
                         )}
                         <span className={cn(
                           'text-sm font-medium',
-                          stats && stats.revenueGrowth >= 0 ? 'text-green-600' : 'text-red-600'
+                          stats && stats.revenueGrowth >= 0 ? 'text-success' : 'text-error'
                         )}>
                           {stats ? formatPercentage(stats.revenueGrowth) : '0%'} from last month
                         </span>
                       </div>
                     </div>
-                    <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                      <DollarSign className="w-6 h-6 text-green-600" />
+                    <div className="w-12 h-12 bg-success/10 rounded-lg flex items-center justify-center">
+                      <DollarSign className="w-6 h-6 text-success" />
                     </div>
                   </div>
                 </CardContent>

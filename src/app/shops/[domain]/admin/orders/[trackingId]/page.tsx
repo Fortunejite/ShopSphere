@@ -98,15 +98,15 @@ export default function AdminOrderDetailsPage() {
 
   const getStatusColor = (status: string) => {
     const colors = {
-      pending: 'bg-yellow-100 text-yellow-800',
-      confirmed: 'bg-blue-100 text-blue-800',
-      processing: 'bg-purple-100 text-purple-800',
-      shipped: 'bg-indigo-100 text-indigo-800',
-      delivered: 'bg-green-100 text-green-800',
-      cancelled: 'bg-red-100 text-red-800',
-      refunded: 'bg-gray-100 text-gray-800'
+      pending: 'bg-warning/10 text-warning',
+      confirmed: 'bg-primary/10 text-primary',
+      processing: 'bg-info/10 text-info',
+      shipped: 'bg-info/10 text-info',
+      delivered: 'bg-success/10 text-success',
+      cancelled: 'bg-error/10 text-error',
+      refunded: 'bg-muted/10 text-muted-foreground'
     };
-    return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+    return colors[status as keyof typeof colors] || 'bg-muted/10 text-muted-foreground';
   };
 
   const getStatusIcon = (status: string) => {
@@ -125,12 +125,12 @@ export default function AdminOrderDetailsPage() {
 
   const getPaymentStatusColor = (status: string) => {
     const colors = {
-      pending: 'bg-yellow-100 text-yellow-800',
-      paid: 'bg-green-100 text-green-800',
-      failed: 'bg-red-100 text-red-800',
-      refunded: 'bg-gray-100 text-gray-800'
+      pending: 'bg-warning/10 text-warning',
+      paid: 'bg-success/10 text-success',
+      failed: 'bg-error/10 text-error',
+      refunded: 'bg-muted/10 text-muted-foreground'
     };
-    return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+    return colors[status as keyof typeof colors] || 'bg-muted/10 text-muted-foreground';
   };
 
   const copyTrackingId = () => {
@@ -145,7 +145,7 @@ export default function AdminOrderDetailsPage() {
 
   if (error || !order) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
+      <div className="min-h-screen bg-background p-6">
         <div className="max-w-2xl mx-auto">
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
@@ -165,7 +165,7 @@ export default function AdminOrderDetailsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-2 sm:px-6 py-6">
@@ -181,10 +181,10 @@ export default function AdminOrderDetailsPage() {
                 <span className="sm:hidden">Back</span>
               </Button>
               <div>
-                <h1 className="text-lg sm:text-2xl font-bold text-gray-900">
+                <h1 className="text-lg sm:text-2xl font-bold text-foreground">
                   Order #{order.tracking_id}
                 </h1>
-                <p className="text-gray-600 mt-1">
+                <p className="text-muted-foreground mt-1">
                   Placed on {new Date(order.created_at).toLocaleDateString()}
                 </p>
               </div>
@@ -235,13 +235,13 @@ export default function AdminOrderDetailsPage() {
                 {isEditingStatus ? (
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-foreground mb-1">
                         Order Status
                       </label>
                       <select
                         value={newStatus}
                         onChange={(e) => setNewStatus(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                       >
                         <option value="confirmed">Confirmed</option>
                         <option value="processing">Processing</option>
@@ -252,7 +252,7 @@ export default function AdminOrderDetailsPage() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-foreground mb-1">
                         Admin Notes
                       </label>
                       <Textarea
@@ -282,8 +282,8 @@ export default function AdminOrderDetailsPage() {
                     </div>
                     {order.admin_notes && (
                       <div>
-                        <span className="font-medium text-sm text-gray-700">Admin Notes:</span>
-                        <p className="text-sm text-gray-600 mt-1">{order.admin_notes}</p>
+                        <span className="font-medium text-sm text-foreground">Admin Notes:</span>
+                        <p className="text-sm text-muted-foreground mt-1">{order.admin_notes}</p>
                       </div>
                     )}
                   </div>
@@ -300,7 +300,7 @@ export default function AdminOrderDetailsPage() {
                 <div className="space-y-4">
                   {order.items.map((item, index) => (
                     <div key={index} className="flex flex-col sm:flex-row gap-4 p-4 border rounded-lg">
-                      <div className="relative w-20 h-20 sm:w-20 sm:h-20 bg-gray-100 rounded-lg overflow-hidden mx-auto sm:mx-0 flex-shrink-0">
+                      <div className="relative w-20 h-20 sm:w-20 sm:h-20 bg-muted rounded-lg overflow-hidden mx-auto sm:mx-0 shrink-0">
                         <Image
                           src={item.product.image}
                           alt={item.product.name}
@@ -310,9 +310,9 @@ export default function AdminOrderDetailsPage() {
                       </div>
                       <div className="flex-1">
                         <h4 className="font-medium text-lg">{item.product.name}</h4>
-                        <p className="text-sm text-gray-600 mt-1">Product ID: {item.product_id}</p>
+                        <p className="text-sm text-muted-foreground mt-1">Product ID: {item.product_id}</p>
                         {item.variant_index !== undefined && item.product.variants[item.variant_index] && (
-                          <div className="text-sm text-gray-600 mt-1">
+                          <div className="text-sm text-muted-foreground mt-1">
                             {Object.entries(item.product.variants[item.variant_index].attributes).map(([key, value]) => (
                               <span key={key} className="mr-3">
                                 {key}: {value}
@@ -322,18 +322,18 @@ export default function AdminOrderDetailsPage() {
                         )}
                         <div className="flex items-center justify-between mt-3">
                           <div className="text-sm">
-                            <span className="text-gray-600">Quantity: </span>
+                            <span className="text-muted-foreground">Quantity: </span>
                             <span className="font-medium">{item.quantity}</span>
                           </div>
                           <div className="text-right">
                             <div className="font-medium text-lg">
                               {formatCurrency(item.subtotal, shop!.currency)}
                             </div>
-                            <div className="text-sm text-gray-600">
+                            <div className="text-sm text-muted-foreground">
                               {formatCurrency(item.unit_price_at_purchase, shop!.currency)} each
                             </div>
                             {item.discount_at_purchase > 0 && (
-                              <div className="text-xs text-green-600">
+                              <div className="text-xs text-success">
                                 {item.discount_at_purchase}% off
                               </div>
                             )}
@@ -351,7 +351,7 @@ export default function AdminOrderDetailsPage() {
                     <span>{formatCurrency(order.total_amount, shop!.currency)}</span>
                   </div>
                   {order.discount_amount > 0 && (
-                    <div className="flex justify-between text-sm text-green-600">
+                    <div className="flex justify-between text-sm text-success">
                       <span>Discount:</span>
                       <span>{formatCurrency(-order.discount_amount, shop!.currency)}</span>
                     </div>
@@ -371,7 +371,7 @@ export default function AdminOrderDetailsPage() {
                   <CardTitle>Customer Notes</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-700">{order.notes}</p>
+                  <p className="text-foreground">{order.notes}</p>
                 </CardContent>
               </Card>
             )}
@@ -389,7 +389,7 @@ export default function AdminOrderDetailsPage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Customer ID:</span>
+                  <span className="text-sm text-muted-foreground">Customer ID:</span>
                   <span className="text-sm font-medium">{order.user_id}</span>
                 </div>
                 {order.shipping_address && (

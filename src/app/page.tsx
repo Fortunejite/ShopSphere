@@ -102,24 +102,24 @@ const HomePage = () => {
   }, [testimonials.length]);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b">
+      <nav className="sticky top-0 z-50 bg-card/80 backdrop-blur-xl border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-neutral-900 rounded-lg flex items-center justify-center">
-                <Store className="w-5 h-5 text-neutral-50" />
+              <div className="w-8 h-8 bg-foreground rounded-lg flex items-center justify-center">
+                <Store className="w-5 h-5 text-background" />
               </div>
-              <span className="text-xl font-semibold text-neutral-900">ShopSphere</span>
+              <span className="text-xl font-semibold text-foreground">ShopSphere</span>
             </div>
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
-              <a href="#features" className="text-neutral-600 hover:text-neutral-900 transition-colors">Features</a>
-              <a href="#testimonials" className="text-neutral-600 hover:text-neutral-900 transition-colors">Reviews</a>
-              <Link href="/login" className="text-neutral-600 hover:text-neutral-900 transition-colors">Login</Link>
+              <a href="#features" className="text-muted-foreground hover:text-foreground transition-colors">Features</a>
+              <a href="#testimonials" className="text-muted-foreground hover:text-foreground transition-colors">Reviews</a>
+              <Link href="/login" className="text-muted-foreground hover:text-foreground transition-colors">Login</Link>
               <Button asChild>
                 <Link href="/signup">Get Started</Link>
               </Button>
@@ -138,9 +138,9 @@ const HomePage = () => {
           {isMenuOpen && (
             <div className="md:hidden py-4 border-t">
               <div className="flex flex-col space-y-4">
-                <a href="#features" className="text-neutral-600 hover:text-neutral-900">Features</a>
-                <a href="#testimonials" className="text-neutral-600 hover:text-neutral-900">Reviews</a>
-                <Link href="/login" className="text-neutral-600 hover:text-neutral-900">Login</Link>
+                <a href="#features" className="text-muted-foreground hover:text-foreground">Features</a>
+                <a href="#testimonials" className="text-muted-foreground hover:text-foreground">Reviews</a>
+                <Link href="/login" className="text-muted-foreground hover:text-foreground">Login</Link>
                 <Button asChild className="w-full">
                   <Link href="/signup">Get Started</Link>
                 </Button>
@@ -154,21 +154,21 @@ const HomePage = () => {
       <section className="relative overflow-hidden bg-gradient-to-br from-neutral-50 via-white to-neutral-100">
         {/* Background Elements */}
         <div className="absolute inset-0 bg-grid-neutral-100/50 bg-[size:20px_20px] opacity-40" />
-        <div className="absolute top-10 right-10 w-72 h-72 bg-neutral-200/30 rounded-full blur-3xl" />
-        <div className="absolute bottom-10 left-10 w-64 h-64 bg-neutral-300/20 rounded-full blur-3xl" />
+        <div className="absolute top-10 right-10 w-72 h-72 bg-muted/30 rounded-full blur-3xl" />
+        <div className="absolute bottom-10 left-10 w-64 h-64 bg-muted/20 rounded-full blur-3xl" />
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <Badge className="mb-4 bg-neutral-100 text-neutral-800 hover:bg-neutral-200 border-neutral-200">
+              <Badge className="mb-4 bg-muted text-foreground hover:bg-muted/80 border-border">
                 Join 10,000+ successful merchants
               </Badge>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-neutral-900 leading-tight mb-6">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground leading-tight mb-6">
                 Build Your
-                <span className="text-neutral-700"> Dream Store </span>
+                <span className="text-muted-foreground"> Dream Store </span>
                 in Minutes
               </h1>
-              <p className="text-xl text-neutral-600 mb-8 leading-relaxed">
+              <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
                 Create a professional online store with zero coding required. From custom domains to advanced analytics, 
                 everything you need to succeed in e-commerce is here.
               </p>
@@ -186,34 +186,34 @@ const HomePage = () => {
                 </Button>
               </div>
 
-              <div className="flex items-center space-x-8 text-sm text-neutral-600">
+              <div className="flex items-center space-x-8 text-sm text-muted-foreground">
                 <div className="flex items-center space-x-2">
-                  <Check className="w-4 h-4 text-neutral-600" />
+                  <Check className="w-4 h-4 text-muted-foreground" />
                   <span>14-day free trial</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Check className="w-4 h-4 text-neutral-600" />
+                  <Check className="w-4 h-4 text-muted-foreground" />
                   <span>No credit card required</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Check className="w-4 h-4 text-neutral-600" />
+                  <Check className="w-4 h-4 text-muted-foreground" />
                   <span>Cancel anytime</span>
                 </div>
               </div>
             </div>
 
             <div className="relative">
-              <div className="relative bg-white rounded-2xl shadow-2xl p-8 transform rotate-1 hover:rotate-0 transition-transform duration-500 border border-neutral-200">
-                <div className="bg-neutral-50 rounded-lg p-4 mb-4">
+              <div className="relative bg-card rounded-2xl shadow-2xl p-8 transform rotate-1 hover:rotate-0 transition-transform duration-500 border">
+                <div className="bg-muted rounded-lg p-4 mb-4">
                   <div className="flex items-center space-x-2 mb-2">
-                    <div className="w-3 h-3 bg-neutral-400 rounded-full"></div>
-                    <div className="w-3 h-3 bg-neutral-300 rounded-full"></div>
-                    <div className="w-3 h-3 bg-neutral-200 rounded-full"></div>
+                    <div className="w-3 h-3 bg-muted-foreground rounded-full"></div>
+                    <div className="w-3 h-3 bg-muted-foreground/50 rounded-full"></div>
+                    <div className="w-3 h-3 bg-muted rounded-full"></div>
                   </div>
                   <div className="bg-white rounded p-4 border border-neutral-100">
                     <div className="flex items-center justify-between mb-3">
-                      <h3 className="font-semibold text-neutral-900">MyAwesomeStore.com</h3>
-                      <Badge className="bg-neutral-100 text-neutral-800 border-neutral-200">Live</Badge>
+                      <h3 className="font-semibold text-foreground">MyAwesomeStore.com</h3>
+                      <Badge className="bg-muted text-foreground border-border">Live</Badge>
                     </div>
                     <div className="grid grid-cols-2 gap-2 mb-3">
                       <div className="bg-neutral-100 rounded h-16"></div>

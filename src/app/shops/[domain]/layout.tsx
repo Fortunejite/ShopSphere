@@ -24,17 +24,17 @@ import { useSession } from 'next-auth/react';
 
 const ShopUnavailable = ({ shop }: { shop: ShopWithOwner }) => {
   return (
-    <div className="min-h-screen bg-linear-to-br from-neutral-50 to-neutral-100">
+    <div className="min-h-screen bg-background">
       {/* Simple navbar for unavailable shop */}
-      <header className="bg-white border-b border-neutral-200">
+      <header className="bg-card border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-neutral-300 rounded-lg flex items-center justify-center">
-              <Store className="w-6 h-6 text-neutral-600" />
+            <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center">
+              <Store className="w-6 h-6 text-muted-foreground" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-neutral-700">{shop?.name || 'Shop'}</h1>
-              <p className="text-xs text-neutral-500">{shop?.domain}</p>
+              <h1 className="text-xl font-bold text-foreground">{shop?.name || 'Shop'}</h1>
+              <p className="text-xs text-muted-foreground">{shop?.domain}</p>
             </div>
           </div>
         </div>
@@ -45,22 +45,22 @@ const ShopUnavailable = ({ shop }: { shop: ShopWithOwner }) => {
         <div className="max-w-md w-full text-center space-y-6">
           {/* Icon */}
           <div className="flex justify-center">
-            <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center">
-              <Clock className="w-10 h-10 text-orange-600" />
+            <div className="w-20 h-20 bg-secondary rounded-full flex items-center justify-center">
+              <Clock className="w-10 h-10 text-secondary-foreground" />
             </div>
           </div>
 
           {/* Content */}
           <div className="space-y-3">
-            <h2 className="text-2xl font-bold text-neutral-900">Shop Temporarily Unavailable</h2>
-            <p className="text-neutral-600 leading-relaxed">
+            <h2 className="text-2xl font-bold text-foreground">Shop Temporarily Unavailable</h2>
+            <p className="text-muted-foreground leading-relaxed">
               This shop is currently undergoing maintenance or setup. Please check back later or contact the shop owner for more information.
             </p>
           </div>
 
           {/* Status badge */}
           <div className="flex justify-center">
-            <Badge variant="secondary" className="bg-orange-100 text-orange-700 px-4 py-2">
+            <Badge variant="secondary" className="bg-secondary text-secondary-foreground px-4 py-2">
               <AlertTriangle className="w-3 h-3 mr-2" />
               {shop?.status || 'Inactive'}
             </Badge>
@@ -83,7 +83,7 @@ const ShopUnavailable = ({ shop }: { shop: ShopWithOwner }) => {
           </div>
 
           {/* Footer note */}
-          <p className="text-sm text-neutral-500 pt-8">
+          <p className="text-sm text-muted-foreground pt-8">
             Shop powered by <span className="font-medium">ShopSphere</span>
           </p>
         </div>
@@ -127,7 +127,7 @@ export default function HomeLayout({
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50 flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
       <ShopTheme shop={shop} />
       <ShopNavbar shop={shop} cart={cart} />
       <main className="flex-1">{children}</main>

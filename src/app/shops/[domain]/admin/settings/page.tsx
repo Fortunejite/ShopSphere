@@ -255,17 +255,17 @@ export default function AdminSettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-white border-b">
+      <div className="bg-card border-b">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+              <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
                 <Settings className="w-8 h-8" />
                 Shop Settings
               </h1>
-              <p className="text-gray-600 mt-1">
+              <p className="text-muted-foreground mt-1">
                 Manage your shop configuration and preferences
               </p>
             </div>
@@ -293,7 +293,7 @@ export default function AdminSettingsPage() {
                     placeholder="My Awesome Shop"
                   />
                   {form.formState.errors.name && (
-                    <p className="text-sm text-red-600 mt-1">
+                    <p className="text-sm text-error mt-1">
                       {form.formState.errors.name.message}
                     </p>
                   )}
@@ -308,7 +308,7 @@ export default function AdminSettingsPage() {
                     rows={3}
                   />
                   {form.formState.errors.description && (
-                    <p className="text-sm text-red-600 mt-1">
+                    <p className="text-sm text-error mt-1">
                       {form.formState.errors.description.message}
                     </p>
                   )}
@@ -322,11 +322,11 @@ export default function AdminSettingsPage() {
                     placeholder="Enter a catchy tagline for your shop"
                   />
                   {form.formState.errors.tagline && (
-                    <p className="text-sm text-red-600 mt-1">
+                    <p className="text-sm text-error mt-1">
                       {form.formState.errors.tagline.message}
                     </p>
                   )}
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-muted-foreground mt-1">
                     A short, memorable phrase that captures your shop&apos;s essence (max 100 characters)
                   </p>
                 </div>
@@ -338,11 +338,11 @@ export default function AdminSettingsPage() {
                     {...form.register('domain')}
                     placeholder="myshop"
                   />
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-muted-foreground mt-1">
                     Your shop will be accessible at: /shops/{form.watch('domain')}
                   </p>
                   {form.formState.errors.domain && (
-                    <p className="text-sm text-red-600 mt-1">
+                    <p className="text-sm text-error mt-1">
                       {form.formState.errors.domain.message}
                     </p>
                   )}
@@ -368,7 +368,7 @@ export default function AdminSettingsPage() {
                     placeholder="contact@myshop.com"
                   />
                   {form.formState.errors.email && (
-                    <p className="text-sm text-red-600 mt-1">
+                    <p className="text-sm text-error mt-1">
                       {form.formState.errors.email.message}
                     </p>
                   )}
@@ -425,7 +425,7 @@ export default function AdminSettingsPage() {
                     <select
                       id="country"
                       {...form.register('country')}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                     >
                       <option value="US">United States</option>
                       <option value="CA">Canada</option>
@@ -459,7 +459,7 @@ export default function AdminSettingsPage() {
                           alt="Shop logo"
                           width={80}
                           height={80}
-                          className="w-20 h-20 object-cover rounded-lg border-2 border-gray-200"
+                          className="w-20 h-20 object-cover rounded-lg border-2 border-border"
                         />
                         <Button
                           type="button"
@@ -473,8 +473,8 @@ export default function AdminSettingsPage() {
                         </Button>
                       </div>
                     ) : (
-                      <div className="w-20 h-20 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center">
-                        <ImageIcon className="w-8 h-8 text-gray-400" />
+                      <div className="w-20 h-20 bg-muted border-2 border-dashed border-border rounded-lg flex items-center justify-center">
+                        <ImageIcon className="w-8 h-8 text-muted-foreground" />
                       </div>
                     )}
                     
@@ -511,7 +511,7 @@ export default function AdminSettingsPage() {
                           )}
                         </label>
                       </Button>
-                      <p className="text-xs text-gray-500 mt-2">
+                      <p className="text-xs text-muted-foreground mt-2">
                         PNG, JPG up to 5MB. Recommended: 200x200px
                       </p>
                     </div>
@@ -529,7 +529,7 @@ export default function AdminSettingsPage() {
                           alt="Shop banner"
                           width={240}
                           height={80}
-                          className="w-60 h-20 object-cover rounded-lg border-2 border-gray-200"
+                          className="w-60 h-20 object-cover rounded-lg border-2 border-border"
                         />
                         <Button
                           type="button"
@@ -543,8 +543,8 @@ export default function AdminSettingsPage() {
                         </Button>
                       </div>
                     ) : (
-                      <div className="w-60 h-20 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center">
-                        <ImageIcon className="w-6 h-6 text-gray-400" />
+                      <div className="w-60 h-20 bg-muted border-2 border-dashed border-border rounded-lg flex items-center justify-center">
+                        <ImageIcon className="w-6 h-6 text-muted-foreground" />
                       </div>
                     )}
                     
@@ -581,7 +581,7 @@ export default function AdminSettingsPage() {
                           )}
                         </label>
                       </Button>
-                      <p className="text-xs text-gray-500 mt-2">
+                      <p className="text-xs text-muted-foreground mt-2">
                         PNG, JPG up to 5MB. Recommended: 1200x400px
                       </p>
                     </div>
@@ -622,7 +622,7 @@ export default function AdminSettingsPage() {
                           <Label className="text-sm font-medium">Primary Color</Label>
                           <div className="flex items-center space-x-3 mt-2">
                             <div 
-                              className="w-10 h-10 rounded-md border-2 border-gray-200 cursor-pointer"
+                              className="w-10 h-10 rounded-md border-2 border-border cursor-pointer"
                               style={{ backgroundColor: lightTheme.primary }}
                               onClick={() => {
                                 const input = document.createElement('input');
@@ -642,7 +642,7 @@ export default function AdminSettingsPage() {
                               className="flex-1"
                             />
                           </div>
-                          <p className="text-xs text-gray-500 mt-1">Main brand color for buttons and links</p>
+                          <p className="text-xs text-muted-foreground mt-1">Main brand color for buttons and links</p>
                         </div>
 
                         {/* Secondary Color */}
@@ -650,7 +650,7 @@ export default function AdminSettingsPage() {
                           <Label className="text-sm font-medium">Secondary Color</Label>
                           <div className="flex items-center space-x-3 mt-2">
                             <div 
-                              className="w-10 h-10 rounded-md border-2 border-gray-200 cursor-pointer"
+                              className="w-10 h-10 rounded-md border-2 border-border cursor-pointer"
                               style={{ backgroundColor: lightTheme.secondary }}
                               onClick={() => {
                                 const input = document.createElement('input');
@@ -670,7 +670,7 @@ export default function AdminSettingsPage() {
                               className="flex-1"
                             />
                           </div>
-                          <p className="text-xs text-gray-500 mt-1">Secondary backgrounds and muted elements</p>
+                          <p className="text-xs text-muted-foreground mt-1">Secondary backgrounds and muted elements</p>
                         </div>
 
                         {/* Background Color */}
@@ -678,7 +678,7 @@ export default function AdminSettingsPage() {
                           <Label className="text-sm font-medium">Background Color</Label>
                           <div className="flex items-center space-x-3 mt-2">
                             <div 
-                              className="w-10 h-10 rounded-md border-2 border-gray-200 cursor-pointer"
+                              className="w-10 h-10 rounded-md border-2 border-border cursor-pointer"
                               style={{ backgroundColor: lightTheme.background }}
                               onClick={() => {
                                 const input = document.createElement('input');
@@ -698,7 +698,7 @@ export default function AdminSettingsPage() {
                               className="flex-1"
                             />
                           </div>
-                          <p className="text-xs text-gray-500 mt-1">Main page background color</p>
+                          <p className="text-xs text-muted-foreground mt-1">Main page background color</p>
                         </div>
 
                         {/* Text Color */}
@@ -706,7 +706,7 @@ export default function AdminSettingsPage() {
                           <Label className="text-sm font-medium">Text Color</Label>
                           <div className="flex items-center space-x-3 mt-2">
                             <div 
-                              className="w-10 h-10 rounded-md border-2 border-gray-200 cursor-pointer"
+                              className="w-10 h-10 rounded-md border-2 border-border cursor-pointer"
                               style={{ backgroundColor: lightTheme.text }}
                               onClick={() => {
                                 const input = document.createElement('input');
@@ -726,7 +726,7 @@ export default function AdminSettingsPage() {
                               className="flex-1"
                             />
                           </div>
-                          <p className="text-xs text-gray-500 mt-1">Primary text color</p>
+                          <p className="text-xs text-muted-foreground mt-1">Primary text color</p>
                         </div>
 
                         {/* Accent Color */}
@@ -734,7 +734,7 @@ export default function AdminSettingsPage() {
                           <Label className="text-sm font-medium">Accent Color</Label>
                           <div className="flex items-center space-x-3 mt-2">
                             <div 
-                              className="w-10 h-10 rounded-md border-2 border-gray-200 cursor-pointer"
+                              className="w-10 h-10 rounded-md border-2 border-border cursor-pointer"
                               style={{ backgroundColor: lightTheme.accent }}
                               onClick={() => {
                                 const input = document.createElement('input');
@@ -754,7 +754,7 @@ export default function AdminSettingsPage() {
                               className="flex-1"
                             />
                           </div>
-                          <p className="text-xs text-gray-500 mt-1">Accent color for highlights and special elements</p>
+                          <p className="text-xs text-muted-foreground mt-1">Accent color for highlights and special elements</p>
                         </div>
                       </div>
                     </TabsContent>
@@ -766,7 +766,7 @@ export default function AdminSettingsPage() {
                           <Label className="text-sm font-medium">Primary Color</Label>
                           <div className="flex items-center space-x-3 mt-2">
                             <div 
-                              className="w-10 h-10 rounded-md border-2 border-gray-200 cursor-pointer"
+                              className="w-10 h-10 rounded-md border-2 border-border cursor-pointer"
                               style={{ backgroundColor: darkTheme.primary }}
                               onClick={() => {
                                 const input = document.createElement('input');
@@ -786,7 +786,7 @@ export default function AdminSettingsPage() {
                               className="flex-1"
                             />
                           </div>
-                          <p className="text-xs text-gray-500 mt-1">Main brand color for buttons and links</p>
+                          <p className="text-xs text-muted-foreground mt-1">Main brand color for buttons and links</p>
                         </div>
 
                         {/* Secondary Color */}
@@ -794,7 +794,7 @@ export default function AdminSettingsPage() {
                           <Label className="text-sm font-medium">Secondary Color</Label>
                           <div className="flex items-center space-x-3 mt-2">
                             <div 
-                              className="w-10 h-10 rounded-md border-2 border-gray-200 cursor-pointer"
+                              className="w-10 h-10 rounded-md border-2 border-border cursor-pointer"
                               style={{ backgroundColor: darkTheme.secondary }}
                               onClick={() => {
                                 const input = document.createElement('input');
@@ -814,7 +814,7 @@ export default function AdminSettingsPage() {
                               className="flex-1"
                             />
                           </div>
-                          <p className="text-xs text-gray-500 mt-1">Secondary backgrounds and muted elements</p>
+                          <p className="text-xs text-muted-foreground mt-1">Secondary backgrounds and muted elements</p>
                         </div>
 
                         {/* Background Color */}
@@ -822,7 +822,7 @@ export default function AdminSettingsPage() {
                           <Label className="text-sm font-medium">Background Color</Label>
                           <div className="flex items-center space-x-3 mt-2">
                             <div 
-                              className="w-10 h-10 rounded-md border-2 border-gray-200 cursor-pointer"
+                              className="w-10 h-10 rounded-md border-2 border-border cursor-pointer"
                               style={{ backgroundColor: darkTheme.background }}
                               onClick={() => {
                                 const input = document.createElement('input');
@@ -842,7 +842,7 @@ export default function AdminSettingsPage() {
                               className="flex-1"
                             />
                           </div>
-                          <p className="text-xs text-gray-500 mt-1">Main page background color</p>
+                          <p className="text-xs text-muted-foreground mt-1">Main page background color</p>
                         </div>
 
                         {/* Text Color */}
@@ -850,7 +850,7 @@ export default function AdminSettingsPage() {
                           <Label className="text-sm font-medium">Text Color</Label>
                           <div className="flex items-center space-x-3 mt-2">
                             <div 
-                              className="w-10 h-10 rounded-md border-2 border-gray-200 cursor-pointer"
+                              className="w-10 h-10 rounded-md border-2 border-border cursor-pointer"
                               style={{ backgroundColor: darkTheme.text }}
                               onClick={() => {
                                 const input = document.createElement('input');
@@ -870,7 +870,7 @@ export default function AdminSettingsPage() {
                               className="flex-1"
                             />
                           </div>
-                          <p className="text-xs text-gray-500 mt-1">Primary text color</p>
+                          <p className="text-xs text-muted-foreground mt-1">Primary text color</p>
                         </div>
 
                         {/* Accent Color */}
@@ -878,7 +878,7 @@ export default function AdminSettingsPage() {
                           <Label className="text-sm font-medium">Accent Color</Label>
                           <div className="flex items-center space-x-3 mt-2">
                             <div 
-                              className="w-10 h-10 rounded-md border-2 border-gray-200 cursor-pointer"
+                              className="w-10 h-10 rounded-md border-2 border-border cursor-pointer"
                               style={{ backgroundColor: darkTheme.accent }}
                               onClick={() => {
                                 const input = document.createElement('input');
@@ -898,7 +898,7 @@ export default function AdminSettingsPage() {
                               className="flex-1"
                             />
                           </div>
-                          <p className="text-xs text-gray-500 mt-1">Accent color for highlights and special elements</p>
+                          <p className="text-xs text-muted-foreground mt-1">Accent color for highlights and special elements</p>
                         </div>
                       </div>
                     </TabsContent>
@@ -970,8 +970,8 @@ export default function AdminSettingsPage() {
                   </div>
 
                   {hasThemeChanges && (
-                    <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                      <p className="text-sm text-blue-800">
+                    <div className="mt-4 p-3 bg-info/10 border border-info/20 rounded-lg">
+                      <p className="text-sm text-info-foreground">
                         You have unsaved theme changes. Click &quot;Save Settings&quot; to apply them.
                       </p>
                     </div>
@@ -1002,25 +1002,25 @@ export default function AdminSettingsPage() {
         }`}>
           <div className={`max-w-md w-full rounded-lg shadow-lg p-4 ${
             toast.type === 'success' 
-              ? 'bg-green-50 border-l-4 border-green-400' 
-              : 'bg-red-50 border-l-4 border-red-400'
+              ? 'bg-success/10 border-l-4 border-success' 
+              : 'bg-error/10 border-l-4 border-error'
           }`}>
             <div className="flex items-start">
               <div className="flex-shrink-0">
                 {toast.type === 'success' ? (
-                  <CheckCircle className="h-5 w-5 text-green-400" />
+                  <CheckCircle className="h-5 w-5 text-success" />
                 ) : (
-                  <AlertCircle className="h-5 w-5 text-red-400" />
+                  <AlertCircle className="h-5 w-5 text-error" />
                 )}
               </div>
               <div className="ml-3 flex-1">
                 <p className={`text-sm font-semibold ${
-                  toast.type === 'success' ? 'text-green-800' : 'text-red-800'
+                  toast.type === 'success' ? 'text-success-foreground' : 'text-error-foreground'
                 }`}>
                   {toast.title}
                 </p>
                 <p className={`text-sm mt-1 ${
-                  toast.type === 'success' ? 'text-green-700' : 'text-red-700'
+                  toast.type === 'success' ? 'text-success-foreground' : 'text-error-foreground'
                 }`}>
                   {toast.message}
                 </p>
@@ -1030,8 +1030,8 @@ export default function AdminSettingsPage() {
                   onClick={() => setToast(prev => prev ? { ...prev, show: false } : null)}
                   className={`rounded-md inline-flex ${
                     toast.type === 'success' 
-                      ? 'text-green-400 hover:text-green-600 focus:ring-green-500' 
-                      : 'text-red-400 hover:text-red-600 focus:ring-red-500'
+                      ? 'text-success hover:text-success/80 focus:ring-success' 
+                      : 'text-error hover:text-error/80 focus:ring-error'
                   } focus:outline-none focus:ring-2 focus:ring-offset-2`}
                 >
                   <X className="h-4 w-4" />

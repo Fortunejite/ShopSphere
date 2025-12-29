@@ -111,20 +111,20 @@ export default function AdminOrdersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-2 sm:px-6 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Order Management</h1>
-              <p className="text-gray-600 mt-1">
+              <h1 className="text-2xl font-bold text-foreground">Order Management</h1>
+              <p className="text-muted-foreground mt-1">
                 Manage and track all shop orders
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <Package className="w-5 h-5 text-gray-500" />
-              <span className="text-sm text-gray-600">
+              <Package className="w-5 h-5 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">
                 {totalOrders} total orders
               </span>
             </div>
@@ -139,12 +139,12 @@ export default function AdminOrdersPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Total Revenue</p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-sm font-medium text-muted-foreground">Total Revenue</p>
+                  <p className="text-2xl font-bold text-foreground">
                     {formatCurrency(stats.total_revenue, shop!.currency)}
                   </p>
                 </div>
-                <DollarSign className="w-8 h-8 text-green-500" />
+                <DollarSign className="w-8 h-8 text-success" />
               </div>
             </CardContent>
           </Card>
@@ -153,10 +153,10 @@ export default function AdminOrdersPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Total Orders</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.total_orders}</p>
+                  <p className="text-sm font-medium text-muted-foreground">Total Orders</p>
+                  <p className="text-2xl font-bold text-foreground">{stats.total_orders}</p>
                 </div>
-                <Package className="w-8 h-8 text-blue-500" />
+                <Package className="w-8 h-8 text-primary" />
               </div>
             </CardContent>
           </Card>
@@ -165,10 +165,10 @@ export default function AdminOrdersPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Confirmed Orders</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.confirmed_orders}</p>
+                  <p className="text-sm font-medium text-muted-foreground">Confirmed Orders</p>
+                  <p className="text-2xl font-bold text-foreground">{stats.confirmed_orders}</p>
                 </div>
-                <Clock className="w-8 h-8 text-yellow-500" />
+                <Clock className="w-8 h-8 text-warning" />
               </div>
             </CardContent>
           </Card>
@@ -177,10 +177,10 @@ export default function AdminOrdersPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Completed</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.completed_orders}</p>
+                  <p className="text-sm font-medium text-muted-foreground">Completed</p>
+                  <p className="text-2xl font-bold text-foreground">{stats.completed_orders}</p>
                 </div>
-                <CheckCircle className="w-8 h-8 text-green-500" />
+                <CheckCircle className="w-8 h-8 text-success" />
               </div>
             </CardContent>
           </Card>
@@ -192,7 +192,7 @@ export default function AdminOrdersPage() {
             <div className="flex flex-col lg:flex-row gap-4">
               {/* Search */}
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                 <Input
                   placeholder="Search by order ID, customer name, or product..."
                   value={searchTerm}
@@ -203,14 +203,14 @@ export default function AdminOrdersPage() {
 
               {/* Status Filter */}
               <div className="flex items-center gap-2">
-                <Filter className="w-4 h-4 text-gray-500" />
+                <Filter className="w-4 h-4 text-muted-foreground" />
                 <select
                   value={statusFilter}
                   onChange={(e) => {
                     setStatusFilter(e.target.value);
                     setCurrentPage(1);
                   }}
-                  className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 >
                   <option value="all">All Status</option>
                   <option value="pending">Pending</option>
@@ -230,7 +230,7 @@ export default function AdminOrdersPage() {
                   setPaymentFilter(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 <option value="all">All Payments</option>
                 <option value="pending">Payment Pending</option>
@@ -251,9 +251,9 @@ export default function AdminOrdersPage() {
         ) : filteredOrders.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center">
-              <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No orders found</h3>
-              <p className="text-gray-600">
+              <Package className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-foreground mb-2">No orders found</h3>
+              <p className="text-muted-foreground">
                 {searchTerm || statusFilter !== 'all' || paymentFilter !== 'all'
                   ? 'No orders match your current filters.'
                   : "No orders have been placed yet."}

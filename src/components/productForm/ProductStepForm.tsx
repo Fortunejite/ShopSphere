@@ -266,10 +266,10 @@ export default function ProductStepForm({
                 flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 transition-colors
                 ${
                   isActive
-                    ? 'border-blue-500 bg-blue-500 text-white'
+                    ? 'border-primary bg-primary text-primary-foreground'
                     : isCompleted
-                    ? 'border-green-500 bg-green-500 text-white'
-                    : 'border-gray-300 bg-white text-gray-400'
+                    ? 'border-success bg-success text-success-foreground'
+                    : 'border-border bg-background text-muted-foreground'
                 }
               `}
               >
@@ -280,10 +280,10 @@ export default function ProductStepForm({
                 <p
                   className={`text-sm font-medium whitespace-nowrap ${
                     isActive
-                      ? 'text-blue-600'
+                      ? 'text-primary'
                       : isCompleted
-                      ? 'text-green-600'
-                      : 'text-gray-500'
+                      ? 'text-success'
+                      : 'text-muted-foreground'
                   }`}
                 >
                   {step.title}
@@ -293,7 +293,7 @@ export default function ProductStepForm({
                 <div
                   className={`
                   w-8 sm:w-12 lg:w-16 h-px mx-2 sm:mx-4 
-                  ${isCompleted ? 'bg-green-500' : 'bg-gray-300'}
+                  ${isCompleted ? 'bg-success' : 'bg-muted'}
                 `}
                 />
               )}
@@ -313,12 +313,12 @@ export default function ProductStepForm({
       )}
 
       {/* Step Content */}
-      <div className="bg-white p-4 sm:p-6 rounded-lg border w-full overflow-hidden">
+      <div className="bg-background p-4 sm:p-6 rounded-lg border w-full overflow-hidden">
         <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-900">
+          <h3 className="text-lg font-semibold text-foreground">
             {steps[currentStep - 1].title}
           </h3>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-sm text-muted-foreground mt-1">
             Step {currentStep} of {steps.length}
           </p>
         </div>
@@ -362,7 +362,7 @@ export default function ProductStepForm({
             type="button"
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-primary hover:bg-primary/90"
           >
             {isSubmitting ? (
               <>

@@ -102,11 +102,11 @@ export default function SignupPage() {
           <Card className="border-0 shadow-xl">
             <CardContent className="pt-6">
               <div className="text-center space-y-4">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-                  <CheckCircle className="w-8 h-8 text-green-600" />
+                <div className="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center mx-auto">
+                  <CheckCircle className="w-8 h-8 text-success" />
                 </div>
-                <h2 className="text-2xl font-bold text-neutral-900">Account Created!</h2>
-                <p className="text-neutral-600">
+                <h2 className="text-2xl font-bold text-foreground">Account Created!</h2>
+                <p className="text-muted-foreground">
                   Your account has been created successfully. You&apos;ll be redirected to the home page shortly.
                 </p>
                 <Button 
@@ -139,8 +139,8 @@ export default function SignupPage() {
               />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-neutral-900">Join ShopSphere</h1>
-          <p className="text-neutral-600">Create your account to get started</p>
+          <h1 className="text-3xl font-bold text-foreground">Join ShopSphere</h1>
+          <p className="text-muted-foreground">Create your account to get started</p>
         </div>
 
         {/* Signup Form */}
@@ -171,11 +171,11 @@ export default function SignupPage() {
                   placeholder="Enter your username"
                   value={formData.username}
                   onChange={handleInputChange}
-                  className={errors.username ? 'border-red-500 focus:border-red-500' : ''}
+                  className={errors.username ? 'border-error focus:border-error' : ''}
                   disabled={isLoading}
                 />
                 {errors.username && (
-                  <p className="text-sm text-red-500">{errors.username}</p>
+                  <p className="text-sm text-error">{errors.username}</p>
                 )}
               </div>
 
@@ -189,11 +189,11 @@ export default function SignupPage() {
                   placeholder="Enter your email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className={errors.email ? 'border-red-500 focus:border-red-500' : ''}
+                  className={errors.email ? 'border-error focus:border-error' : ''}
                   disabled={isLoading}
                 />
                 {errors.email && (
-                  <p className="text-sm text-red-500">{errors.email}</p>
+                  <p className="text-sm text-error">{errors.email}</p>
                 )}
               </div>
 
@@ -208,20 +208,20 @@ export default function SignupPage() {
                     placeholder="Enter your password"
                     value={formData.password}
                     onChange={handleInputChange}
-                    className={errors.password ? 'border-red-500 focus:border-red-500 pr-10' : 'pr-10'}
+                    className={errors.password ? 'border-error focus:border-error pr-10' : 'pr-10'}
                     disabled={isLoading}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-500 hover:text-neutral-700"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
                     disabled={isLoading}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="text-sm text-red-500">{errors.password}</p>
+                  <p className="text-sm text-error">{errors.password}</p>
                 )}
               </div>
 
@@ -235,11 +235,11 @@ export default function SignupPage() {
                   placeholder="Enter your phone number"
                   value={formData.phone_number}
                   onChange={handleInputChange}
-                  className={errors.phone_number ? 'border-red-500 focus:border-red-500' : ''}
+                  className={errors.phone_number ? 'border-error focus:border-error' : ''}
                   disabled={isLoading}
                 />
                 {errors.phone_number && (
-                  <p className="text-sm text-red-500">{errors.phone_number}</p>
+                  <p className="text-sm text-error">{errors.phone_number}</p>
                 )}
               </div>
 
@@ -253,11 +253,11 @@ export default function SignupPage() {
                   placeholder="Enter your city"
                   value={formData.city}
                   onChange={handleInputChange}
-                  className={errors.city ? 'border-red-500 focus:border-red-500' : ''}
+                  className={errors.city ? 'border-error focus:border-error' : ''}
                   disabled={isLoading}
                 />
                 {errors.city && (
-                  <p className="text-sm text-red-500">{errors.city}</p>
+                  <p className="text-sm text-error">{errors.city}</p>
                 )}
               </div>
 
@@ -270,12 +270,12 @@ export default function SignupPage() {
                   placeholder="Enter your full address"
                   value={formData.address}
                   onChange={handleInputChange}
-                  className={errors.address ? 'border-red-500 focus:border-red-500' : ''}
+                  className={errors.address ? 'border-error focus:border-error' : ''}
                   disabled={isLoading}
                   rows={3}
                 />
                 {errors.address && (
-                  <p className="text-sm text-red-500">{errors.address}</p>
+                  <p className="text-sm text-error">{errors.address}</p>
                 )}
               </div>
             </CardContent>
@@ -320,7 +320,7 @@ export default function SignupPage() {
         </Card>
 
         {/* Footer */}
-        <div className="text-center text-sm text-neutral-500 space-y-2">
+        <div className="text-center text-sm text-muted-foreground space-y-2">
           <p>
             By creating an account, you agree to our{' '}
             <Link href="/terms" className="hover:underline">Terms of Service</Link>

@@ -32,7 +32,7 @@ const Variants = ({ formData, updateFormData }: Props) => {
       </div>
 
       {formData.variants.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-muted-foreground">
           <p className="mb-2">No variants added yet.</p>
           <p className="text-sm">
             Variants allow you to sell the same product with different options
@@ -63,7 +63,7 @@ const Variants = ({ formData, updateFormData }: Props) => {
                       updateFormData('variants', updatedVariants);
                     }}
                     className={
-                      variant.is_default ? 'bg-blue-100 border-blue-300' : ''
+                      variant.is_default ? 'bg-primary/10 border-primary/30' : ''
                     }
                   >
                     {variant.is_default ? 'Default' : 'Set as Default'}
@@ -171,8 +171,8 @@ const Variants = ({ formData, updateFormData }: Props) => {
         </div>
       )}
 
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <p className="text-sm text-blue-800">
+      <div className="bg-info/10 border border-info/20 rounded-lg p-4">
+        <p className="text-sm text-primary/80">
           <strong>Note:</strong> Variants are optional. If you don&apos;t add
           variants, the base price and stock from Step 2 will be used. One
           variant must be marked as default if you add any variants.

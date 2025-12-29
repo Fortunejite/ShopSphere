@@ -39,15 +39,15 @@ export default function OrderCard({
   
   const getStatusColor = (status: string) => {
     const colors = {
-      pending: 'bg-yellow-100 text-yellow-800',
-      confirmed: 'bg-blue-100 text-blue-800',
-      processing: 'bg-purple-100 text-purple-800',
-      shipped: 'bg-indigo-100 text-indigo-800',
-      delivered: 'bg-green-100 text-green-800',
-      cancelled: 'bg-red-100 text-red-800',
-      refunded: 'bg-gray-100 text-gray-800'
+      pending: 'bg-warning text-warning-foreground',
+      confirmed: 'bg-info text-info-foreground',
+      processing: 'bg-secondary text-secondary-foreground',
+      shipped: 'bg-info text-info-foreground',
+      delivered: 'bg-success text-success-foreground',
+      cancelled: 'bg-error text-error-foreground',
+      refunded: 'bg-muted text-muted-foreground'
     };
-    return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+    return colors[status as keyof typeof colors] || 'bg-muted text-muted-foreground';
   };
 
   const getStatusIcon = (status: string) => {
@@ -66,12 +66,12 @@ export default function OrderCard({
 
   const getPaymentStatusColor = (status: string) => {
     const colors = {
-      pending: 'bg-yellow-100 text-yellow-800',
-      paid: 'bg-green-100 text-green-800',
-      failed: 'bg-red-100 text-red-800',
-      refunded: 'bg-gray-100 text-gray-800'
+      pending: 'bg-warning text-warning-foreground',
+      paid: 'bg-success text-success-foreground',
+      failed: 'bg-error text-error-foreground',
+      refunded: 'bg-muted text-muted-foreground'
     };
-    return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+    return colors[status as keyof typeof colors] || 'bg-muted text-muted-foreground';
   };
 
   const handleSaveStatus = () => {
@@ -101,7 +101,7 @@ export default function OrderCard({
                       <select
                         value={newStatus}
                         onChange={(e) => setNewStatus(e.target.value as typeof newStatus)}
-                        className="px-2 py-1 border border-gray-300 rounded text-sm"
+                        className="px-2 py-1 border border-border rounded text-sm bg-background text-foreground"
                       >
                         <option value="confirmed">Confirmed</option>
                         <option value="processing">Processing</option>
@@ -116,13 +116,13 @@ export default function OrderCard({
                     </Badge>
                   </div>
                 </div>
-                <div className="flex flex-col xs:flex-row xs:items-center gap-2 xs:gap-4 text-sm text-gray-600">
+                <div className="flex flex-col xs:flex-row xs:items-center gap-2 xs:gap-4 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
-                    <Calendar className="w-4 h-4 flex-shrink-0" />
+                    <Calendar className="w-4 h-4 shrink-0" />
                     <span>{new Date(order.created_at).toLocaleDateString()}</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <Users className="w-4 h-4 flex-shrink-0" />
+                    <Users className="w-4 h-4 shrink-0" />
                     <span className="truncate">{order.shipping_address?.name || 'N/A'}</span>
                   </div>
                   <div className="flex items-center gap-2 xs:gap-4">
@@ -136,8 +136,8 @@ export default function OrderCard({
             {/* Order Items Preview */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
               {order.items.slice(0, 3).map((item, index) => (
-                <div key={index} className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
-                  <div className="relative w-10 h-10 bg-white rounded overflow-hidden">
+                <div key={index} className="flex items-center gap-3 p-2 bg-muted rounded-lg">
+                  <div className="relative w-10 h-10 bg-card rounded overflow-hidden border border-border">
                     <Image
                       src={item.product.image}
                       alt={item.product.name}
@@ -149,15 +149,15 @@ export default function OrderCard({
                     <p className="text-xs font-medium truncate">
                       {item.product.name}
                     </p>
-                    <p className="text-xs text-gray-600">
+                    <p className="text-xs text-muted-foreground">
                       Qty: {item.quantity}
                     </p>
                   </div>
                 </div>
               ))}
               {order.items.length > 3 && (
-                <div className="flex items-center justify-center p-2 bg-gray-50 rounded-lg">
-                  <span className="text-xs text-gray-600">
+                <div className="flex items-center justify-center p-2 bg-muted rounded-lg">
+                  <span className="text-xs text-muted-foreground">
                     +{order.items.length - 3} more
                   </span>
                 </div>
@@ -167,7 +167,7 @@ export default function OrderCard({
             {/* Admin Notes */}
             {isEditingStatus && (
               <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-foreground mb-1">
                   Admin Notes
                 </label>
                 <Textarea

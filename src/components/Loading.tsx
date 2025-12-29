@@ -68,9 +68,9 @@ const SpinnerLoading: React.FC<LoadingProps> = ({
 
   return (
     <div className={cn('flex items-center justify-center', config.container, className)}>
-      <IconComponent className={cn(config.spinner, 'animate-spin text-blue-600')} />
+      <IconComponent className={cn(config.spinner, 'animate-spin text-primary')} />
       {showText && (
-        <span className={cn('text-gray-600 font-medium', config.text)}>{text}</span>
+        <span className={cn('text-muted-foreground font-medium', config.text)}>{text}</span>
       )}
     </div>
   );
@@ -88,12 +88,12 @@ const PulseLoading: React.FC<LoadingProps> = ({
   return (
     <div className={cn('flex items-center justify-center', config.container, className)}>
       <div className="flex space-x-1">
-        <div className={cn(config.spinner, 'bg-blue-600 rounded-full animate-pulse')} />
-        <div className={cn(config.spinner, 'bg-blue-500 rounded-full animate-pulse delay-75')} />
-        <div className={cn(config.spinner, 'bg-blue-400 rounded-full animate-pulse delay-150')} />
+        <div className={cn(config.spinner, 'bg-primary rounded-full animate-pulse')} />
+        <div className={cn(config.spinner, 'bg-primary rounded-full animate-pulse delay-75')} />
+        <div className={cn(config.spinner, 'bg-primary rounded-full animate-pulse delay-150')} />
       </div>
       {showText && (
-        <span className={cn('text-gray-600 font-medium', config.text)}>{text}</span>
+        <span className={cn('text-muted-foreground font-medium', config.text)}>{text}</span>
       )}
     </div>
   );
@@ -112,12 +112,12 @@ const DotsLoading: React.FC<LoadingProps> = ({
   return (
     <div className={cn('flex items-center justify-center', config.container, className)}>
       <div className="flex space-x-1">
-        <div className={cn(dotSize, 'bg-blue-600 rounded-full animate-bounce')} />
-        <div className={cn(dotSize, 'bg-blue-600 rounded-full animate-bounce delay-100')} />
-        <div className={cn(dotSize, 'bg-blue-600 rounded-full animate-bounce delay-200')} />
+        <div className={cn(dotSize, 'bg-primary rounded-full animate-bounce')} />
+        <div className={cn(dotSize, 'bg-primary rounded-full animate-bounce delay-100')} />
+        <div className={cn(dotSize, 'bg-primary rounded-full animate-bounce delay-200')} />
       </div>
       {showText && (
-        <span className={cn('text-gray-600 font-medium', config.text)}>{text}</span>
+        <span className={cn('text-muted-foreground font-medium', config.text)}>{text}</span>
       )}
     </div>
   );
@@ -132,16 +132,16 @@ const SkeletonLoading: React.FC<LoadingProps & { rows?: number; showAvatar?: boo
   return (
     <div className={cn('animate-pulse space-y-4', className)}>
       <div className="flex items-center space-x-4">
-        {showAvatar && <div className="w-12 h-12 bg-gray-300 rounded-full" />}
+        {showAvatar && <div className="w-12 h-12 bg-muted rounded-full" />}
         <div className="flex-1 space-y-2">
-          <div className="h-4 bg-gray-300 rounded w-3/4" />
-          <div className="h-3 bg-gray-300 rounded w-1/2" />
+          <div className="h-4 bg-muted rounded w-3/4" />
+          <div className="h-3 bg-muted rounded w-1/2" />
         </div>
       </div>
       {Array.from({ length: rows }).map((_, index) => (
         <div key={index} className="space-y-2">
-          <div className="h-4 bg-gray-300 rounded w-full" />
-          <div className="h-4 bg-gray-300 rounded w-5/6" />
+          <div className="h-4 bg-muted rounded w-full" />
+          <div className="h-4 bg-muted rounded w-5/6" />
         </div>
       ))}
     </div>
@@ -160,11 +160,11 @@ const ShopLoadingInternal: React.FC<LoadingProps> = ({
   return (
     <div className={cn('flex flex-col items-center justify-center', config.container, className)}>
       <div className="relative">
-        <Store className={cn(config.icon, 'text-blue-600 animate-pulse')} />
-        <div className="absolute -inset-2 border-2 border-blue-300 rounded-full animate-spin opacity-30" />
+        <Store className={cn(config.icon, 'text-primary animate-pulse')} />
+        <div className="absolute -inset-2 border-2 border-primary/30 rounded-full animate-spin opacity-30" />
       </div>
       {showText && (
-        <span className={cn('text-gray-600 font-medium text-center', config.text)}>{text}</span>
+        <span className={cn('text-muted-foreground font-medium text-center', config.text)}>{text}</span>
       )}
     </div>
   );
@@ -194,16 +194,16 @@ export const Loading: React.FC<LoadingProps> = ({
 
   if (fullPage) {
     return (
-      <div className="min-h-screen bg-linear-to-br from-neutral-50 to-neutral-100 flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full text-center">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="bg-card rounded-xl shadow-lg p-8 max-w-md w-full text-center border border-border">
           <div className="mb-6">
             {renderLoadingContent()}
           </div>
           <div className="space-y-2">
-            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-              <div className="h-full bg-linear-to-r from-blue-500 to-blue-600 rounded-full animate-loading-bar origin-left" />
+            <div className="h-2 bg-muted rounded-full overflow-hidden">
+              <div className="h-full bg-primary rounded-full animate-loading-bar origin-left" />
             </div>
-            <p className="text-xs text-gray-500">Please wait while we prepare everything for you</p>
+            <p className="text-xs text-muted-foreground">Please wait while we prepare everything for you</p>
           </div>
         </div>
       </div>
@@ -233,22 +233,22 @@ export const InlineLoading: React.FC<LoadingProps> = (props) => (
 // Card Loading Skeleton
 export const CardLoading: React.FC<{ className?: string }> = ({ className }) => (
   <div className={cn('animate-pulse', className)}>
-    <div className="bg-white rounded-lg border shadow-sm p-6 space-y-4">
+    <div className="bg-card rounded-lg border border-border shadow-sm p-6 space-y-4">
       <div className="flex items-center space-x-4">
-        <div className="w-12 h-12 bg-gray-300 rounded-lg" />
+        <div className="w-12 h-12 bg-muted rounded-lg" />
         <div className="flex-1 space-y-2">
-          <div className="h-4 bg-gray-300 rounded w-3/4" />
-          <div className="h-3 bg-gray-300 rounded w-1/2" />
+          <div className="h-4 bg-muted rounded w-3/4" />
+          <div className="h-3 bg-muted rounded w-1/2" />
         </div>
       </div>
       <div className="space-y-2">
-        <div className="h-4 bg-gray-300 rounded" />
-        <div className="h-4 bg-gray-300 rounded w-5/6" />
-        <div className="h-4 bg-gray-300 rounded w-4/6" />
+        <div className="h-4 bg-muted rounded" />
+        <div className="h-4 bg-muted rounded w-5/6" />
+        <div className="h-4 bg-muted rounded w-4/6" />
       </div>
       <div className="flex space-x-2">
-        <div className="h-8 bg-gray-300 rounded w-20" />
-        <div className="h-8 bg-gray-300 rounded w-16" />
+        <div className="h-8 bg-muted rounded w-20" />
+        <div className="h-8 bg-muted rounded w-16" />
       </div>
     </div>
   </div>
@@ -264,14 +264,14 @@ export const TableLoading: React.FC<{ rows?: number; columns?: number; className
     {/* Header */}
     <div className="flex space-x-4">
       {Array.from({ length: columns }).map((_, index) => (
-        <div key={index} className="flex-1 h-4 bg-gray-300 rounded" />
+        <div key={index} className="flex-1 h-4 bg-muted rounded" />
       ))}
     </div>
     {/* Rows */}
     {Array.from({ length: rows }).map((_, rowIndex) => (
       <div key={rowIndex} className="flex space-x-4">
         {Array.from({ length: columns }).map((_, colIndex) => (
-          <div key={colIndex} className="flex-1 h-4 bg-gray-200 rounded" />
+          <div key={colIndex} className="flex-1 h-4 bg-muted rounded" />
         ))}
       </div>
     ))}

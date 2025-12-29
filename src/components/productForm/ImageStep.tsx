@@ -86,7 +86,7 @@ const ImageStep = ({ formData, updateFormData, onUploadStateChange }: Props) => 
               disabled={isUploadingMain}
             />
             <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-muted-foreground">
                 Upload an image file (JPG, PNG, WebP, etc.)
               </p>
               {isUploadingMain && (
@@ -94,14 +94,14 @@ const ImageStep = ({ formData, updateFormData, onUploadStateChange }: Props) => 
               )}
             </div>
             {uploadError && (
-              <p className="text-sm text-red-600 mt-1">{uploadError}</p>
+              <p className="text-sm text-error mt-1">{uploadError}</p>
             )}
           </div>
 
           {/* Image preview */}
           {formData.image && (
             <div className="mt-3">
-              <div className="relative w-full h-48 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
+              <div className="relative w-full h-48 bg-muted rounded-lg overflow-hidden flex items-center justify-center">
                 {!imageError ? (
                   <Image
                     src={formData.image}
@@ -111,7 +111,7 @@ const ImageStep = ({ formData, updateFormData, onUploadStateChange }: Props) => 
                     onError={() => setImageError(true)}
                   />
                 ) : (
-                  <div className="flex flex-col items-center justify-center text-gray-400 space-y-2">
+                  <div className="flex flex-col items-center justify-center text-muted-foreground space-y-2">
                     <ImageOff className="w-12 h-12" />
                     <p className="text-sm text-center px-4">
                       Failed to load selected image
@@ -251,8 +251,8 @@ const ImageStep = ({ formData, updateFormData, onUploadStateChange }: Props) => 
                   className="relative group"
                   title={thumbnailErrors[index] ? 'Failed to upload this image' : `Thumbnail ${index + 1}`}
                 >
-                  <div className={`aspect-square bg-gray-100 rounded-lg overflow-hidden ${
-                    thumbnailErrors[index] ? 'border-2 border-red-300 border-dashed' : ''
+                  <div className={`aspect-square bg-muted rounded-lg overflow-hidden ${
+                    thumbnailErrors[index] ? 'border-2 border-error border-dashed' : ''
                   }`}>
                     {!thumbnailErrors[index] ? (
                       <Image
@@ -268,12 +268,12 @@ const ImageStep = ({ formData, updateFormData, onUploadStateChange }: Props) => 
                         }}
                       />
                     ) : (
-                      <div className="flex flex-col items-center justify-center h-full text-red-400 p-2">
+                      <div className="flex flex-col items-center justify-center h-full text-error p-2">
                         <ImageOff className="w-6 h-6 mb-1" />
                         <span className="text-xs text-center">
                           Upload failed
                         </span>
-                        <span className="text-xs text-center text-gray-500 mt-1">
+                        <span className="text-xs text-center text-muted-foreground mt-1">
                           Click × to remove
                         </span>
                       </div>
@@ -310,14 +310,14 @@ const ImageStep = ({ formData, updateFormData, onUploadStateChange }: Props) => 
             </div>
           )}
 
-          <div className="text-sm text-gray-500 space-y-1">
+          <div className="text-sm text-muted-foreground space-y-1">
             <p>You can upload up to 10 additional images. Supported formats: JPG, PNG, WebP, GIF.</p>
             <p>Maximum file size: 10MB per image.</p>
             {formData.thumbnails.length > 0 && (
-              <p className="text-blue-600">
+              <p className="text-primary">
                 {formData.thumbnails.length}/10 images uploaded
                 {thumbnailErrors.some(error => error) && (
-                  <span className="text-red-600 ml-2">
+                  <span className="text-error ml-2">
                     (Some uploads failed - hover over images to see details)
                   </span>
                 )}

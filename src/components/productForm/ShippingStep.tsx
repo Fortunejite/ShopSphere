@@ -30,7 +30,7 @@ const ShippingStep = ({ formData, updateFormData }: Props) => {
         <Label>Dimensions (cm)</Label>
         <div className="grid grid-cols-3 gap-4 mt-2">
           <div>
-            <Label htmlFor="length" className="text-sm text-neutral-600">
+            <Label htmlFor="length" className="text-sm text-muted-foreground">
               Length
             </Label>
             <Input
@@ -46,7 +46,7 @@ const ShippingStep = ({ formData, updateFormData }: Props) => {
             />
           </div>
           <div>
-            <Label htmlFor="width" className="text-sm text-neutral-600">
+            <Label htmlFor="width" className="text-sm text-muted-foreground">
               Width
             </Label>
             <Input
@@ -62,7 +62,7 @@ const ShippingStep = ({ formData, updateFormData }: Props) => {
             />
           </div>
           <div>
-            <Label htmlFor="height" className="text-sm text-neutral-600">
+            <Label htmlFor="height" className="text-sm text-muted-foreground">
               Height
             </Label>
             <Input
@@ -80,9 +80,9 @@ const ShippingStep = ({ formData, updateFormData }: Props) => {
         </div>
       </div>
 
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h4 className="font-medium text-blue-900 mb-2">Shipping Information</h4>
-        <p className="text-sm text-blue-800">
+      <div className="bg-info/10 border border-info/20 rounded-lg p-4">
+        <h4 className="font-medium text-primary/90 mb-2">Shipping Information</h4>
+        <p className="text-sm text-primary/80">
           These dimensions and weight will be used to calculate shipping costs
           for your customers. Make sure they are accurate to provide the best
           shipping experience.

@@ -79,15 +79,15 @@ export default function OrdersPage() {
 
   const getStatusColor = (status: string) => {
     const colors = {
-      pending: 'bg-yellow-100 text-yellow-800',
-      confirmed: 'bg-blue-100 text-blue-800',
-      processing: 'bg-purple-100 text-purple-800',
-      shipped: 'bg-indigo-100 text-indigo-800',
-      delivered: 'bg-green-100 text-green-800',
-      cancelled: 'bg-red-100 text-red-800',
-      refunded: 'bg-gray-100 text-gray-800'
+      pending: 'bg-warning/10 text-warning-foreground',
+      confirmed: 'bg-info/10 text-info-foreground',
+      processing: 'bg-secondary text-secondary-foreground',
+      shipped: 'bg-primary/10 text-primary',
+      delivered: 'bg-success/10 text-success-foreground',
+      cancelled: 'bg-error/10 text-error-foreground',
+      refunded: 'bg-muted text-muted-foreground'
     };
-    return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+    return colors[status as keyof typeof colors] || 'bg-muted text-muted-foreground';
   };
 
   const getStatusIcon = (status: string) => {
@@ -106,12 +106,12 @@ export default function OrdersPage() {
 
   const getPaymentStatusColor = (status: string) => {
     const colors = {
-      pending: 'bg-yellow-100 text-yellow-800',
-      paid: 'bg-green-100 text-green-800',
-      failed: 'bg-red-100 text-red-800',
-      refunded: 'bg-gray-100 text-gray-800'
+      pending: 'bg-warning/10 text-warning-foreground',
+      paid: 'bg-success/10 text-success-foreground',
+      failed: 'bg-error/10 text-error-foreground',
+      refunded: 'bg-muted text-muted-foreground'
     };
-    return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+    return colors[status as keyof typeof colors] || 'bg-muted text-muted-foreground';
   };
 
   const filteredOrders = orders.filter(order =>
@@ -132,20 +132,20 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-white border-b">
+      <div className="bg-card border-b">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">My Orders</h1>
-              <p className="text-gray-600 mt-1">
+              <h1 className="text-2xl font-bold text-foreground">My Orders</h1>
+              <p className="text-muted-foreground mt-1">
                 Track and manage your orders
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <ShoppingBag className="w-5 h-5 text-gray-500" />
-              <span className="text-sm text-gray-600">
+              <ShoppingBag className="w-5 h-5 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">
                 {totalOrders} total orders
               </span>
             </div>
@@ -160,7 +160,7 @@ export default function OrdersPage() {
             <div className="flex flex-col sm:flex-row gap-4">
               {/* Search */}
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                 <Input
                   placeholder="Search by order ID or product name..."
                   value={searchTerm}
@@ -171,14 +171,14 @@ export default function OrdersPage() {
 
               {/* Status Filter */}
               <div className="flex items-center gap-2">
-                <Filter className="w-4 h-4 text-gray-500" />
+                <Filter className="w-4 h-4 text-muted-foreground" />
                 <select
                   value={statusFilter}
                   onChange={(e) => {
                     setStatusFilter(e.target.value);
                     setCurrentPage(1);
                   }}
-                  className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-3 py-2 border border-input rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground"
                 >
                   <option value="all">All Orders</option>
                   <option value="pending">Pending</option>
@@ -203,9 +203,9 @@ export default function OrdersPage() {
         ) : filteredOrders.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center">
-              <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No orders found</h3>
-              <p className="text-gray-600 mb-6">
+              <Package className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-foreground mb-2">No orders found</h3>
+              <p className="text-muted-foreground mb-6">
                 {searchTerm || statusFilter !== 'all'
                   ? 'No orders match your current filters.'
                   : "You haven't placed any orders yet."}
@@ -239,7 +239,7 @@ export default function OrdersPage() {
                               {order.payment_status.charAt(0).toUpperCase() + order.payment_status.slice(1)}
                             </Badge>
                           </div>
-                          <div className="flex items-center gap-4 text-sm text-gray-600">
+                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
                             <div className="flex items-center gap-1">
                               <Calendar className="w-4 h-4" />
                               <span>{new Date(order.created_at).toLocaleDateString()}</span>
@@ -253,8 +253,8 @@ export default function OrdersPage() {
                       {/* Order Items */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
                         {order.items.slice(0, 4).map((item, index) => (
-                          <div key={index} className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
-                            <div className="relative w-12 h-12 bg-white rounded overflow-hidden">
+                          <div key={index} className="flex items-center gap-3 p-2 bg-muted/50 rounded-lg">
+                            <div className="relative w-12 h-12 bg-card rounded overflow-hidden">
                               <Image
                                 src={item.product.image}
                                 alt={item.product.name}
@@ -266,15 +266,15 @@ export default function OrdersPage() {
                               <p className="text-sm font-medium truncate">
                                 {item.product.name}
                               </p>
-                              <p className="text-xs text-gray-600">
+                              <p className="text-xs text-muted-foreground">
                                 Qty: {item.quantity}
                               </p>
                             </div>
                           </div>
                         ))}
                         {order.items.length > 4 && (
-                          <div className="flex items-center justify-center p-2 bg-gray-50 rounded-lg">
-                            <span className="text-sm text-gray-600">
+                          <div className="flex items-center justify-center p-2 bg-muted/50 rounded-lg">
+                            <span className="text-sm text-muted-foreground">
                               +{order.items.length - 4} more
                             </span>
                           </div>
@@ -315,7 +315,7 @@ export default function OrdersPage() {
                             // Handle cancel order
                             console.log('Cancel order:', order.id);
                           }}
-                          className="text-red-600 hover:text-red-700"
+                          className="text-error hover:text-error"
                         >
                           Cancel
                         </Button>
@@ -326,7 +326,7 @@ export default function OrdersPage() {
                   {/* Shipping Address Preview */}
                   {order.shipping_address && (
                     <div className="mt-4 pt-4 border-t">
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Truck className="w-4 h-4" />
                         <span>Shipping to:</span>
                         <span>

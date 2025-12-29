@@ -154,13 +154,13 @@ export default function ProductDetailsPage() {
     return (
       <div className="flex items-center gap-0.5">
         {Array(fullStars).fill(0).map((_, i) => (
-          <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+          <Star key={i} className="w-4 h-4 fill-warning text-warning" />
         ))}
         {hasHalfStar && (
-          <StarHalf className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+          <StarHalf className="w-4 h-4 fill-warning text-warning" />
         )}
         {Array(emptyStars).fill(0).map((_, i) => (
-          <Star key={i} className="w-4 h-4 text-gray-300" />
+          <Star key={i} className="w-4 h-4 text-muted-foreground" />
         ))}
       </div>
     );
@@ -354,7 +354,7 @@ export default function ProductDetailsPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
+      <div className="min-h-screen bg-background p-6">
         <div className="max-w-2xl mx-auto">
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
@@ -375,7 +375,7 @@ export default function ProductDetailsPage() {
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
+      <div className="min-h-screen bg-background p-6">
         <div className="max-w-2xl mx-auto">
           <Alert>
             <AlertCircle className="h-4 w-4" />
@@ -416,20 +416,20 @@ export default function ProductDetailsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Breadcrumb */}
-      <div className="bg-white border-b">
+      <div className="bg-card border-b">
         <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Link href='/' className="hover:text-gray-900">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Link href='/' className="hover:text-foreground">
               Home
             </Link>
             <span>/</span>
-            <Link href='/products' className="hover:text-gray-900">
+            <Link href='/products' className="hover:text-foreground">
               Products
             </Link>
             <span>/</span>
-            <span className="text-gray-900">{product.name}</span>
+            <span className="text-foreground">{product.name}</span>
           </div>
         </div>
       </div>
@@ -439,7 +439,7 @@ export default function ProductDetailsPage() {
           {/* Product Images */}
           <div className="space-y-4">
             {/* Main Image */}
-            <div className="relative aspect-square bg-white rounded-lg overflow-hidden">
+            <div className="relative aspect-square bg-card rounded-lg overflow-hidden">
               <Image
                 src={selectedImage}
                 alt={product.name}
@@ -447,12 +447,12 @@ export default function ProductDetailsPage() {
                 className="object-cover"
               />
               {product.discount > 0 && (
-                <Badge className="absolute top-4 left-4 bg-red-500 text-white">
+                <Badge className="absolute top-4 left-4 bg-error text-error-foreground">
                   -{product.discount}% OFF
                 </Badge>
               )}
               {product.is_featured && (
-                <Badge className="absolute top-4 right-4 bg-yellow-500 text-white">
+                <Badge className="absolute top-4 right-4 bg-warning text-warning-foreground">
                   <Star className="w-3 h-3 mr-1" />
                   Featured
                 </Badge>
@@ -466,8 +466,8 @@ export default function ProductDetailsPage() {
                 {product.image && (
                   <div 
                     className={cn(
-                      'relative aspect-square bg-white rounded-lg overflow-hidden cursor-pointer border-2 transition-colors',
-                      selectedImage === product.image ? 'border-blue-500' : 'border-gray-200 hover:border-gray-300'
+                      'relative aspect-square bg-card rounded-lg overflow-hidden cursor-pointer border-2 transition-colors',
+                      selectedImage === product.image ? 'border-primary' : 'border-border hover:border-muted-foreground'
                     )}
                     onClick={() => setSelectedImage(product.image)}
                   >
@@ -493,8 +493,8 @@ export default function ProductDetailsPage() {
                   <div 
                     key={`thumb-${index}`}
                     className={cn(
-                      'relative aspect-square bg-white rounded-lg overflow-hidden cursor-pointer border-2 transition-colors',
-                      selectedImage === thumbnail ? 'border-blue-500' : 'border-gray-200 hover:border-gray-300'
+                      'relative aspect-square bg-card rounded-lg overflow-hidden cursor-pointer border-2 transition-colors',
+                      selectedImage === thumbnail ? 'border-primary' : 'border-border hover:border-muted-foreground'
                     )}
                     onClick={() => setSelectedImage(thumbnail)}
                   >
@@ -517,7 +517,7 @@ export default function ProductDetailsPage() {
           <div className="space-y-6">
             {/* Title and Rating */}
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
+              <h1 className="text-3xl font-bold text-foreground mb-2">{product.name}</h1>
 
               {/* Rating */}
               {/* <div className="flex items-center gap-4 mb-4">
@@ -525,10 +525,10 @@ export default function ProductDetailsPage() {
                   <div className="flex items-center gap-2">
                     {renderStars(product.rating)}
                     <span className="text-lg font-medium">{product.rating}</span>
-                    <span className="text-gray-600">({product.reviews_count || 0} reviews)</span>
+                    <span className="text-muted-foreground">({product.reviews_count || 0} reviews)</span>
                   </div>
                 )}
-                <div className="text-gray-600">
+                <div className="text-muted-foreground">
                   {product.sales_count} sold
                 </div>
               </div> */}
@@ -548,11 +548,11 @@ export default function ProductDetailsPage() {
             {/* Price */}
             <div className="border-b pb-6">
               <div className="flex items-center gap-3 mb-2">
-                <span className="text-3xl font-bold text-gray-900">{pricing.discounted}</span>
+                <span className="text-3xl font-bold text-foreground">{pricing.discounted}</span>
                 {product.discount > 0 && (
                   <>
-                    <span className="text-xl text-gray-500 line-through">{pricing.original}</span>
-                    <Badge className="bg-red-100 text-red-800">
+                    <span className="text-xl text-muted-foreground line-through">{pricing.original}</span>
+                    <Badge className="bg-error/10 text-error">
                       Save {pricing.savings}
                     </Badge>
                   </>
@@ -561,15 +561,15 @@ export default function ProductDetailsPage() {
               
               {/* Stock Status */}
               <div className="flex items-center gap-2">
-                <Package className="w-4 h-4 text-gray-500" />
+                <Package className="w-4 h-4 text-muted-foreground" />
                 <span className={cn(
                   'font-medium',
-                  currentStock > 0 ? 'text-green-600' : 'text-red-600'
+                  currentStock > 0 ? 'text-success' : 'text-error'
                 )}>
                   {currentStock > 0 ? `${currentStock} in stock` : 'Out of stock'}
                 </span>
                 {currentStock > 0 && currentStock < 10 && (
-                  <Badge variant="outline" className="text-orange-600">
+                  <Badge variant="outline" className="text-warning border-warning">
                     Only {currentStock} left!
                   </Badge>
                 )}
@@ -580,15 +580,15 @@ export default function ProductDetailsPage() {
             {Object.keys(getAllPossibleAttributes()).length > 0 && (
               <div className="space-y-4">
                 {/* Selection Status */}
-                <div className="bg-blue-50 p-3 rounded-lg">
-                  <div className="text-sm text-blue-800">
+                <div className="bg-info/10 p-3 rounded-lg">
+                  <div className="text-sm text-info-foreground">
                     {Object.keys(selectedAttributes).length === 0 ? (
                       "Please select product options below:"
                     ) : Object.keys(selectedAttributes).length === Object.keys(getAllPossibleAttributes()).length ? (
                       <div className="flex items-center gap-2">
-                        <span className="text-green-700 font-medium">✓ All options selected</span>
+                        <span className="text-success font-medium">✓ All options selected</span>
                         {selectedVariant && (
-                          <Badge variant="outline" className="bg-green-100 text-green-800">
+                          <Badge variant="outline" className="bg-success/10 text-success border-success">
                             Variant available
                           </Badge>
                         )}
@@ -600,14 +600,14 @@ export default function ProductDetailsPage() {
                     )}
                   </div>
                   {Object.keys(selectedAttributes).length > 0 && (
-                    <div className="mt-2 text-xs text-blue-600">
+                    <div className="mt-2 text-xs text-primary">
                       💡 Click a selected option to deselect it, or select different values to see available combinations
                     </div>
                   )}
                 </div>
                 {Object.entries(getAllPossibleAttributes()).map(([attributeKey, allValues]) => (
                   <div key={attributeKey}>
-                    <label className="block text-sm font-medium text-gray-700 mb-2 capitalize">
+                    <label className="block text-sm font-medium text-foreground mb-2 capitalize">
                       {attributeKey.replace('_', ' ')}
                     </label>
                     <div className="flex flex-wrap gap-2">
@@ -624,8 +624,8 @@ export default function ProductDetailsPage() {
                             disabled={!isAvailable && !isSelected}
                             className={cn(
                               "capitalize transition-all",
-                              !isAvailable && !isSelected && "opacity-40 cursor-not-allowed bg-gray-100 text-gray-400 hover:bg-gray-100",
-                              isSelected && "ring-2 ring-blue-200"
+                              !isAvailable && !isSelected && "opacity-40 cursor-not-allowed bg-muted text-muted-foreground hover:bg-muted",
+                              isSelected && "ring-2 ring-primary/30"
                             )}
                           >
                             {value}
@@ -641,7 +641,7 @@ export default function ProductDetailsPage() {
             {/* Quantity and Add to Cart */}
             <div className="space-y-4">
               <div className="flex items-center gap-4">
-                <label className="text-sm font-medium text-gray-700">Quantity:</label>
+                <label className="text-sm font-medium text-foreground">Quantity:</label>
                 <div className="flex items-center border rounded-lg">
                   <Button
                     variant="ghost"
@@ -662,7 +662,7 @@ export default function ProductDetailsPage() {
                   </Button>
                 </div>
                 {isValidCompleteSelection() && currentStock > 0 && (
-                  <span className="text-sm text-gray-500">
+                  <span className="text-sm text-muted-foreground">
                     ({currentStock} available)
                   </span>
                 )}
@@ -692,7 +692,7 @@ export default function ProductDetailsPage() {
                   size="lg"
                   onClick={() => setIsInWishlist(!isInWishlist)}
                 >
-                  <Heart className={cn('w-5 h-5', isInWishlist && 'fill-red-500 text-red-500')} />
+                  <Heart className={cn('w-5 h-5', isInWishlist && 'fill-error text-error')} />
                 </Button>
                 <Button variant="outline" size="lg">
                   <Share2 className="w-5 h-5" />
@@ -702,15 +702,15 @@ export default function ProductDetailsPage() {
 
             {/* Features */}
             <div className="border-t pt-6 space-y-3">
-              <div className="flex items-center gap-3 text-sm text-gray-600">
+              <div className="flex items-center gap-3 text-sm text-muted-foreground">
                 <Truck className="w-5 h-5" />
                 <span>Free shipping on orders over $50</span>
               </div>
-              <div className="flex items-center gap-3 text-sm text-gray-600">
+              <div className="flex items-center gap-3 text-sm text-muted-foreground">
                 <Shield className="w-5 h-5" />
                 <span>Secure payment & buyer protection</span>
               </div>
-              <div className="flex items-center gap-3 text-sm text-gray-600">
+              <div className="flex items-center gap-3 text-sm text-muted-foreground">
                 <RotateCcw className="w-5 h-5" />
                 <span>30-day return policy</span>
               </div>
@@ -736,10 +736,10 @@ export default function ProductDetailsPage() {
                 <CardContent>
                   {product.description ? (
                     <div className="prose max-w-none">
-                      <p className="text-gray-700 leading-relaxed">{product.description}</p>
+                      <p className="text-foreground leading-relaxed">{product.description}</p>
                     </div>
                   ) : (
-                    <p className="text-gray-500 italic">No description available for this product.</p>
+                    <p className="text-muted-foreground italic">No description available for this product.</p>
                   )}
                 </CardContent>
               </Card>
@@ -765,7 +765,7 @@ export default function ProductDetailsPage() {
                     <div className="space-y-2">
                       <div className="flex justify-between">
                         <span className="font-medium">Availability:</span>
-                        <span className={currentStock > 0 ? 'text-green-600' : 'text-red-600'}>
+                        <span className={currentStock > 0 ? 'text-success' : 'text-error'}>
                           {currentStock > 0 ? 'In Stock' : 'Out of Stock'}
                         </span>
                       </div>
@@ -792,19 +792,19 @@ export default function ProductDetailsPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <h4 className="font-medium mb-2">Standard Shipping</h4>
-                      <p className="text-sm text-gray-600 mb-1">5-7 business days</p>
+                      <p className="text-sm text-muted-foreground mb-1">5-7 business days</p>
                       <p className="text-sm font-medium">Free on orders over $50</p>
                     </div>
                     <div>
                       <h4 className="font-medium mb-2">Express Shipping</h4>
-                      <p className="text-sm text-gray-600 mb-1">2-3 business days</p>
+                      <p className="text-sm text-muted-foreground mb-1">2-3 business days</p>
                       <p className="text-sm font-medium">$9.99</p>
                     </div>
                   </div>
                   
                   <div className="border-t pt-4">
                     <h4 className="font-medium mb-2">Package Details</h4>
-                    <div className="text-sm text-gray-600 space-y-1">
+                    <div className="text-sm text-muted-foreground space-y-1">
                       <p>Weight: {product.weight} kg</p>
                       <p>Dimensions: {product.length} × {product.width} × {product.height} cm</p>
                       <p>This product ships from our warehouse within 1-2 business days.</p>
@@ -826,8 +826,8 @@ export default function ProductDetailsPage() {
                         <div key={review.id} className="border-b last:border-b-0 pb-6 last:pb-0">
                           <div className="flex items-start justify-between mb-3">
                             <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                                <User className="w-5 h-5 text-gray-600" />
+                              <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center">
+                                <User className="w-5 h-5 text-muted-foreground" />
                               </div>
                               <div>
                                 <div className="flex items-center gap-2">
@@ -841,20 +841,20 @@ export default function ProductDetailsPage() {
                                 </div>
                                 <div className="flex items-center gap-2 mt-1">
                                   {renderStars(review.rating)}
-                                  <span className="text-sm text-gray-600">
+                                  <span className="text-sm text-muted-foreground">
                                     {new Date(review.created_at).toLocaleDateString()}
                                   </span>
                                 </div>
                               </div>
                             </div>
                           </div>
-                          <p className="text-gray-700">{review.comment}</p>
+                          <p className="text-foreground">{review.comment}</p>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-8 text-gray-500">
-                      <MessageCircle className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                    <div className="text-center py-8 text-muted-foreground">
+                      <MessageCircle className="w-12 h-12 mx-auto mb-3 text-muted" />
                       <p>No reviews yet</p>
                       <p className="text-sm">Be the first to review this product!</p>
                     </div>

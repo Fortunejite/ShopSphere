@@ -39,7 +39,7 @@ interface EditableFields {
 type UserProfile = Omit<UserAttributes, 'password_hash'>;
 
 export default function ProfilePage() {
-  const { data: session, status: authStatus } = useSession();
+  const { status: authStatus } = useSession();
   const pathname = usePathname();
   const router = useRouter();
   
@@ -59,12 +59,10 @@ export default function ProfilePage() {
   });
 
   useEffect(() => {
-    if (session?.user) {
+    if (authStatus === 'authenticated') {
       fetchProfile();
-    } else if (!session) {
-      router.push('/login');
     }
-  }, [session, router]);
+  }, []);
 
   const fetchProfile = async () => {
     try {
@@ -174,10 +172,10 @@ export default function ProfilePage() {
 
   const getRoleColor = (role: string) => {
     switch (role) {
-      case 'admin': return 'bg-red-100 text-red-800';
-      case 'user': return 'bg-blue-100 text-blue-800';
-      case 'guest': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'admin': return 'bg-error text-error-foreground';
+      case 'user': return 'bg-info text-info-foreground';
+      case 'guest': return 'bg-muted text-muted-foreground';
+      default: return 'bg-muted text-muted-foreground';
     }
   };
 
@@ -223,8 +221,8 @@ export default function ProfilePage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">My Profile</h1>
-          <p className="text-gray-600">Manage your account information and preferences</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">My Profile</h1>
+          <p className="text-muted-foreground">Manage your account information and preferences</p>
         </div>
         
         {!isEditing ? (
@@ -237,7 +235,7 @@ export default function ProfilePage() {
             <Button 
               onClick={handleSave} 
               disabled={isSaving}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-primary hover:bg-primary/90"
             >
               {isSaving ? (
                 <>
@@ -265,9 +263,9 @@ export default function ProfilePage() {
 
       {/* Success Message */}
       {success && (
-        <Alert className="border-green-500 bg-green-50">
-          <CheckCircle2 className="h-4 w-4 text-green-600" />
-          <AlertDescription className="text-green-700">{success}</AlertDescription>
+        <Alert className="border-success bg-success/10">
+          <CheckCircle2 className="h-4 w-4 text-success" />
+          <AlertDescription className="text-success-foreground">{success}</AlertDescription>
         </Alert>
       )}
 
@@ -284,8 +282,8 @@ export default function ProfilePage() {
         {/* Profile Summary Card */}
         <Card className="lg:col-span-1">
           <CardHeader className="text-center">
-            <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
-              <User className="w-10 h-10 text-gray-600" />
+            <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+              <User className="w-10 h-10 text-muted-foreground" />
             </div>
             <CardTitle className="text-xl">{profile.username || 'User'}</CardTitle>
             <CardDescription>{profile.email}</CardDescription>
@@ -298,11 +296,11 @@ export default function ProfilePage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3 text-sm">
-              <div className="flex items-center text-gray-600">
+              <div className="flex items-center text-muted-foreground">
                 <Calendar className="w-4 h-4 mr-2" />
                 <span>Joined {new Date(profile.created_at || '').toLocaleDateString()}</span>
               </div>
-              <div className="flex items-center text-gray-600">
+              <div className="flex items-center text-muted-foreground">
                 <Calendar className="w-4 h-4 mr-2" />
                 <span>Last updated {new Date(profile.updated_at || '').toLocaleDateString()}</span>
               </div>
@@ -330,9 +328,9 @@ export default function ProfilePage() {
                 type="email"
                 value={profile.email}
                 disabled
-                className="bg-gray-50"
+                className="bg-muted"
               />
-              <p className="text-xs text-gray-500">Email cannot be changed</p>
+              <p className="text-xs text-muted-foreground">Email cannot be changed</p>
             </div>
 
             {/* Username */}
@@ -347,11 +345,11 @@ export default function ProfilePage() {
                 value={isEditing ? editData.username : profile.username || ''}
                 onChange={(e) => handleInputChange('username', e.target.value)}
                 disabled={!isEditing}
-                className={validationErrors.username ? 'border-red-500' : ''}
+                className={validationErrors.username ? 'border-error' : ''}
                 placeholder="Enter your username"
               />
               {validationErrors.username && (
-                <p className="text-xs text-red-600">{validationErrors.username}</p>
+                <p className="text-xs text-error">{validationErrors.username}</p>
               )}
             </div>
 
@@ -367,11 +365,11 @@ export default function ProfilePage() {
                 value={isEditing ? editData.phone_number : profile.phone_number || ''}
                 onChange={(e) => handleInputChange('phone_number', e.target.value)}
                 disabled={!isEditing}
-                className={validationErrors.phone_number ? 'border-red-500' : ''}
+                className={validationErrors.phone_number ? 'border-error' : ''}
                 placeholder="Enter your phone number"
               />
               {validationErrors.phone_number && (
-                <p className="text-xs text-red-600">{validationErrors.phone_number}</p>
+                <p className="text-xs text-error">{validationErrors.phone_number}</p>
               )}
             </div>
 
@@ -386,12 +384,12 @@ export default function ProfilePage() {
                 value={isEditing ? editData.address : profile.address || ''}
                 onChange={(e) => handleInputChange('address', e.target.value)}
                 disabled={!isEditing}
-                className={validationErrors.address ? 'border-red-500' : ''}
+                className={validationErrors.address ? 'border-error' : ''}
                 placeholder="Enter your address"
                 rows={3}
               />
               {validationErrors.address && (
-                <p className="text-xs text-red-600">{validationErrors.address}</p>
+                <p className="text-xs text-error">{validationErrors.address}</p>
               )}
             </div>
 
@@ -407,11 +405,11 @@ export default function ProfilePage() {
                 value={isEditing ? editData.city : profile.city || ''}
                 onChange={(e) => handleInputChange('city', e.target.value)}
                 disabled={!isEditing}
-                className={validationErrors.city ? 'border-red-500' : ''}
+                className={validationErrors.city ? 'border-error' : ''}
                 placeholder="Enter your city"
               />
               {validationErrors.city && (
-                <p className="text-xs text-red-600">{validationErrors.city}</p>
+                <p className="text-xs text-error">{validationErrors.city}</p>
               )}
             </div>
 
@@ -427,7 +425,7 @@ export default function ProfilePage() {
                   {profile.role.charAt(0).toUpperCase() + profile.role.slice(1)}
                 </Badge>
               </div>
-              <p className="text-xs text-gray-500">Account role cannot be changed</p>
+              <p className="text-xs text-muted-foreground">Account role cannot be changed</p>
             </div>
           </CardContent>
         </Card>
@@ -442,8 +440,8 @@ export default function ProfilePage() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h4 className="font-medium text-gray-900 mb-2">Account Created</h4>
-              <p className="text-gray-600 flex items-center">
+              <h4 className="font-medium text-foreground mb-2">Account Created</h4>
+              <p className="text-muted-foreground flex items-center">
                 <Calendar className="w-4 h-4 mr-2" />
                 {new Date(profile.created_at || '').toLocaleDateString('en-US', {
                   year: 'numeric',
@@ -456,8 +454,8 @@ export default function ProfilePage() {
             </div>
             
             <div>
-              <h4 className="font-medium text-gray-900 mb-2">Last Updated</h4>
-              <p className="text-gray-600 flex items-center">
+              <h4 className="font-medium text-foreground mb-2">Last Updated</h4>
+              <p className="text-muted-foreground flex items-center">
                 <Calendar className="w-4 h-4 mr-2" />
                 {new Date(profile.updated_at || '').toLocaleDateString('en-US', {
                   year: 'numeric',

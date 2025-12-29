@@ -72,15 +72,15 @@ export default function OrderDetailsPage() {
 
   const getStatusColor = (status: string) => {
     const colors = {
-      pending: 'bg-yellow-100 text-yellow-800',
-      confirmed: 'bg-blue-100 text-blue-800',
-      processing: 'bg-purple-100 text-purple-800',
-      shipped: 'bg-indigo-100 text-indigo-800',
-      delivered: 'bg-green-100 text-green-800',
-      cancelled: 'bg-red-100 text-red-800',
-      refunded: 'bg-gray-100 text-gray-800'
+      pending: 'bg-warning/10 text-warning-foreground',
+      confirmed: 'bg-info/10 text-info-foreground',
+      processing: 'bg-secondary text-secondary-foreground',
+      shipped: 'bg-primary/10 text-primary',
+      delivered: 'bg-success/10 text-success-foreground',
+      cancelled: 'bg-error/10 text-error-foreground',
+      refunded: 'bg-muted text-muted-foreground'
     };
-    return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+    return colors[status as keyof typeof colors] || 'bg-muted text-muted-foreground';
   };
 
   const getStatusIcon = (status: string) => {
@@ -99,12 +99,12 @@ export default function OrderDetailsPage() {
 
   const getPaymentStatusColor = (status: string) => {
     const colors = {
-      pending: 'bg-yellow-100 text-yellow-800',
-      paid: 'bg-green-100 text-green-800',
-      failed: 'bg-red-100 text-red-800',
-      refunded: 'bg-gray-100 text-gray-800'
+      pending: 'bg-warning/10 text-warning-foreground',
+      paid: 'bg-success/10 text-success-foreground',
+      failed: 'bg-error/10 text-error-foreground',
+      refunded: 'bg-muted text-muted-foreground'
     };
-    return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+    return colors[status as keyof typeof colors] || 'bg-muted text-muted-foreground';
   };
 
   const copyTrackingId = () => {
@@ -183,7 +183,7 @@ export default function OrderDetailsPage() {
 
   if (error || !order) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
+      <div className="min-h-screen bg-background p-6">
         <div className="max-w-2xl mx-auto">
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
@@ -203,15 +203,15 @@ export default function OrderDetailsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Success Alert */}
       {isSuccess && (
-        <div className="bg-green-50 border-l-4 border-green-400 p-4">
+        <div className="bg-success/10 border-l-4 border-success p-4">
           <div className="max-w-7xl mx-auto px-6">
             <div className="flex">
-              <CheckCircle className="h-5 w-5 text-green-400" />
+              <CheckCircle className="h-5 w-5 text-success" />
               <div className="ml-3">
-                <p className="text-sm text-green-700">
+                <p className="text-sm text-success-foreground">
                   <strong>Order placed successfully!</strong> Your order #{order.tracking_id} has been received and is being processed.
                 </p>
               </div>
@@ -221,7 +221,7 @@ export default function OrderDetailsPage() {
       )}
 
       {/* Header */}
-      <div className="bg-white border-b">
+      <div className="bg-card border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-y-4 sm:gap-y-0">
             <div className="flex flex-col xs:flex-row xs:items-center xs:gap-4 space-y-2 xs:space-y-0">
@@ -235,10 +235,10 @@ export default function OrderDetailsPage() {
                 <span className="xs:inline">Back to Orders</span>
               </Button>
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+                <h1 className="text-xl sm:text-2xl font-bold text-foreground">
                   Order #{order.tracking_id}
                 </h1>
-                <p className="text-sm sm:text-base text-gray-600 mt-1">
+                <p className="text-sm sm:text-base text-muted-foreground mt-1">
                   Placed on {new Date(order.created_at).toLocaleDateString()}
                 </p>
               </div>
@@ -279,8 +279,8 @@ export default function OrderDetailsPage() {
                         <div className={cn(
                           'flex items-center justify-center w-8 h-8 rounded-full border-2',
                           item.completed
-                            ? 'bg-green-100 border-green-500 text-green-700'
-                            : 'bg-gray-100 border-gray-300 text-gray-500'
+                            ? 'bg-success/10 border-success text-success'
+                            : 'bg-muted border-border text-muted-foreground'
                         )}>
                           {item.completed ? (
                             <CheckCircle className="w-4 h-4" />
@@ -292,19 +292,19 @@ export default function OrderDetailsPage() {
                           <div className="flex items-center justify-between">
                             <h4 className={cn(
                               'font-medium',
-                              item.completed ? 'text-gray-900' : 'text-gray-500'
+                              item.completed ? 'text-foreground' : 'text-muted-foreground'
                             )}>
                               {item.title}
                             </h4>
                             {item.date && (
-                              <span className="text-sm text-gray-500">
+                              <span className="text-sm text-muted-foreground">
                                 {new Date(item.date).toLocaleDateString()}
                               </span>
                             )}
                           </div>
                           <p className={cn(
                             'text-sm mt-1',
-                            item.completed ? 'text-gray-600' : 'text-gray-400'
+                            item.completed ? 'text-muted-foreground' : 'text-muted-foreground/60'
                           )}>
                             {item.description}
                           </p>
@@ -325,7 +325,7 @@ export default function OrderDetailsPage() {
                 <div className="space-y-4">
                   {order.items.map((item, index) => (
                     <div key={index} className="flex gap-4 p-4 border rounded-lg">
-                      <div className="relative w-20 h-20 bg-gray-100 rounded-lg overflow-hidden">
+                      <div className="relative w-20 h-20 bg-muted rounded-lg overflow-hidden">
                         <Image
                           src={item.product.image}
                           alt={item.product.name}
@@ -336,7 +336,7 @@ export default function OrderDetailsPage() {
                       <div className="flex-1">
                         <h4 className="font-medium text-lg">{item.product.name}</h4>
                         {item.variant_index !== undefined && item.product.variants[item.variant_index] && (
-                          <div className="text-sm text-gray-600 mt-1">
+                          <div className="text-sm text-muted-foreground mt-1">
                             {Object.entries(item.product.variants[item.variant_index].attributes).map(([key, value]) => (
                               <span key={key} className="mr-3">
                                 {key}: {value}
@@ -345,7 +345,7 @@ export default function OrderDetailsPage() {
                           </div>
                         )}
                         <div className="flex items-center justify-between mt-2">
-                          <div className="text-sm text-gray-600">
+                          <div className="text-sm text-muted-foreground">
                             Quantity: {item.quantity}
                           </div>
                           <div className="text-right">
@@ -353,7 +353,7 @@ export default function OrderDetailsPage() {
                               {formatCurrency(item.subtotal, shop!.currency)}
                             </div>
                             {item.discount_at_purchase > 0 && (
-                              <div className="text-sm text-gray-500 line-through">
+                              <div className="text-sm text-muted-foreground line-through">
                                 {formatCurrency(item.unit_price_at_purchase * item.quantity, shop!.currency)}
                               </div>
                             )}
@@ -371,7 +371,7 @@ export default function OrderDetailsPage() {
                     <span>{formatCurrency(order.total_amount, shop!.currency)}</span>
                   </div>
                   {order.discount_amount > 0 && (
-                    <div className="flex justify-between text-sm text-green-600">
+                    <div className="flex justify-between text-sm text-success">
                       <span>Discount:</span>
                       <span>{formatCurrency(-order.discount_amount, shop!.currency)}</span>
                     </div>
@@ -391,7 +391,7 @@ export default function OrderDetailsPage() {
                   <CardTitle>Order Notes</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-700">{order.notes}</p>
+                  <p className="text-foreground">{order.notes}</p>
                 </CardContent>
               </Card>
             )}
@@ -409,19 +409,19 @@ export default function OrderDetailsPage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Status:</span>
+                  <span className="text-sm text-muted-foreground">Status:</span>
                   <Badge className={getPaymentStatusColor(order.payment_status)}>
                     {order.payment_status.charAt(0).toUpperCase() + order.payment_status.slice(1)}
                   </Badge>
                 </div>
                 {order.payment_method && (
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Method:</span>
+                    <span className="text-sm text-muted-foreground">Method:</span>
                     <span className="text-sm capitalize">{order.payment_method.replace('_', ' ')}</span>
                   </div>
                 )}
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Total Paid:</span>
+                  <span className="text-sm text-muted-foreground">Total Paid:</span>
                   <span className="font-medium">{formatCurrency(order.final_amount, shop!.currency)}</span>
                 </div>
                 {order.payment_status === 'pending' && (
@@ -456,7 +456,7 @@ export default function OrderDetailsPage() {
                       {order.shipping_address.city}, {order.shipping_address.state} {order.shipping_address.postal_code}
                     </p>
                     <p>{order.shipping_address.country}</p>
-                    <p className="text-gray-600 mt-2">
+                    <p className="text-muted-foreground mt-2">
                       Phone: {order.shipping_address.phone}
                     </p>
                   </div>
@@ -476,7 +476,7 @@ export default function OrderDetailsPage() {
                 </Button>
                 
                 {(order.status === 'pending') && (
-                  <Button variant="outline" className="w-full text-red-600 hover:text-red-700">
+                  <Button variant="outline" className="w-full text-error hover:text-error">
                     <X className="w-4 h-4 mr-2" />
                     Cancel Order
                   </Button>
@@ -495,7 +495,7 @@ export default function OrderDetailsPage() {
                 <CardTitle>Need Help?</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-muted-foreground">
                   <p className="mb-3">
                     If you have any questions about your order, feel free to contact us.
                   </p>

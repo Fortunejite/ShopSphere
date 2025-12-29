@@ -40,7 +40,7 @@ const BasicInfoStep = ({ formData, updateFormData, categories }: Props) => {
 
       <div>
         <Label>Categories *</Label>
-        <div className="mt-2 space-y-2 max-h-48 overflow-y-auto border rounded-md p-3 bg-gray-50">
+        <div className="mt-2 space-y-2 max-h-48 overflow-y-auto border rounded-md p-3 bg-muted">
           {categories && categories.length > 0 ? (
             categories.map((category) => (
               <div key={category.id} className="flex items-center space-x-2">
@@ -63,7 +63,7 @@ const BasicInfoStep = ({ formData, updateFormData, categories }: Props) => {
                       );
                     }
                   }}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  className="rounded border-border text-primary focus:ring-primary"
                 />
                 <Label
                   htmlFor={`category-${category.id}`}
@@ -74,7 +74,7 @@ const BasicInfoStep = ({ formData, updateFormData, categories }: Props) => {
               </div>
             ))
           ) : (
-            <div className="text-center py-4 text-gray-500 text-sm">
+            <div className="text-center py-4 text-muted-foreground text-sm">
               No categories available
             </div>
           )}
@@ -83,7 +83,7 @@ const BasicInfoStep = ({ formData, updateFormData, categories }: Props) => {
         {/* Selected categories display */}
         {formData.category_ids.length > 0 && (
           <div className="mt-3">
-            <p className="text-sm font-medium text-gray-700 mb-2">
+            <p className="text-sm font-medium text-foreground mb-2">
               Selected Categories ({formData.category_ids.length}):
             </p>
             <div className="flex flex-wrap gap-2">
@@ -97,7 +97,7 @@ const BasicInfoStep = ({ formData, updateFormData, categories }: Props) => {
                   >
                     <span>{category.name}</span>
                     <button
-                      className="w-3 h-3 cursor-pointer hover:text-red-500 ml-1"
+                      className="w-3 h-3 cursor-pointer hover:text-error ml-1"
                       onClick={(e) => {
                         e.stopPropagation();
                         updateFormData(

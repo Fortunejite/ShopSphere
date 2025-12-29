@@ -130,11 +130,11 @@ export default function ShopHomePage() {
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-center px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
                 
-                <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 drop-shadow-lg">
+                <h1 className="text-4xl md:text-6xl font-bold text-primary-foreground mb-6 drop-shadow-lg">
                   Welcome to {shop.name}
                 </h1>
                 
-                <p className="text-xl text-white/90 mb-8 max-w-3xl mx-auto leading-relaxed drop-shadow-md">
+                <p className="text-xl text-primary-foreground/90 mb-8 max-w-3xl mx-auto leading-relaxed drop-shadow-md">
                     {shop.tagline && `- ${shop.tagline} -`}
                 </p>
               </div>
@@ -142,13 +142,13 @@ export default function ShopHomePage() {
           </div>
         ) : (
           // Hero without banner image (original layout)
-          <div className="bg-white py-16 px-4 sm:px-6 lg:px-8">
+          <div className="bg-card py-16 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto text-center">
-              <h1 className="text-4xl md:text-6xl font-bold text-neutral-900 mb-6">
+              <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
                 Welcome to {shop.name}
               </h1>
               
-              <p className="text-xl text-neutral-600 mb-8 max-w-3xl mx-auto leading-relaxed">
+              <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
                 {shop.tagline && `- ${shop.tagline} -`}
               </p>
             </div>
@@ -162,7 +162,7 @@ export default function ShopHomePage() {
         <div className="mb-6 space-y-4">
           {/* Search - Full Width on Mobile */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
             <Input
               type="search"
               placeholder="Search products..."
@@ -205,7 +205,7 @@ export default function ShopHomePage() {
             </Select>
             
             {/* View Mode */}
-            <div className="flex border rounded-lg">
+            <div className="flex border border-border rounded-lg">
               <Button
                 variant={viewMode === 'grid' ? 'default' : 'ghost'}
                 size="sm"
@@ -268,11 +268,11 @@ export default function ShopHomePage() {
           </div>
         ) : products.length === 0 ? (
           <div className="text-center py-12">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Package className="w-8 h-8 text-gray-400" />
+            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+              <Package className="w-8 h-8 text-muted-foreground" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No products found</h3>
-            <p className="text-gray-600 mb-4">
+            <h3 className="text-lg font-medium text-foreground mb-2">No products found</h3>
+            <p className="text-muted-foreground mb-4">
               {searchTerm || selectedCategory !== 'all'
                 ? 'Try adjusting your search or filter criteria'
                 : 'This shop doesn\'t have any products yet'
@@ -315,7 +315,7 @@ export default function ShopHomePage() {
         {!isLoading && products.length > 0 && totalPages > 1 && (
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
             {/* Page info */}
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-muted-foreground">
               Showing {((currentPage - 1) * productsPerPage) + 1} to {Math.min(currentPage * productsPerPage, totalProducts)} of {totalProducts} products
             </div>
             
@@ -347,7 +347,7 @@ export default function ShopHomePage() {
                     >
                       1
                     </Button>
-                    {currentPage > 4 && <span className="text-gray-400">...</span>}
+                    {currentPage > 4 && <span className="text-muted-foreground">...</span>}
                   </>
                 )}
 
@@ -385,7 +385,7 @@ export default function ShopHomePage() {
                 {/* Last page */}
                 {currentPage < totalPages - 2 && (
                   <>
-                    {currentPage < totalPages - 3 && <span className="text-gray-400">...</span>}
+                    {currentPage < totalPages - 3 && <span className="text-muted-foreground">...</span>}
                     <Button
                       variant={totalPages === currentPage ? "default" : "outline"}
                       size="sm"

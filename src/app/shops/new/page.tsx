@@ -216,7 +216,7 @@ export default function NewShopPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="bg-white border-b">
         <div className="max-w-4xl mx-auto px-6 py-6">
@@ -228,12 +228,12 @@ export default function NewShopPage() {
               </Link>
             </Button>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Store className="w-6 h-6 text-blue-600" />
+              <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                <Store className="w-6 h-6 text-primary" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Create New Shop</h1>
-                <p className="text-gray-600">Fill in the details to create your online store</p>
+                <h1 className="text-2xl font-bold text-foreground">Create New Shop</h1>
+                <p className="text-muted-foreground">Fill in the details to create your online store</p>
               </div>
             </div>
           </div>
@@ -243,9 +243,9 @@ export default function NewShopPage() {
       {/* Success Message */}
       {success && (
         <div className="max-w-4xl mx-auto px-6 pt-6">
-          <Alert className="border-green-500 bg-green-50">
-            <CheckCircle2 className="h-4 w-4 text-green-600" />
-            <AlertDescription className="text-green-700">{success}</AlertDescription>
+          <Alert className="border-success bg-success/10">
+            <CheckCircle2 className="h-4 w-4 text-success" />
+            <AlertDescription className="text-success/80">{success}</AlertDescription>
           </Alert>
         </div>
       )}
@@ -277,10 +277,10 @@ export default function NewShopPage() {
                     placeholder="Enter your shop name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    className={formErrors.name ? 'border-red-500' : ''}
+                    className={formErrors.name ? 'border-error' : ''}
                     disabled={isSubmitting}
                   />
-                  {formErrors.name && <p className="text-sm text-red-500">{formErrors.name}</p>}
+                  {formErrors.name && <p className="text-sm text-error">{formErrors.name}</p>}
                 </div>
 
                 <div className="space-y-2">
@@ -292,21 +292,21 @@ export default function NewShopPage() {
                       placeholder="Enter your shop domain (e.g., myshop)"
                       value={formData.domain}
                       onChange={handleInputChange}
-                      className={`${formErrors.domain ? 'border-red-500' : formData.domain && !formErrors.domain && !isDomainChecking ? 'border-green-500' : ''} pr-40`}
+                      className={`${formErrors.domain ? 'border-error' : formData.domain && !formErrors.domain && !isDomainChecking ? 'border-success' : ''} pr-40`}
                       disabled={isSubmitting}
                     />
                     <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
                       {isDomainChecking && (
-                        <Loader2 className="w-4 h-4 animate-spin text-neutral-400" />
+                        <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
                       )}
-                      <span className="text-sm text-neutral-500 pointer-events-none">
+                      <span className="text-sm text-muted-foreground pointer-events-none">
                         .{process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'localhost:3000'}
                       </span>
                     </div>
                   </div>
-                  {formErrors.domain && <p className="text-sm text-red-500">{formErrors.domain}</p>}
+                  {formErrors.domain && <p className="text-sm text-error">{formErrors.domain}</p>}
                   {formData.domain && !formErrors.domain && !isDomainChecking && (
-                    <p className="text-sm text-green-600">✓ Domain is available</p>
+                    <p className="text-sm text-success">✓ Domain is available</p>
                   )}
                 </div>
 
@@ -318,7 +318,7 @@ export default function NewShopPage() {
                       onValueChange={(value) => handleSelectChange('category_id', value)}
                       disabled={isSubmitting}
                     >
-                      <SelectTrigger className={formErrors.category_id ? 'border-red-500' : ''}>
+                      <SelectTrigger className={formErrors.category_id ? 'border-error' : ''}>
                         <SelectValue placeholder="Select a category" />
                       </SelectTrigger>
                       <SelectContent>
@@ -329,7 +329,7 @@ export default function NewShopPage() {
                         ))}
                       </SelectContent>
                     </Select>
-                    {formErrors.category_id && <p className="text-sm text-red-500">{formErrors.category_id}</p>}
+                    {formErrors.category_id && <p className="text-sm text-error">{formErrors.category_id}</p>}
                   </div>
 
                   <div className="space-y-2">
@@ -339,7 +339,7 @@ export default function NewShopPage() {
                       onValueChange={(value) => handleSelectChange('currency', value)}
                       disabled={isSubmitting}
                     >
-                      <SelectTrigger className={formErrors.currency ? 'border-red-500' : ''}>
+                      <SelectTrigger className={formErrors.currency ? 'border-error' : ''}>
                         <SelectValue placeholder="Select currency" />
                       </SelectTrigger>
                       <SelectContent>
@@ -348,7 +348,7 @@ export default function NewShopPage() {
                         ))}
                       </SelectContent>
                     </Select>
-                    {formErrors.currency && <p className="text-sm text-red-500">{formErrors.currency}</p>}
+                    {formErrors.currency && <p className="text-sm text-error">{formErrors.currency}</p>}
                   </div>
                 </div>
 
@@ -360,11 +360,11 @@ export default function NewShopPage() {
                     placeholder="Describe your shop and what you sell..."
                     value={formData.description || ""}
                     onChange={handleInputChange}
-                    className={formErrors.description ? 'border-red-500' : ''}
+                    className={formErrors.description ? 'border-error' : ''}
                     disabled={isSubmitting}
                     rows={4}
                   />
-                  {formErrors.description && <p className="text-sm text-red-500">{formErrors.description}</p>}
+                  {formErrors.description && <p className="text-sm text-error">{formErrors.description}</p>}
                 </div>
 
                 <div className="space-y-2">
@@ -375,10 +375,10 @@ export default function NewShopPage() {
                     placeholder="Enter a catchy tagline for your shop"
                     value={formData.tagline || ""}
                     onChange={handleInputChange}
-                    className={formErrors.tagline ? 'border-red-500' : ''}
+                    className={formErrors.tagline ? 'border-error' : ''}
                     disabled={isSubmitting}
                   />
-                  {formErrors.tagline && <p className="text-sm text-red-500">{formErrors.tagline}</p>}
+                  {formErrors.tagline && <p className="text-sm text-error">{formErrors.tagline}</p>}
                   <p className="text-sm text-gray-500">
                     A short, memorable phrase that captures your shop&apos;s essence (max 100 characters)
                   </p>

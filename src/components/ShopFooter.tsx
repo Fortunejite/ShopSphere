@@ -56,7 +56,7 @@ export default function ShopFooter({ shop }: ShopFooterProps) {
   };
 
   return (
-    <footer className="bg-neutral-900 border-t border-neutral-800">
+    <footer className="bg-card border-t">
       {/* Main footer content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -72,14 +72,14 @@ export default function ShopFooter({ shop }: ShopFooterProps) {
                   className="w-10 h-10 object-cover rounded-lg"
                 />
               ) : (
-                <div className="w-10 h-10 bg-neutral-800 rounded-lg flex items-center justify-center">
-                  <Store className="w-6 h-6 text-neutral-400" />
+                <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center">
+                  <Store className="w-6 h-6 text-muted-foreground" />
                 </div>
               )}
               <div>
-                <h3 className="text-lg font-bold text-white">{shop.name}</h3>
+                <h3 className="text-lg font-bold text-foreground">{shop.name}</h3>
                 {shop.description && (
-                  <p className="text-sm text-neutral-400 line-clamp-2">{shop.description}</p>
+                  <p className="text-sm text-muted-foreground line-clamp-2">{shop.description}</p>
                 )}
               </div>
             </div>
@@ -87,12 +87,12 @@ export default function ShopFooter({ shop }: ShopFooterProps) {
 
           {/* Quick Links */}
           <div className="space-y-4">
-            <h4 className="text-sm font-semibold text-white uppercase tracking-wider">Quick Links</h4>
+            <h4 className="text-sm font-semibold text-foreground uppercase tracking-wider">Quick Links</h4>
             <ul className="space-y-3">
               <li>
                 <Link 
                   href={`/shops/${shop.domain}`}
-                  className="text-neutral-400 hover:text-white transition-colors text-sm"
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm"
                 >
                   Home
                 </Link>
@@ -100,7 +100,7 @@ export default function ShopFooter({ shop }: ShopFooterProps) {
               <li>
                 <Link 
                   href={`/products`}
-                  className="text-neutral-400 hover:text-white transition-colors text-sm"
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm"
                 >
                   All Products
                 </Link>
@@ -108,7 +108,7 @@ export default function ShopFooter({ shop }: ShopFooterProps) {
               <li>
                 <Link 
                   href={`/cart`}
-                  className="text-neutral-400 hover:text-white transition-colors text-sm"
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm"
                 >
                   Shopping Cart
                 </Link>
@@ -116,7 +116,7 @@ export default function ShopFooter({ shop }: ShopFooterProps) {
               <li>
                 <Link 
                   href={`/orders`}
-                  className="text-neutral-400 hover:text-white transition-colors text-sm"
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm"
                 >
                   Track Orders
                 </Link>
@@ -126,14 +126,14 @@ export default function ShopFooter({ shop }: ShopFooterProps) {
 
           {/* Contact Information */}
           <div className="space-y-4">
-            <h4 className="text-sm font-semibold text-white uppercase tracking-wider">Contact Us</h4>
+            <h4 className="text-sm font-semibold text-foreground uppercase tracking-wider">Contact Us</h4>
             <div className="space-y-3">
               {shop.email && (
                 <div className="flex items-center space-x-3 text-sm">
-                  <Mail className="w-4 h-4 text-neutral-500" />
+                  <Mail className="w-4 h-4 text-muted-foreground" />
                   <a 
                     href={`mailto:${shop.email}`}
-                    className="text-neutral-400 hover:text-white transition-colors"
+                    className="text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {shop.email}
                   </a>
@@ -141,10 +141,10 @@ export default function ShopFooter({ shop }: ShopFooterProps) {
               )}
               {shop.phone && (
                 <div className="flex items-center space-x-3 text-sm">
-                  <Phone className="w-4 h-4 text-neutral-500" />
+                  <Phone className="w-4 h-4 text-muted-foreground" />
                   <a 
                     href={`tel:${shop.phone}`}
-                    className="text-neutral-400 hover:text-white transition-colors"
+                    className="text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {shop.phone}
                   </a>
@@ -152,8 +152,8 @@ export default function ShopFooter({ shop }: ShopFooterProps) {
               )}
               {(shop.address || shop.city || shop.state) && (
                 <div className="flex items-start space-x-3 text-sm">
-                  <MapPin className="w-4 h-4 text-neutral-500 mt-0.5" />
-                  <div className="text-neutral-400">
+                  <MapPin className="w-4 h-4 text-muted-foreground mt-0.5" />
+                  <div className="text-muted-foreground">
                     {shop.address && <div>{shop.address}</div>}
                     {(shop.city || shop.state) && (
                       <div>
@@ -170,15 +170,15 @@ export default function ShopFooter({ shop }: ShopFooterProps) {
 
           {/* Features & Trust */}
           <div className="space-y-4">
-            <h4 className="text-sm font-semibold text-white uppercase tracking-wider">Why Choose Us</h4>
+            <h4 className="text-sm font-semibold text-foreground uppercase tracking-wider">Why Choose Us</h4>
             <div className="space-y-3">
               <div className="flex items-center space-x-3 text-sm">
-                <Shield className="w-4 h-4 text-green-400" />
-                <span className="text-neutral-400">Secure Payment</span>
+                <Shield className="w-4 h-4 text-success" />
+                <span className="text-muted-foreground">Secure Payment</span>
               </div>
               <div className="flex items-center space-x-3 text-sm">
-                <Truck className="w-4 h-4 text-blue-400" />
-                <span className="text-neutral-400">
+                <Truck className="w-4 h-4 text-info" />
+                <span className="text-muted-foreground">
                   {shop.free_shipping_threshold 
                     ? `Free shipping over ${shop.currency === 'USD' ? '$' : shop.currency}${shop.free_shipping_threshold}`
                     : 'Fast Delivery'
@@ -186,39 +186,39 @@ export default function ShopFooter({ shop }: ShopFooterProps) {
                 </span>
               </div>
               <div className="flex items-center space-x-3 text-sm">
-                <Clock className="w-4 h-4 text-orange-400" />
-                <span className="text-neutral-400">24/7 Support</span>
+                <Clock className="w-4 h-4 text-warning" />
+                <span className="text-muted-foreground">24/7 Support</span>
               </div>
               <div className="flex items-center space-x-3 text-sm">
-                <Heart className="w-4 h-4 text-red-400" />
-                <span className="text-neutral-400">Customer Satisfaction</span>
+                <Heart className="w-4 h-4 text-error" />
+                <span className="text-muted-foreground">Customer Satisfaction</span>
               </div>
             </div>
 
             {/* Social Media Links (placeholder) */}
             <div className="pt-4">
-              <h5 className="text-xs font-medium text-neutral-300 mb-3">Follow Us</h5>
+              <h5 className="text-xs font-medium text-muted-foreground mb-3">Follow Us</h5>
               <div className="flex space-x-3">
                 <a 
                   href="#" 
-                  className="w-8 h-8 bg-neutral-800 rounded-full flex items-center justify-center hover:bg-neutral-700 transition-colors"
+                  className="w-8 h-8 bg-muted rounded-full flex items-center justify-center hover:bg-accent transition-colors"
                   aria-label="Facebook"
                 >
-                  <Facebook className="w-4 h-4 text-neutral-400" />
+                  <Facebook className="w-4 h-4 text-muted-foreground" />
                 </a>
                 <a 
                   href="#" 
-                  className="w-8 h-8 bg-neutral-800 rounded-full flex items-center justify-center hover:bg-neutral-700 transition-colors"
+                  className="w-8 h-8 bg-muted rounded-full flex items-center justify-center hover:bg-accent transition-colors"
                   aria-label="Twitter"
                 >
-                  <Twitter className="w-4 h-4 text-neutral-400" />
+                  <Twitter className="w-4 h-4 text-muted-foreground" />
                 </a>
                 <a 
                   href="#" 
-                  className="w-8 h-8 bg-neutral-800 rounded-full flex items-center justify-center hover:bg-neutral-700 transition-colors"
+                  className="w-8 h-8 bg-muted rounded-full flex items-center justify-center hover:bg-accent transition-colors"
                   aria-label="Instagram"
                 >
-                  <Instagram className="w-4 h-4 text-neutral-400" />
+                  <Instagram className="w-4 h-4 text-muted-foreground" />
                 </a>
               </div>
             </div>
@@ -227,24 +227,24 @@ export default function ShopFooter({ shop }: ShopFooterProps) {
       </div>
 
       {/* Bottom footer */}
-      <div className="border-t border-neutral-800 bg-neutral-950">
+      <div className="border-t bg-card">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
-            <div className="text-sm text-neutral-400">
+            <div className="text-sm text-muted-foreground">
               © {currentYear} {shop.name}. All rights reserved. 
-              <span className="ml-1">Powered by <span className="font-medium text-white">ShopSphere</span>.</span>
+              <span className="ml-1">Powered by <span className="font-medium text-foreground">ShopSphere</span>.</span>
             </div>
             
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-md bg-neutral-800 hover:bg-neutral-700 transition-colors"
+              className="p-2 rounded-md bg-muted hover:bg-accent transition-colors"
               aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
             >
               {isDarkMode ? (
-                <Sun className="w-4 h-4 text-yellow-400" />
+                <Sun className="w-4 h-4 text-warning" />
               ) : (
-                <Moon className="w-4 h-4 text-neutral-400" />
+                <Moon className="w-4 h-4 text-muted-foreground" />
               )}
             </button>
           </div>

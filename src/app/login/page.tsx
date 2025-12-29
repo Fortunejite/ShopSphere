@@ -100,8 +100,8 @@ export default function LoginPage() {
               />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-neutral-900">Welcome back</h1>
-          <p className="text-neutral-600">Sign in to your ShopSphere account</p>
+          <h1 className="text-3xl font-bold text-foreground">Welcome back</h1>
+          <p className="text-muted-foreground">Sign in to your ShopSphere account</p>
         </div>
 
         {/* Login Form */}
@@ -132,11 +132,11 @@ export default function LoginPage() {
                   placeholder="Enter your email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className={errors.email ? 'border-red-500 focus:border-red-500' : ''}
+                  className={errors.email ? 'border-error focus:border-error' : ''}
                   disabled={isLoading}
                 />
                 {errors.email && (
-                  <p className="text-sm text-red-500">{errors.email}</p>
+                  <p className="text-sm text-error">{errors.email}</p>
                 )}
               </div>
 
@@ -151,20 +151,20 @@ export default function LoginPage() {
                     placeholder="Enter your password"
                     value={formData.password}
                     onChange={handleInputChange}
-                    className={errors.password ? 'border-red-500 focus:border-red-500 pr-10' : 'pr-10'}
+                    className={errors.password ? 'border-error focus:border-error pr-10' : 'pr-10'}
                     disabled={isLoading}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-500 hover:text-neutral-700"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
                     disabled={isLoading}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="text-sm text-red-500">{errors.password}</p>
+                  <p className="text-sm text-error">{errors.password}</p>
                 )}
               </div>
 
@@ -172,7 +172,7 @@ export default function LoginPage() {
               <div className="text-right">
                 <Link 
                   href="/forgot-password" 
-                  className="text-sm text-neutral-600 hover:text-neutral-900 hover:underline"
+                  className="text-sm text-muted-foreground hover:text-foreground hover:underline"
                 >
                   Forgot your password?
                 </Link>
@@ -219,7 +219,7 @@ export default function LoginPage() {
         </Card>
 
         {/* Footer */}
-        <div className="text-center text-sm text-neutral-500 space-y-2">
+        <div className="text-center text-sm text-muted-foreground space-y-2">
           <p>
             By signing in, you agree to our{' '}
             <Link href="/terms" className="hover:underline">Terms of Service</Link>

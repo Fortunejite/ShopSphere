@@ -145,7 +145,7 @@ export default function CheckoutPage() {
 
   if (error && cartItems.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
+      <div className="min-h-screen bg-background p-6">
         <div className="max-w-2xl mx-auto">
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
@@ -167,9 +167,9 @@ export default function CheckoutPage() {
   const totals = calculateTotals();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-white border-b">
+      <div className="bg-card border-b">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -184,7 +184,7 @@ export default function CheckoutPage() {
               </Button>
               <h1 className="text-2xl font-bold">Checkout</h1>
             </div>
-            <div className="flex items-center gap-2 text-sm text-gray-600">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <ShoppingCart className="w-4 h-4" />
               <span>{cartItems.length} items</span>
             </div>
@@ -214,7 +214,7 @@ export default function CheckoutPage() {
                       placeholder="John Doe"
                     />
                     {form.formState.errors.shipping_address?.name && (
-                      <p className="text-sm text-red-600 mt-1">
+                      <p className="text-sm text-error mt-1">
                         {form.formState.errors.shipping_address.name.message}
                       </p>
                     )}
@@ -227,7 +227,7 @@ export default function CheckoutPage() {
                       placeholder="(555) 123-4567"
                     />
                     {form.formState.errors.shipping_address?.phone && (
-                      <p className="text-sm text-red-600 mt-1">
+                      <p className="text-sm text-error mt-1">
                         {form.formState.errors.shipping_address.phone.message}
                       </p>
                     )}
@@ -242,7 +242,7 @@ export default function CheckoutPage() {
                     placeholder="123 Main Street"
                   />
                   {form.formState.errors.shipping_address?.address_line_1 && (
-                    <p className="text-sm text-red-600 mt-1">
+                    <p className="text-sm text-error mt-1">
                       {form.formState.errors.shipping_address.address_line_1.message}
                     </p>
                   )}
@@ -266,7 +266,7 @@ export default function CheckoutPage() {
                       placeholder="New York"
                     />
                     {form.formState.errors.shipping_address?.city && (
-                      <p className="text-sm text-red-600 mt-1">
+                      <p className="text-sm text-error mt-1">
                         {form.formState.errors.shipping_address.city.message}
                       </p>
                     )}
@@ -279,7 +279,7 @@ export default function CheckoutPage() {
                       placeholder="NY"
                     />
                     {form.formState.errors.shipping_address?.state && (
-                      <p className="text-sm text-red-600 mt-1">
+                      <p className="text-sm text-error mt-1">
                         {form.formState.errors.shipping_address.state.message}
                       </p>
                     )}
@@ -292,7 +292,7 @@ export default function CheckoutPage() {
                       placeholder="10001"
                     />
                     {form.formState.errors.shipping_address?.postal_code && (
-                      <p className="text-sm text-red-600 mt-1">
+                      <p className="text-sm text-error mt-1">
                         {form.formState.errors.shipping_address.postal_code.message}
                       </p>
                     )}
@@ -357,7 +357,7 @@ export default function CheckoutPage() {
 
                     return (
                       <div key={`${item.product_id}-${item.variant_index || 0}`} className="flex gap-3">
-                        <div className="relative w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
+                        <div className="relative w-16 h-16 bg-muted rounded-lg overflow-hidden">
                           <Image
                             src={item.product.image}
                             alt={item.product.name}
@@ -368,7 +368,7 @@ export default function CheckoutPage() {
                         <div className="flex-1">
                           <h4 className="font-medium text-sm">{item.product.name}</h4>
                           {variant && (
-                            <div className="text-xs text-gray-600 mt-1">
+                            <div className="text-xs text-muted-foreground mt-1">
                               {Object.entries(variant.attributes).map(([key, value]) => (
                                 <span key={key} className="mr-2">
                                   {key}: {value}
@@ -377,7 +377,7 @@ export default function CheckoutPage() {
                             </div>
                           )}
                           <div className="flex justify-between items-center mt-2">
-                            <span className="text-sm text-gray-600">Qty: {item.quantity}</span>
+                            <span className="text-sm text-muted-foreground">Qty: {item.quantity}</span>
                             <span className="font-medium">{formatCurrency(finalPrice * item.quantity, shop!.currency)}</span>
                           </div>
                         </div>
@@ -392,7 +392,7 @@ export default function CheckoutPage() {
                     <span>{formatCurrency(totals.subtotal, shop!.currency)}</span>
                   </div>
                   {totals.discount > 0 && (
-                    <div className="flex justify-between text-green-600">
+                    <div className="flex justify-between text-success">
                       <span>Discount:</span>
                       <span>{formatCurrency(-totals.discount, shop!.currency)}</span>
                     </div>
@@ -429,7 +429,7 @@ export default function CheckoutPage() {
                   )}
                 </Button>
 
-                <div className="text-xs text-gray-500 text-center mt-4">
+                <div className="text-xs text-muted-foreground text-center mt-4">
                   <p>
                     By placing this order, you agree to our Terms of Service and Privacy Policy.
                   </p>

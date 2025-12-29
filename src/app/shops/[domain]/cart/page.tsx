@@ -147,10 +147,10 @@ export default function CartPage() {
 
   if (cartStatus === 'loading' && !cart) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <ShoppingCart className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-          <p className="text-gray-600">Loading your cart...</p>
+          <ShoppingCart className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+          <p className="text-muted-foreground">Loading your cart...</p>
         </div>
       </div>
     );
@@ -158,7 +158,7 @@ export default function CartPage() {
 
   if (cartError) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
+      <div className="min-h-screen bg-background p-6">
         <div className="max-w-2xl mx-auto">
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
@@ -180,9 +180,9 @@ export default function CartPage() {
   const isEmpty = !cart?.items || cart.items.length === 0;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-white border-b">
+      <div className="bg-card border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex flex-col sm:flex-row sm:items-center gap-4">
@@ -191,18 +191,18 @@ export default function CartPage() {
                 Continue Shopping
               </Button>
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+                <h1 className="text-xl sm:text-2xl font-bold text-foreground">
                   Shopping Cart
                 </h1>
-                <p className="text-sm sm:text-base text-gray-600">
+                <p className="text-sm sm:text-base text-muted-foreground">
                   {itemCount} {itemCount === 1 ? 'item' : 'items'} in your cart
                 </p>
               </div>
             </div>
             <div className="flex items-center justify-between sm:justify-end gap-2">
-              <span className="text-sm sm:text-base text-gray-600">Total:</span>
+              <span className="text-sm sm:text-base text-muted-foreground">Total:</span>
               <div className="flex items-center gap-2">
-                <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+                <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
                 <span className="text-lg sm:text-xl font-semibold">
                   {formatCurrency(cartTotal, shop!.currency)}
                 </span>
@@ -216,11 +216,11 @@ export default function CartPage() {
         {isEmpty ? (
           // Empty Cart State
           <div className="text-center py-12 sm:py-16">
-            <ShoppingBag className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-6 text-gray-300" />
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+            <ShoppingBag className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-6 text-muted-foreground" />
+            <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
               Your cart is empty
             </h2>
-            <p className="text-sm sm:text-base text-gray-600 mb-8 max-w-md mx-auto px-4">
+            <p className="text-sm sm:text-base text-muted-foreground mb-8 max-w-md mx-auto px-4">
               Looks like you haven&apos;t added any items to your cart yet.
               Start shopping to fill it up!
             </p>
@@ -268,7 +268,7 @@ export default function CartPage() {
                         {/* Mobile layout: Image and basic info on top */}
                         <div className="flex gap-3 sm:gap-4">
                           {/* Product Image */}
-                          <div className="relative w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 rounded-lg overflow-hidden shrink-0">
+                          <div className="relative w-16 h-16 sm:w-20 sm:h-20 bg-muted rounded-lg overflow-hidden shrink-0">
                             <Image
                               src={item.product.image}
                               alt={item.product.name}
@@ -291,23 +291,23 @@ export default function CartPage() {
                               href={`/products/${item.product.slug}`}
                               className="block"
                             >
-                              <h3 className="font-medium text-sm sm:text-base text-gray-900 hover:text-blue-600 transition-colors line-clamp-2">
+                              <h3 className="font-medium text-sm sm:text-base text-foreground hover:text-primary transition-colors line-clamp-2">
                                 {item.product.name}
                               </h3>
                             </Link>
 
                             {variantText && (
-                              <p className="text-xs sm:text-sm text-gray-500 mt-1 line-clamp-1">
+                              <p className="text-xs sm:text-sm text-muted-foreground mt-1 line-clamp-1">
                                 {variantText}
                               </p>
                             )}
 
                             <div className="flex items-center gap-2 mt-1 sm:mt-2">
-                              <span className="font-semibold text-sm sm:text-base text-gray-900">
+                              <span className="font-semibold text-sm sm:text-base text-foreground">
                                 {formatCurrency(finalPrice, shop!.currency)}
                               </span>
                               {pricing.discount > 0 && (
-                                <span className="text-xs sm:text-sm text-gray-500 line-through">
+                                <span className="text-xs sm:text-sm text-muted-foreground line-through">
                                   {formatCurrency(pricing.price, shop!.currency)}
                                 </span>
                               )}
@@ -412,7 +412,7 @@ export default function CartPage() {
                                 )
                               }
                               disabled={isItemUpdating}
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50 mt-1 h-8 px-2"
+                              className="text-error hover:text-error/80 hover:bg-error/10 mt-1 h-8 px-2"
                             >
                               <Trash2 className="w-3 h-3 mr-1" />
                               <span className="hidden sm:inline">Remove</span>
@@ -440,7 +440,7 @@ export default function CartPage() {
 
                   <div className="flex justify-between text-sm">
                     <span>Shipping</span>
-                    <span className="text-green-600">Free</span>
+                    <span className="text-success">Free</span>
                   </div>
 
                   <div className="flex justify-between text-sm">
@@ -460,7 +460,7 @@ export default function CartPage() {
                     Proceed to Checkout
                   </Button>
 
-                  <div className="text-center text-xs text-gray-500 flex items-center justify-center gap-1">
+                  <div className="text-center text-xs text-muted-foreground flex items-center justify-center gap-1">
                     <Lock className="w-3 h-3" />
                     Secure checkout powered by SSL encryption
                   </div>
@@ -471,26 +471,26 @@ export default function CartPage() {
               <Card className="hidden sm:block">
                 <CardContent className="pt-6 space-y-3">
                   <div className="flex items-center gap-3 text-sm">
-                    <Truck className="w-5 h-5 text-green-600 shrink-0" />
+                    <Truck className="w-5 h-5 text-success shrink-0" />
                     <div>
                       <p className="font-medium">Free Shipping</p>
-                      <p className="text-gray-500">On orders over $50</p>
+                      <p className="text-muted-foreground">On orders over $50</p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-3 text-sm">
-                    <Package className="w-5 h-5 text-blue-600 shrink-0" />
+                    <Package className="w-5 h-5 text-info shrink-0" />
                     <div>
                       <p className="font-medium">Easy Returns</p>
-                      <p className="text-gray-500">30-day return policy</p>
+                      <p className="text-muted-foreground">30-day return policy</p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-3 text-sm">
-                    <Heart className="w-5 h-5 text-red-500 shrink-0" />
+                    <Heart className="w-5 h-5 text-error shrink-0" />
                     <div>
                       <p className="font-medium">Customer Support</p>
-                      <p className="text-gray-500">24/7 help available</p>
+                      <p className="text-muted-foreground">24/7 help available</p>
                     </div>
                   </div>
                 </CardContent>
