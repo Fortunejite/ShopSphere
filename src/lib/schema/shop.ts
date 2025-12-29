@@ -1,6 +1,15 @@
 import { z } from 'zod';
 import { currencySymbols } from '@/lib/currency';
 
+// Color theme schema for validation
+export const colorThemeSchema = z.object({
+  primary: z.string().regex(/^#[0-9A-Fa-f]{6}$|^#[0-9A-Fa-f]{3}$|^rgb\(.*\)$|^rgba\(.*\)$|^oklch\(.*\)$/, 'Invalid color format'),
+  secondary: z.string().regex(/^#[0-9A-Fa-f]{6}$|^#[0-9A-Fa-f]{3}$|^rgb\(.*\)$|^rgba\(.*\)$|^oklch\(.*\)$/, 'Invalid color format'),
+  background: z.string().regex(/^#[0-9A-Fa-f]{6}$|^#[0-9A-Fa-f]{3}$|^rgb\(.*\)$|^rgba\(.*\)$|^oklch\(.*\)$/, 'Invalid color format'),
+  text: z.string().regex(/^#[0-9A-Fa-f]{6}$|^#[0-9A-Fa-f]{3}$|^rgb\(.*\)$|^rgba\(.*\)$|^oklch\(.*\)$/, 'Invalid color format'),
+  accent: z.string().regex(/^#[0-9A-Fa-f]{6}$|^#[0-9A-Fa-f]{3}$|^rgb\(.*\)$|^rgba\(.*\)$|^oklch\(.*\)$/, 'Invalid color format'),
+});
+
 export const createShopSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   domain: z
@@ -27,4 +36,6 @@ export const createShopSchema = z.object({
   free_shipping_threshold: z.number().min(0, 'Free shipping threshold must be 0 or greater').optional(),
   logo: z.string().optional(),
   banner: z.string().optional(),
+  light_theme: colorThemeSchema.optional(),
+  dark_theme: colorThemeSchema.optional(),
 });

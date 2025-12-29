@@ -42,6 +42,8 @@ CREATE TABLE shops (
   banner VARCHAR(500),
   stripe_account_id VARCHAR(255) NOT NULL,
   stripe_account_connected BOOLEAN DEFAULT false,
+  light_theme JSONB,
+  dark_theme JSONB,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

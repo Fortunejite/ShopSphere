@@ -17,6 +17,7 @@ import { fetchShop } from '@/redux/shopSlice';
 import { ShopWithOwner } from '@/models/Shop';
 import ShopNavbar from '@/components/ShopNavbar';
 import ShopFooter from '@/components/ShopFooter';
+import ShopTheme from '@/components/ShopTheme';
 import { PageLoading } from '@/components/Loading';
 import { fetchCart, setCartAuthenticationStatus } from '@/redux/cartSlice';
 import { useSession } from 'next-auth/react';
@@ -127,6 +128,7 @@ export default function HomeLayout({
 
   return (
     <div className="min-h-screen bg-neutral-50 flex flex-col">
+      <ShopTheme shop={shop} />
       <ShopNavbar shop={shop} cart={cart} />
       <main className="flex-1">{children}</main>
       <ShopFooter shop={shop} />

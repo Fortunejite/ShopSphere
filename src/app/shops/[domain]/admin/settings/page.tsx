@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Settings,
   Store,
@@ -22,12 +23,17 @@ import {
   Upload,
   Image as ImageIcon,
   Loader2,
-  X
+  X,
+  Sun,
+  Moon,
+  RefreshCw,
+  Eye
 } from 'lucide-react';
 import { ProductLoading } from '@/components/Loading';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux.hook';
 import { uploadPhoto } from '@/lib/uploadPhoto';
 import { createShopSchema } from '@/lib/schema/shop';
+import { colorTheme } from '@/models/Shop';
 import Image from 'next/image';
 import { updateShop } from '@/redux/shopSlice';
 
@@ -48,6 +54,26 @@ export default function AdminSettingsPage() {
   } | null>(null);
   const [isLogoUploading, setIsLogoUploading] = useState(false);
   const [isBannerUploading, setIsBannerUploading] = useState(false);
+  
+  // Theme state
+  const [lightTheme, setLightTheme] = useState<colorTheme>({
+    primary: '#171717',
+    secondary: '#f5f5f5',
+    background: '#ffffff',
+    text: '#171717',
+    accent: '#f5f5f5'
+  });
+  
+  const [darkTheme, setDarkTheme] = useState<colorTheme>({
+    primary: '#f5f5f5',
+    secondary: '#404040',
+    background: '#171717',
+    text: '#f5f5f5',
+    accent: '#404040'
+  });
+  
+  const [activeThemeMode, setActiveThemeMode] = useState<'light' | 'dark'>('light');
+  const [hasThemeChanges, setHasThemeChanges] = useState(false);
 
   const form = useForm<ShopSettingsFormData>({
     resolver: zodResolver(createShopSchema),
@@ -100,6 +126,15 @@ export default function AdminSettingsPage() {
         banner: shop.banner || '',
         category_id: shop.category_id || 1,
       });
+      
+      // Load theme data
+      if (shop.light_theme) {
+        setLightTheme(shop.light_theme);
+      }
+      if (shop.dark_theme) {
+        setDarkTheme(shop.dark_theme);
+      }
+      
       setIsLoading(false);
     }
   }, [shop, form]);
@@ -142,17 +177,67 @@ export default function AdminSettingsPage() {
     );
   };
 
+  const handleThemeColorChange = (
+    mode: 'light' | 'dark',
+    property: keyof colorTheme,
+    value: string
+  ) => {
+    setHasThemeChanges(true);
+    
+    if (mode === 'light') {
+      setLightTheme(prev => ({ ...prev, [property]: value }));
+    } else {
+      setDarkTheme(prev => ({ ...prev, [property]: value }));
+    }
+  };
+
+  const resetThemeToDefaults = () => {
+    const defaultLight: colorTheme = {
+      primary: '#171717',
+      secondary: '#f5f5f5',
+      background: '#ffffff',
+      text: '#171717',
+      accent: '#f5f5f5'
+    };
+    
+    const defaultDark: colorTheme = {
+      primary: '#f5f5f5',
+      secondary: '#404040',
+      background: '#171717',
+      text: '#f5f5f5',
+      accent: '#404040'
+    };
+    
+    setLightTheme(defaultLight);
+    setDarkTheme(defaultDark);
+    setHasThemeChanges(true);
+    
+    showToast(
+      'success',
+      'Theme Reset',
+      'Theme colors have been reset to defaults.'
+    );
+  };
+
   const onSubmit = async (data: ShopSettingsFormData) => {
     try {
       setIsSaving(true);
 
-      await axios.put(`/api/shops/${domain}`, data);
+      // Include theme data in the submission
+      const submitData = {
+        ...data,
+        light_theme: lightTheme,
+        dark_theme: darkTheme
+      };
+
+      await axios.put(`/api/shops/${domain}`, submitData);
       showToast(
         'success',
         'Settings Updated!',
         'Your shop settings have been saved successfully.'
       );
-      dispatch(updateShop(data));
+      dispatch(updateShop(submitData));
+      setHasThemeChanges(false);
     } catch (error) {
       console.error('Error updating settings:', error);
       showToast(
@@ -503,23 +588,394 @@ export default function AdminSettingsPage() {
                   </div>
                 </div>
 
-                {/* Theme Color */}
+                {/* Theme Customization */}
                 <div>
-                  <Label>Theme Color</Label>
-                  <div className="mt-2 flex items-center space-x-4">
-                    <input
-                      type="color"
-                      defaultValue="#000000"
-                      className="w-12 h-10 border border-gray-300 rounded cursor-pointer"
-                    />
-                    <Input
-                      placeholder="#000000"
-                      className="flex-1"
-                    />
+                  <div className="flex items-center justify-between mb-4">
+                    <Label className="text-base font-medium">Theme Colors</Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={resetThemeToDefaults}
+                    >
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      Reset
+                    </Button>
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Primary color for buttons and accents
-                  </p>
+                  
+                  <Tabs value={activeThemeMode} onValueChange={(value) => setActiveThemeMode(value as 'light' | 'dark')}>
+                    <TabsList className="grid w-full grid-cols-2 mb-4">
+                      <TabsTrigger value="light" className="flex items-center gap-2">
+                        <Sun className="w-4 h-4" />
+                        Light Mode
+                      </TabsTrigger>
+                      <TabsTrigger value="dark" className="flex items-center gap-2">
+                        <Moon className="w-4 h-4" />
+                        Dark Mode
+                      </TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value="light" className="space-y-4">
+                      <div className="grid grid-cols-1 gap-4">
+                        {/* Primary Color */}
+                        <div>
+                          <Label className="text-sm font-medium">Primary Color</Label>
+                          <div className="flex items-center space-x-3 mt-2">
+                            <div 
+                              className="w-10 h-10 rounded-md border-2 border-gray-200 cursor-pointer"
+                              style={{ backgroundColor: lightTheme.primary }}
+                              onClick={() => {
+                                const input = document.createElement('input');
+                                input.type = 'color';
+                                input.value = lightTheme.primary.startsWith('#') ? lightTheme.primary : '#000000';
+                                input.addEventListener('change', (e) => {
+                                  handleThemeColorChange('light', 'primary', (e.target as HTMLInputElement).value);
+                                });
+                                input.click();
+                              }}
+                            />
+                            <Input
+                              type="text"
+                              value={lightTheme.primary}
+                              onChange={(e) => handleThemeColorChange('light', 'primary', e.target.value)}
+                              placeholder="#171717"
+                              className="flex-1"
+                            />
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">Main brand color for buttons and links</p>
+                        </div>
+
+                        {/* Secondary Color */}
+                        <div>
+                          <Label className="text-sm font-medium">Secondary Color</Label>
+                          <div className="flex items-center space-x-3 mt-2">
+                            <div 
+                              className="w-10 h-10 rounded-md border-2 border-gray-200 cursor-pointer"
+                              style={{ backgroundColor: lightTheme.secondary }}
+                              onClick={() => {
+                                const input = document.createElement('input');
+                                input.type = 'color';
+                                input.value = lightTheme.secondary.startsWith('#') ? lightTheme.secondary : '#f5f5f5';
+                                input.addEventListener('change', (e) => {
+                                  handleThemeColorChange('light', 'secondary', (e.target as HTMLInputElement).value);
+                                });
+                                input.click();
+                              }}
+                            />
+                            <Input
+                              type="text"
+                              value={lightTheme.secondary}
+                              onChange={(e) => handleThemeColorChange('light', 'secondary', e.target.value)}
+                              placeholder="#f5f5f5"
+                              className="flex-1"
+                            />
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">Secondary backgrounds and muted elements</p>
+                        </div>
+
+                        {/* Background Color */}
+                        <div>
+                          <Label className="text-sm font-medium">Background Color</Label>
+                          <div className="flex items-center space-x-3 mt-2">
+                            <div 
+                              className="w-10 h-10 rounded-md border-2 border-gray-200 cursor-pointer"
+                              style={{ backgroundColor: lightTheme.background }}
+                              onClick={() => {
+                                const input = document.createElement('input');
+                                input.type = 'color';
+                                input.value = lightTheme.background.startsWith('#') ? lightTheme.background : '#ffffff';
+                                input.addEventListener('change', (e) => {
+                                  handleThemeColorChange('light', 'background', (e.target as HTMLInputElement).value);
+                                });
+                                input.click();
+                              }}
+                            />
+                            <Input
+                              type="text"
+                              value={lightTheme.background}
+                              onChange={(e) => handleThemeColorChange('light', 'background', e.target.value)}
+                              placeholder="#ffffff"
+                              className="flex-1"
+                            />
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">Main page background color</p>
+                        </div>
+
+                        {/* Text Color */}
+                        <div>
+                          <Label className="text-sm font-medium">Text Color</Label>
+                          <div className="flex items-center space-x-3 mt-2">
+                            <div 
+                              className="w-10 h-10 rounded-md border-2 border-gray-200 cursor-pointer"
+                              style={{ backgroundColor: lightTheme.text }}
+                              onClick={() => {
+                                const input = document.createElement('input');
+                                input.type = 'color';
+                                input.value = lightTheme.text.startsWith('#') ? lightTheme.text : '#171717';
+                                input.addEventListener('change', (e) => {
+                                  handleThemeColorChange('light', 'text', (e.target as HTMLInputElement).value);
+                                });
+                                input.click();
+                              }}
+                            />
+                            <Input
+                              type="text"
+                              value={lightTheme.text}
+                              onChange={(e) => handleThemeColorChange('light', 'text', e.target.value)}
+                              placeholder="#171717"
+                              className="flex-1"
+                            />
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">Primary text color</p>
+                        </div>
+
+                        {/* Accent Color */}
+                        <div>
+                          <Label className="text-sm font-medium">Accent Color</Label>
+                          <div className="flex items-center space-x-3 mt-2">
+                            <div 
+                              className="w-10 h-10 rounded-md border-2 border-gray-200 cursor-pointer"
+                              style={{ backgroundColor: lightTheme.accent }}
+                              onClick={() => {
+                                const input = document.createElement('input');
+                                input.type = 'color';
+                                input.value = lightTheme.accent.startsWith('#') ? lightTheme.accent : '#f5f5f5';
+                                input.addEventListener('change', (e) => {
+                                  handleThemeColorChange('light', 'accent', (e.target as HTMLInputElement).value);
+                                });
+                                input.click();
+                              }}
+                            />
+                            <Input
+                              type="text"
+                              value={lightTheme.accent}
+                              onChange={(e) => handleThemeColorChange('light', 'accent', e.target.value)}
+                              placeholder="#f5f5f5"
+                              className="flex-1"
+                            />
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">Accent color for highlights and special elements</p>
+                        </div>
+                      </div>
+                    </TabsContent>
+
+                    <TabsContent value="dark" className="space-y-4">
+                      <div className="grid grid-cols-1 gap-4">
+                        {/* Primary Color */}
+                        <div>
+                          <Label className="text-sm font-medium">Primary Color</Label>
+                          <div className="flex items-center space-x-3 mt-2">
+                            <div 
+                              className="w-10 h-10 rounded-md border-2 border-gray-200 cursor-pointer"
+                              style={{ backgroundColor: darkTheme.primary }}
+                              onClick={() => {
+                                const input = document.createElement('input');
+                                input.type = 'color';
+                                input.value = darkTheme.primary.startsWith('#') ? darkTheme.primary : '#f5f5f5';
+                                input.addEventListener('change', (e) => {
+                                  handleThemeColorChange('dark', 'primary', (e.target as HTMLInputElement).value);
+                                });
+                                input.click();
+                              }}
+                            />
+                            <Input
+                              type="text"
+                              value={darkTheme.primary}
+                              onChange={(e) => handleThemeColorChange('dark', 'primary', e.target.value)}
+                              placeholder="#f5f5f5"
+                              className="flex-1"
+                            />
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">Main brand color for buttons and links</p>
+                        </div>
+
+                        {/* Secondary Color */}
+                        <div>
+                          <Label className="text-sm font-medium">Secondary Color</Label>
+                          <div className="flex items-center space-x-3 mt-2">
+                            <div 
+                              className="w-10 h-10 rounded-md border-2 border-gray-200 cursor-pointer"
+                              style={{ backgroundColor: darkTheme.secondary }}
+                              onClick={() => {
+                                const input = document.createElement('input');
+                                input.type = 'color';
+                                input.value = darkTheme.secondary.startsWith('#') ? darkTheme.secondary : '#404040';
+                                input.addEventListener('change', (e) => {
+                                  handleThemeColorChange('dark', 'secondary', (e.target as HTMLInputElement).value);
+                                });
+                                input.click();
+                              }}
+                            />
+                            <Input
+                              type="text"
+                              value={darkTheme.secondary}
+                              onChange={(e) => handleThemeColorChange('dark', 'secondary', e.target.value)}
+                              placeholder="#404040"
+                              className="flex-1"
+                            />
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">Secondary backgrounds and muted elements</p>
+                        </div>
+
+                        {/* Background Color */}
+                        <div>
+                          <Label className="text-sm font-medium">Background Color</Label>
+                          <div className="flex items-center space-x-3 mt-2">
+                            <div 
+                              className="w-10 h-10 rounded-md border-2 border-gray-200 cursor-pointer"
+                              style={{ backgroundColor: darkTheme.background }}
+                              onClick={() => {
+                                const input = document.createElement('input');
+                                input.type = 'color';
+                                input.value = darkTheme.background.startsWith('#') ? darkTheme.background : '#171717';
+                                input.addEventListener('change', (e) => {
+                                  handleThemeColorChange('dark', 'background', (e.target as HTMLInputElement).value);
+                                });
+                                input.click();
+                              }}
+                            />
+                            <Input
+                              type="text"
+                              value={darkTheme.background}
+                              onChange={(e) => handleThemeColorChange('dark', 'background', e.target.value)}
+                              placeholder="#171717"
+                              className="flex-1"
+                            />
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">Main page background color</p>
+                        </div>
+
+                        {/* Text Color */}
+                        <div>
+                          <Label className="text-sm font-medium">Text Color</Label>
+                          <div className="flex items-center space-x-3 mt-2">
+                            <div 
+                              className="w-10 h-10 rounded-md border-2 border-gray-200 cursor-pointer"
+                              style={{ backgroundColor: darkTheme.text }}
+                              onClick={() => {
+                                const input = document.createElement('input');
+                                input.type = 'color';
+                                input.value = darkTheme.text.startsWith('#') ? darkTheme.text : '#f5f5f5';
+                                input.addEventListener('change', (e) => {
+                                  handleThemeColorChange('dark', 'text', (e.target as HTMLInputElement).value);
+                                });
+                                input.click();
+                              }}
+                            />
+                            <Input
+                              type="text"
+                              value={darkTheme.text}
+                              onChange={(e) => handleThemeColorChange('dark', 'text', e.target.value)}
+                              placeholder="#f5f5f5"
+                              className="flex-1"
+                            />
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">Primary text color</p>
+                        </div>
+
+                        {/* Accent Color */}
+                        <div>
+                          <Label className="text-sm font-medium">Accent Color</Label>
+                          <div className="flex items-center space-x-3 mt-2">
+                            <div 
+                              className="w-10 h-10 rounded-md border-2 border-gray-200 cursor-pointer"
+                              style={{ backgroundColor: darkTheme.accent }}
+                              onClick={() => {
+                                const input = document.createElement('input');
+                                input.type = 'color';
+                                input.value = darkTheme.accent.startsWith('#') ? darkTheme.accent : '#404040';
+                                input.addEventListener('change', (e) => {
+                                  handleThemeColorChange('dark', 'accent', (e.target as HTMLInputElement).value);
+                                });
+                                input.click();
+                              }}
+                            />
+                            <Input
+                              type="text"
+                              value={darkTheme.accent}
+                              onChange={(e) => handleThemeColorChange('dark', 'accent', e.target.value)}
+                              placeholder="#404040"
+                              className="flex-1"
+                            />
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">Accent color for highlights and special elements</p>
+                        </div>
+                      </div>
+                    </TabsContent>
+                  </Tabs>
+
+                  {/* Theme Preview */}
+                  <div className="mt-6 border rounded-lg p-4" style={{
+                    backgroundColor: activeThemeMode === 'light' ? lightTheme.background : darkTheme.background,
+                    color: activeThemeMode === 'light' ? lightTheme.text : darkTheme.text
+                  }}>
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold">Theme Preview</h3>
+                      <Eye className="w-5 h-5" />
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <div 
+                        className="p-3 rounded-lg text-center"
+                        style={{ 
+                          backgroundColor: activeThemeMode === 'light' ? lightTheme.primary : darkTheme.primary, 
+                          color: activeThemeMode === 'light' ? lightTheme.background : darkTheme.background 
+                        }}
+                      >
+                        <p className="font-medium text-sm">Primary</p>
+                      </div>
+                      
+                      <div 
+                        className="p-3 rounded-lg text-center"
+                        style={{ 
+                          backgroundColor: activeThemeMode === 'light' ? lightTheme.secondary : darkTheme.secondary, 
+                          color: activeThemeMode === 'light' ? lightTheme.text : darkTheme.text 
+                        }}
+                      >
+                        <p className="font-medium text-sm">Secondary</p>
+                      </div>
+                      
+                      <div 
+                        className="p-3 rounded-lg text-center"
+                        style={{ 
+                          backgroundColor: activeThemeMode === 'light' ? lightTheme.accent : darkTheme.accent, 
+                          color: activeThemeMode === 'light' ? lightTheme.text : darkTheme.text 
+                        }}
+                      >
+                        <p className="font-medium text-sm">Accent</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex gap-2 mt-4">
+                      <button 
+                        className="px-4 py-2 rounded-md font-medium text-sm"
+                        style={{ 
+                          backgroundColor: activeThemeMode === 'light' ? lightTheme.primary : darkTheme.primary, 
+                          color: activeThemeMode === 'light' ? lightTheme.background : darkTheme.background 
+                        }}
+                      >
+                        Primary Button
+                      </button>
+                      <button 
+                        className="px-4 py-2 rounded-md font-medium text-sm border"
+                        style={{ 
+                          backgroundColor: 'transparent', 
+                          color: activeThemeMode === 'light' ? lightTheme.primary : darkTheme.primary,
+                          borderColor: activeThemeMode === 'light' ? lightTheme.primary : darkTheme.primary
+                        }}
+                      >
+                        Secondary Button
+                      </button>
+                    </div>
+                  </div>
+
+                  {hasThemeChanges && (
+                    <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <p className="text-sm text-blue-800">
+                        You have unsaved theme changes. Click &quot;Save Settings&quot; to apply them.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

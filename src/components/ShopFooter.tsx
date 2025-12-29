@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { 
@@ -13,7 +14,9 @@ import {
   Shield,
   Truck,
   Clock,
-  Heart
+  Heart,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { ShopWithOwner } from '@/models/Shop';
 
@@ -23,6 +26,34 @@ interface ShopFooterProps {
 
 export default function ShopFooter({ shop }: ShopFooterProps) {
   const currentYear = new Date().getFullYear();
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Check for saved theme preference or default to system preference
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+      setIsDarkMode(true);
+      document.documentElement.classList.add('dark');
+    } else {
+      setIsDarkMode(false);
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = !isDarkMode;
+    setIsDarkMode(newTheme);
+    
+    if (newTheme) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  };
 
   return (
     <footer className="bg-neutral-900 border-t border-neutral-800">
@@ -198,9 +229,24 @@ export default function ShopFooter({ shop }: ShopFooterProps) {
       {/* Bottom footer */}
       <div className="border-t border-neutral-800 bg-neutral-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="text-sm text-neutral-400 text-center">
-            © {currentYear} {shop.name}. All rights reserved. 
-            <span className="ml-1">Powered by <span className="font-medium text-white">ShopSphere</span>.</span>
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-neutral-400">
+              © {currentYear} {shop.name}. All rights reserved. 
+              <span className="ml-1">Powered by <span className="font-medium text-white">ShopSphere</span>.</span>
+            </div>
+            
+            {/* Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-md bg-neutral-800 hover:bg-neutral-700 transition-colors"
+              aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {isDarkMode ? (
+                <Sun className="w-4 h-4 text-yellow-400" />
+              ) : (
+                <Moon className="w-4 h-4 text-neutral-400" />
+              )}
+            </button>
           </div>
         </div>
       </div>
