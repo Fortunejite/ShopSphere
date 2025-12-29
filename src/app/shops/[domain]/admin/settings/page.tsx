@@ -11,7 +11,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   Settings,
   Store,
@@ -41,7 +40,12 @@ export default function AdminSettingsPage() {
   
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [toast, setToast] = useState<{ 
+    type: 'success' | 'error'; 
+    title: string; 
+    message: string; 
+    show: boolean 
+  } | null>(null);
   const [isLogoUploading, setIsLogoUploading] = useState(false);
   const [isBannerUploading, setIsBannerUploading] = useState(false);
 
@@ -66,6 +70,15 @@ export default function AdminSettingsPage() {
       category_id: 1, // Default category, will be updated when shop data loads
     }
   });
+
+  // Toast notification helper
+  const showToast = (type: 'success' | 'error', title: string, message: string) => {
+    setToast({ type, title, message, show: true });
+    setTimeout(() => {
+      setToast(prev => prev ? { ...prev, show: false } : null);
+      setTimeout(() => setToast(null), 300); // Allow fade out animation
+    }, 4000);
+  };
 
   useEffect(() => {
     if (shop) {
@@ -100,16 +113,20 @@ export default function AdminSettingsPage() {
       
       if (result.success) {
         form.setValue(type, result.url);
-        setMessage({ type: 'success', text: `${type === 'logo' ? 'Logo' : 'Banner'} uploaded successfully!` });
-        setTimeout(() => setMessage(null), 3000);
+        showToast(
+          'success',
+          'Upload Successful!',
+          `Your ${type === 'logo' ? 'logo' : 'banner'} has been uploaded successfully.`
+        );
       } else {
-        setMessage({ type: 'error', text: result.error || 'Upload failed' });
+        showToast('error', 'Upload Failed', result.error || 'Failed to upload image. Please try again.');
       }
     } catch (error) {
-      setMessage({ 
-        type: 'error', 
-        text: error instanceof Error ? error.message : 'Upload failed' 
-      });
+      showToast(
+        'error', 
+        'Upload Error',
+        error instanceof Error ? error.message : 'An unexpected error occurred during upload.'
+      );
     } finally {
       const uploadSetter = type === 'logo' ? setIsLogoUploading : setIsBannerUploading;
       uploadSetter(false);
@@ -118,21 +135,31 @@ export default function AdminSettingsPage() {
 
   const handleImageRemove = (type: 'logo' | 'banner') => {
     form.setValue(type, '');
-    setMessage({ type: 'success', text: `${type === 'logo' ? 'Logo' : 'Banner'} removed successfully!` });
-    setTimeout(() => setMessage(null), 3000);
+    showToast(
+      'success',
+      'Image Removed',
+      `${type === 'logo' ? 'Logo' : 'Banner'} has been removed successfully.`
+    );
   };
 
   const onSubmit = async (data: ShopSettingsFormData) => {
     try {
       setIsSaving(true);
-      setMessage(null);
 
       await axios.put(`/api/shops/${domain}`, data);
-      setMessage({ type: 'success', text: 'Settings updated successfully!' });
+      showToast(
+        'success',
+        'Settings Updated!',
+        'Your shop settings have been saved successfully.'
+      );
       dispatch(updateShop(data));
     } catch (error) {
       console.error('Error updating settings:', error);
-      setMessage({ type: 'error', text: 'Failed to update settings. Please try again.' });
+      showToast(
+        'error',
+        'Update Failed',
+        'Failed to update your settings. Please check your connection and try again.'
+      );
     } finally {
       setIsSaving(false);
     }
@@ -163,18 +190,6 @@ export default function AdminSettingsPage() {
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          {/* Success/Error Messages */}
-          {message && (
-            <Alert variant={message.type === 'error' ? 'destructive' : 'default'}>
-              {message.type === 'success' ? (
-                <CheckCircle className="h-4 w-4" />
-              ) : (
-                <AlertCircle className="h-4 w-4" />
-              )}
-              <AlertDescription>{message.text}</AlertDescription>
-            </Alert>
-          )}
-
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Basic Information */}
             <Card>
@@ -514,7 +529,7 @@ export default function AdminSettingsPage() {
           <div className="flex justify-end">
             <Button
               type="submit"
-              disabled={isSaving}
+              disabled={isSaving || isLogoUploading || isBannerUploading}
               className="flex items-center gap-2"
             >
               <Save className="w-4 h-4" />
@@ -523,6 +538,53 @@ export default function AdminSettingsPage() {
           </div>
         </form>
       </div>
+
+      {/* Toast Notification */}
+      {toast && (
+        <div className={`fixed top-4 right-4 z-50 transition-all duration-300 transform ${
+          toast.show ? 'translate-y-0 opacity-100' : '-translate-y-2 opacity-0'
+        }`}>
+          <div className={`max-w-md w-full rounded-lg shadow-lg p-4 ${
+            toast.type === 'success' 
+              ? 'bg-green-50 border-l-4 border-green-400' 
+              : 'bg-red-50 border-l-4 border-red-400'
+          }`}>
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                {toast.type === 'success' ? (
+                  <CheckCircle className="h-5 w-5 text-green-400" />
+                ) : (
+                  <AlertCircle className="h-5 w-5 text-red-400" />
+                )}
+              </div>
+              <div className="ml-3 flex-1">
+                <p className={`text-sm font-semibold ${
+                  toast.type === 'success' ? 'text-green-800' : 'text-red-800'
+                }`}>
+                  {toast.title}
+                </p>
+                <p className={`text-sm mt-1 ${
+                  toast.type === 'success' ? 'text-green-700' : 'text-red-700'
+                }`}>
+                  {toast.message}
+                </p>
+              </div>
+              <div className="flex-shrink-0 ml-4">
+                <button
+                  onClick={() => setToast(prev => prev ? { ...prev, show: false } : null)}
+                  className={`rounded-md inline-flex ${
+                    toast.type === 'success' 
+                      ? 'text-green-400 hover:text-green-600 focus:ring-green-500' 
+                      : 'text-red-400 hover:text-red-600 focus:ring-red-500'
+                  } focus:outline-none focus:ring-2 focus:ring-offset-2`}
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

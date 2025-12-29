@@ -11,14 +11,21 @@ import { InlineLoading } from '../Loading';
 interface Props {
   formData: ProductFormData;
   updateFormData: UpdateFormData;
+  onUploadStateChange?: (isUploading: boolean) => void;
 }
 
-const ImageStep = ({ formData, updateFormData }: Props) => {
+const ImageStep = ({ formData, updateFormData, onUploadStateChange }: Props) => {
   const [imageError, setImageError] = useState<boolean>(false);
   const [thumbnailErrors, setThumbnailErrors] = useState<boolean[]>([]);
   const [isUploadingMain, setIsUploadingMain] = useState<boolean>(false);
   const [isUploadingThumbnails, setIsUploadingThumbnails] = useState<boolean>(false);
   const [uploadError, setUploadError] = useState<string>('');
+
+  // Notify parent component of upload state changes
+  useEffect(() => {
+    const isUploading = isUploadingMain || isUploadingThumbnails;
+    onUploadStateChange?.(isUploading);
+  }, [isUploadingMain, isUploadingThumbnails, onUploadStateChange]);
 
   // Sync thumbnail errors array with thumbnails array length
   useEffect(() => {

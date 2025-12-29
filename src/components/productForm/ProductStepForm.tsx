@@ -101,6 +101,7 @@ export default function ProductStepForm({
 
   const [stepErrors, setStepErrors] = useState<Record<number, string>>({});
   const [isValidating, setIsValidating] = useState(false);
+  const [isImageUploading, setIsImageUploading] = useState(false);
 
   const categoriesState = useAppSelector(state => state.category.categories);
   const shop = useAppSelector(state => state.shop.shop);
@@ -173,6 +174,11 @@ export default function ProductStepForm({
   };
 
   const handleNext = async () => {
+    // Prevent navigation if images are uploading
+    if (currentStep === 4 && isImageUploading) {
+      return;
+    }
+    
     const isValid = await validateStep(currentStep);
     if (isValid && currentStep < steps.length) {
       setCurrentStep(currentStep + 1);
@@ -227,7 +233,11 @@ export default function ProductStepForm({
 
       case 4:
         return (
-          <ImageStep formData={formData} updateFormData={updateFormData} />
+          <ImageStep 
+            formData={formData} 
+            updateFormData={updateFormData}
+            onUploadStateChange={setIsImageUploading}
+          />
         );
 
       case 5:
@@ -329,11 +339,16 @@ export default function ProductStepForm({
         </Button>
 
         {currentStep < steps.length ? (
-          <Button type="button" onClick={handleNext} disabled={isValidating}>
+          <Button type="button" onClick={handleNext} disabled={isValidating || (currentStep === 4 && isImageUploading)}>
             {isValidating ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 Validating...
+              </>
+            ) : (currentStep === 4 && isImageUploading) ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Uploading Images...
               </>
             ) : (
               <>

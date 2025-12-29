@@ -242,9 +242,13 @@ const ShopNavbar = ({ shop, cart }: Props) => {
         </div>
 
         {/* Mobile Navigation Menu */}
-        {isMobileMenuOpen && (
-          <div className="lg:hidden border-t border-neutral-200 py-4">
-            <nav className="flex flex-col space-y-4">
+        <div className={cn(
+          "absolute top-full left-0 right-0 lg:hidden bg-white border-b border-neutral-200 shadow-lg z-40 overflow-hidden transition-all duration-300 ease-in-out",
+          isMobileMenuOpen ? "max-h-[80vh] opacity-100" : "max-h-0 opacity-0"
+        )}>
+          <div className="max-w-7xl mx-auto overflow-y-auto max-h-[80vh]">
+            <div className="px-4 sm:px-6 lg:px-8 py-4">
+              <nav className="flex flex-col space-y-4">
               <Link
                 href='/'
                 className="text-neutral-700 hover:text-neutral-900 font-medium transition-colors flex items-center"
@@ -346,8 +350,9 @@ const ShopNavbar = ({ shop, cart }: Props) => {
                 </div>
               )}
             </nav>
+            </div>
           </div>
-        )}
+        </div>
       </div>
 
       {/* Click outside to close user menu */}

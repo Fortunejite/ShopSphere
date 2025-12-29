@@ -665,8 +665,9 @@ export default function NewShopPage() {
                 <Button type="button" variant="outline" asChild disabled={isSubmitting}>
                   <Link href="/shops">Cancel</Link>
                 </Button>
-                <Button type="submit" disabled={isSubmitting} className="min-w-32">
-                  {isSubmitting ? (
+                <Button type="submit" disabled={isSubmitting || isLogoUploading || isBannerUploading} className="min-w-32">
+                  {isLogoUploading || isBannerUploading ? 'Uploading Image...' :
+                  isSubmitting ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                       Creating...
