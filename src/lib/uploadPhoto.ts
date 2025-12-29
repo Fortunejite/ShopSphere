@@ -3,7 +3,7 @@
  * Currently returns a placeholder URL - to be implemented with actual upload logic later
  */
 
-import { uploadImage } from "@/services/firebase/storage";
+import { deleteImage, uploadImage } from "@/services/firebase/storage";
 
 export interface UploadResult {
   url: string;
@@ -16,7 +16,7 @@ export interface UploadResult {
  * @param file - The file to upload
  * @returns Promise with upload result
  */
-export async function uploadPhoto(file: File): Promise<UploadResult> {
+export async function uploadPhoto(file: File, prev?: string): Promise<UploadResult> {
   try {
     // Validate file first
     const validation = validatePhoto(file);
@@ -28,7 +28,7 @@ export async function uploadPhoto(file: File): Promise<UploadResult> {
       };
     }
 
-    const url = await uploadImage(file);
+    const url = await uploadImage(file, prev);
     
     // Local test, convert file to data URL for testing
     // const dataUrl = await fileToDataUrl(file);
@@ -75,6 +75,14 @@ export async function uploadMultiplePhotos(files: File[]): Promise<UploadResult[
       success: false,
       error: error instanceof Error ? error.message : 'Upload failed'
     }));
+  }
+}
+
+export async function deletePhoto(url: string): Promise<void> {
+  try {
+    await deleteImage(url);
+  } catch (error) {
+    console.error('Error deleting photo:', error);
   }
 }
 
