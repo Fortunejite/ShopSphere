@@ -622,7 +622,13 @@ export default function ProductDetailsPage() {
                     
                     <div className="text-center p-4 bg-green-50 rounded-lg">
                       <div className="text-2xl font-bold text-green-600">
-                        {formatCurrency(product.sales_count * parseFloat(pricing.discounted), shop!.currency)}
+                        {formatCurrency(
+                          product.sales_count * (product.discount > 0 
+                            ? product.price * (1 - product.discount / 100) 
+                            : product.price
+                          ), 
+                          shop!.currency
+                        )}
                       </div>
                       <div className="text-sm text-green-800">Total Revenue</div>
                     </div>
