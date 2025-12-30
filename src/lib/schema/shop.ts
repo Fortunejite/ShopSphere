@@ -2,12 +2,62 @@ import { z } from 'zod';
 import { currencySymbols } from '@/lib/currency';
 
 // Color theme schema for validation
+const colorFormatRegex = /^#[0-9A-Fa-f]{6}$|^#[0-9A-Fa-f]{3}$|^rgb\(.*\)$|^rgba\(.*\)$|^oklch\(.*\)$/;
+const colorValidation = z.string().regex(colorFormatRegex, 'Invalid color format');
+const optionalColorValidation = colorValidation.optional();
+
 export const colorThemeSchema = z.object({
-  primary: z.string().regex(/^#[0-9A-Fa-f]{6}$|^#[0-9A-Fa-f]{3}$|^rgb\(.*\)$|^rgba\(.*\)$|^oklch\(.*\)$/, 'Invalid color format'),
-  secondary: z.string().regex(/^#[0-9A-Fa-f]{6}$|^#[0-9A-Fa-f]{3}$|^rgb\(.*\)$|^rgba\(.*\)$|^oklch\(.*\)$/, 'Invalid color format'),
-  background: z.string().regex(/^#[0-9A-Fa-f]{6}$|^#[0-9A-Fa-f]{3}$|^rgb\(.*\)$|^rgba\(.*\)$|^oklch\(.*\)$/, 'Invalid color format'),
-  text: z.string().regex(/^#[0-9A-Fa-f]{6}$|^#[0-9A-Fa-f]{3}$|^rgb\(.*\)$|^rgba\(.*\)$|^oklch\(.*\)$/, 'Invalid color format'),
-  accent: z.string().regex(/^#[0-9A-Fa-f]{6}$|^#[0-9A-Fa-f]{3}$|^rgb\(.*\)$|^rgba\(.*\)$|^oklch\(.*\)$/, 'Invalid color format'),
+  // Core colors (required)
+  primary: colorValidation,
+  secondary: colorValidation,
+  background: colorValidation,
+  text: colorValidation,
+  accent: colorValidation,
+  
+  // Core foreground colors
+  primaryForeground: optionalColorValidation,
+  secondaryForeground: optionalColorValidation,
+  accentForeground: optionalColorValidation,
+  
+  // UI colors
+  card: optionalColorValidation,
+  cardForeground: optionalColorValidation,
+  popover: optionalColorValidation,
+  popoverForeground: optionalColorValidation,
+  muted: optionalColorValidation,
+  mutedForeground: optionalColorValidation,
+  border: optionalColorValidation,
+  input: optionalColorValidation,
+  ring: optionalColorValidation,
+  
+  // Semantic colors
+  destructive: optionalColorValidation,
+  destructiveForeground: optionalColorValidation,
+  success: optionalColorValidation,
+  successForeground: optionalColorValidation,
+  warning: optionalColorValidation,
+  warningForeground: optionalColorValidation,
+  error: optionalColorValidation,
+  errorForeground: optionalColorValidation,
+  info: optionalColorValidation,
+  infoForeground: optionalColorValidation,
+  
+  // Chart colors
+  chart1: optionalColorValidation,
+  chart2: optionalColorValidation,
+  chart3: optionalColorValidation,
+  chart4: optionalColorValidation,
+  chart5: optionalColorValidation,
+  
+  // Sidebar colors
+  sidebar: optionalColorValidation,
+  sidebarForeground: optionalColorValidation,
+  sidebarPrimary: optionalColorValidation,
+  sidebarPrimaryForeground: optionalColorValidation,
+  sidebarAccent: optionalColorValidation,
+  sidebarAccentForeground: optionalColorValidation,
+  sidebarBorder: optionalColorValidation,
+  sidebarRing: optionalColorValidation,
 });
 
 export const createShopSchema = z.object({

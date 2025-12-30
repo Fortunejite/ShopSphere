@@ -188,19 +188,85 @@ export default function AdminSettingsPage() {
 
   const resetThemeToDefaults = () => {
     const defaultLight: colorTheme = {
+      // Core colors
       primary: '#171717',
       secondary: '#f5f5f5',
       background: '#ffffff',
       text: '#171717',
-      accent: '#f5f5f5'
+      accent: '#f5f5f5',
+      
+      // Clear all optional colors to use defaults
+      primaryForeground: undefined,
+      secondaryForeground: undefined,
+      accentForeground: undefined,
+      card: undefined,
+      cardForeground: undefined,
+      popover: undefined,
+      popoverForeground: undefined,
+      muted: undefined,
+      mutedForeground: undefined,
+      border: undefined,
+      input: undefined,
+      ring: undefined,
+      destructive: undefined,
+      destructiveForeground: undefined,
+      success: undefined,
+      successForeground: undefined,
+      warning: undefined,
+      warningForeground: undefined,
+      error: undefined,
+      errorForeground: undefined,
+      info: undefined,
+      infoForeground: undefined,
+      sidebar: undefined,
+      sidebarForeground: undefined,
+      sidebarPrimary: undefined,
+      sidebarPrimaryForeground: undefined,
+      sidebarAccent: undefined,
+      sidebarAccentForeground: undefined,
+      sidebarBorder: undefined,
+      sidebarRing: undefined,
     };
     
     const defaultDark: colorTheme = {
+      // Core colors
       primary: '#f5f5f5',
       secondary: '#404040',
       background: '#171717',
       text: '#f5f5f5',
-      accent: '#404040'
+      accent: '#404040',
+      
+      // Clear all optional colors to use defaults
+      primaryForeground: undefined,
+      secondaryForeground: undefined,
+      accentForeground: undefined,
+      card: undefined,
+      cardForeground: undefined,
+      popover: undefined,
+      popoverForeground: undefined,
+      muted: undefined,
+      mutedForeground: undefined,
+      border: undefined,
+      input: undefined,
+      ring: undefined,
+      destructive: undefined,
+      destructiveForeground: undefined,
+      success: undefined,
+      successForeground: undefined,
+      warning: undefined,
+      warningForeground: undefined,
+      error: undefined,
+      errorForeground: undefined,
+      info: undefined,
+      infoForeground: undefined,
+      sidebar: undefined,
+      sidebarForeground: undefined,
+      sidebarPrimary: undefined,
+      sidebarPrimaryForeground: undefined,
+      sidebarAccent: undefined,
+      sidebarAccentForeground: undefined,
+      sidebarBorder: undefined,
+      sidebarRing: undefined,
     };
     
     setLightTheme(defaultLight);
@@ -435,7 +501,7 @@ export default function AdminSettingsPage() {
             </Card>
 
             {/* Appearance */}
-            <Card>
+            <Card className="lg:col-span-2">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Palette className="w-5 h-5" />
@@ -620,7 +686,7 @@ export default function AdminSettingsPage() {
               : 'bg-error/10 border-l-4 border-error'
           }`}>
             <div className="flex items-start">
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 {toast.type === 'success' ? (
                   <CheckCircle className="h-5 w-5 text-success" />
                 ) : (
@@ -639,7 +705,7 @@ export default function AdminSettingsPage() {
                   {toast.message}
                 </p>
               </div>
-              <div className="flex-shrink-0 ml-4">
+              <div className="shrink-0 ml-4">
                 <button
                   onClick={() => setToast(prev => prev ? { ...prev, show: false } : null)}
                   className={`rounded-md inline-flex ${
