@@ -243,8 +243,15 @@ const ProductCard = ({
   }
 
   return (
-    <Card className="group hover:shadow-lg transition-all duration-200 overflow-hidden">
+    <Card className="group hover:shadow-lg transition-all duration-200 overflow-hidden p-0">
       <div className="relative aspect-square overflow-hidden">
+        {/* Mobile: Clickable overlay for entire image */}
+        <Link 
+          href={`/products/${product.slug}`}
+          className="absolute inset-0 z-10 md:hidden"
+          aria-label={`View ${product.name}`}
+        />
+        
         <Image
           src={product.image}
           alt={product.name}
@@ -252,26 +259,26 @@ const ProductCard = ({
           className="object-cover group-hover:scale-105 transition-transform duration-200"
         />
         {product.discount > 0 && (
-          <Badge className="absolute top-2 left-2 bg-error text-error-foreground">
+          <Badge className="absolute top-2 left-2 bg-error text-error-foreground z-20">
             -{product.discount}%
           </Badge>
         )}
         {product.is_featured && (
-          <Badge className="absolute top-2 right-2 bg-warning text-warning-foreground">
+          <Badge className="absolute top-2 right-2 bg-warning text-warning-foreground z-20">
             <Star className="w-3 h-3 mr-1" />
             Featured
           </Badge>
         )}
 
-        {/* Hover overlay */}
-        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
+        {/* Desktop: Hover overlay with transparency */}
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-300 items-center justify-center opacity-0 group-hover:opacity-100 hidden md:flex backdrop-blur-sm">
           <div className="flex gap-2">
-            <Button variant="secondary" size="sm" asChild>
+            <Button variant="secondary" size="sm" asChild className="bg-white/90 hover:bg-white text-foreground shadow-lg">
               <Link href={`/products/${product.slug}`}>
                 <Eye className="w-4 h-4" />
               </Link>
             </Button>
-            <Button variant="secondary" size="sm">
+            <Button variant="secondary" size="sm" className="bg-white/90 hover:bg-white text-foreground shadow-lg">
               <Heart className="w-4 h-4" />
             </Button>
           </div>
@@ -280,9 +287,12 @@ const ProductCard = ({
 
       <CardContent className="p-4">
         <div className="space-y-2">
-          <h3 className="font-semibold text-foreground line-clamp-2 min-h-10">
-            {product.name}
-          </h3>
+          {/* Mobile: Clickable product name as additional navigation */}
+          <Link href={`/products/${product.slug}`} className="md:pointer-events-none">
+            <h3 className="font-semibold text-foreground line-clamp-2 min-h-10 hover:text-primary transition-colors md:hover:text-foreground cursor-pointer md:cursor-default">
+              {product.name}
+            </h3>
+          </Link>
 
           {/* TODO: Add rating system */}
           {/* {product.rating && (
