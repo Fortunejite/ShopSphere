@@ -264,7 +264,7 @@ const ProductCard = ({
           </Badge>
         )}
         {product.is_featured && (
-          <Badge className="absolute top-2 right-2 bg-warning text-warning-foreground z-20">
+          <Badge className="absolute top-2 right-2 bg-secondary text-secondary-foreground z-20">
             <Star className="w-3 h-3 mr-1" />
             Featured
           </Badge>
@@ -273,12 +273,12 @@ const ProductCard = ({
         {/* Desktop: Hover overlay with transparency */}
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-300 items-center justify-center opacity-0 group-hover:opacity-100 hidden md:flex backdrop-blur-sm">
           <div className="flex gap-2">
-            <Button variant="secondary" size="sm" asChild className="bg-white/90 hover:bg-white text-foreground shadow-lg">
+            <Button variant="secondary" size="sm" asChild className="bg-secondary/90 hover:bg-secondary text-secondary-foreground shadow-lg">
               <Link href={`/products/${product.slug}`}>
                 <Eye className="w-4 h-4" />
               </Link>
             </Button>
-            <Button variant="secondary" size="sm" className="bg-white/90 hover:bg-white text-foreground shadow-lg">
+            <Button variant="secondary" size="sm" className="bg-secondary/90 hover:bg-secondary text-secondary-foreground shadow-lg">
               <Heart className="w-4 h-4" />
             </Button>
           </div>

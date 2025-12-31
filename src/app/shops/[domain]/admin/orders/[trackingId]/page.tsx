@@ -167,7 +167,7 @@ export default function AdminOrderDetailsPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-white border-b">
+      <div className="border-b">
         <div className="max-w-7xl mx-auto px-2 sm:px-6 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">

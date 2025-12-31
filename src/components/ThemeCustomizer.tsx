@@ -256,7 +256,7 @@ const ThemeCustomizer = ({ lightTheme, darkTheme, hasThemeChanges, resetThemeToD
                     property="input"
                     value={lightTheme.input}
                     placeholder="#e5e5e5"
-                    description="Input field background"
+                    description="Input field border color"
                     optional
                   />
                   <ColorInput
@@ -1084,10 +1084,9 @@ const ThemeCustomizer = ({ lightTheme, darkTheme, hasThemeChanges, resetThemeToD
                   <label className="text-xs font-medium">Email Address</label>
                   <div 
                     className="px-3 py-2 rounded border text-sm"
-                    style={{ 
-                      backgroundColor: currentTheme.input || currentTheme.background,
+                    style={{
                       color: currentTheme.text,
-                      borderColor: currentTheme.border || currentTheme.secondary
+                      borderColor: currentTheme.input || currentTheme.border || currentTheme.secondary
                     }}
                   >
                     user@example.com
@@ -1099,8 +1098,7 @@ const ThemeCustomizer = ({ lightTheme, darkTheme, hasThemeChanges, resetThemeToD
                   <label className="text-xs font-medium">Focused Input</label>
                   <div 
                     className="px-3 py-2 rounded border text-sm"
-                    style={{ 
-                      backgroundColor: currentTheme.input || currentTheme.background,
+                    style={{
                       color: currentTheme.text,
                       borderColor: currentTheme.ring || currentTheme.primary,
                       boxShadow: `0 0 0 2px ${currentTheme.ring || currentTheme.primary}20`
@@ -1115,10 +1113,9 @@ const ThemeCustomizer = ({ lightTheme, darkTheme, hasThemeChanges, resetThemeToD
                   <label className="text-xs font-medium">Category</label>
                   <div 
                     className="px-3 py-2 rounded border text-sm flex items-center justify-between cursor-pointer"
-                    style={{ 
-                      backgroundColor: currentTheme.input || currentTheme.background,
+                    style={{
                       color: currentTheme.text,
-                      borderColor: currentTheme.border || currentTheme.secondary
+                      borderColor: currentTheme.input || currentTheme.border || currentTheme.secondary
                     }}
                   >
                     <span>Electronics</span>

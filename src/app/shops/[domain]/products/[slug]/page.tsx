@@ -452,7 +452,7 @@ export default function ProductDetailsPage() {
                 </Badge>
               )}
               {product.is_featured && (
-                <Badge className="absolute top-4 right-4 bg-warning text-warning-foreground">
+                <Badge className="absolute top-4 right-4 bg-secondary text-secondary-foreground">
                   <Star className="w-3 h-3 mr-1" />
                   Featured
                 </Badge>

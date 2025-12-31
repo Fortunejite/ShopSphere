@@ -9,14 +9,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
 import {
   User,
   Mail,
   Phone,
   MapPin,
   Calendar,
-  Shield,
   Edit,
   Save,
   X,
@@ -170,24 +168,6 @@ export default function ProfilePage() {
     }
   };
 
-  const getRoleColor = (role: string) => {
-    switch (role) {
-      case 'admin': return 'bg-error text-error-foreground';
-      case 'user': return 'bg-info text-info-foreground';
-      case 'guest': return 'bg-muted text-muted-foreground';
-      default: return 'bg-muted text-muted-foreground';
-    }
-  };
-
-  const getRoleIcon = (role: string) => {
-    switch (role) {
-      case 'admin': return <Shield className="w-3 h-3" />;
-      case 'user': return <User className="w-3 h-3" />;
-      case 'guest': return <User className="w-3 h-3" />;
-      default: return <User className="w-3 h-3" />;
-    }
-  };
-
   if (isLoading || authStatus === 'loading') {
     return <PageLoading text="Loading profile..." variant="shop" />;
   }
@@ -287,12 +267,6 @@ export default function ProfilePage() {
             </div>
             <CardTitle className="text-xl">{profile.username || 'User'}</CardTitle>
             <CardDescription>{profile.email}</CardDescription>
-            <div className="flex justify-center mt-2">
-              <Badge className={`${getRoleColor(profile.role)} flex items-center gap-1`}>
-                {getRoleIcon(profile.role)}
-                {profile.role.charAt(0).toUpperCase() + profile.role.slice(1)}
-              </Badge>
-            </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-3 text-sm">
@@ -411,21 +385,6 @@ export default function ProfilePage() {
               {validationErrors.city && (
                 <p className="text-xs text-error">{validationErrors.city}</p>
               )}
-            </div>
-
-            {/* Role (read-only) */}
-            <div className="space-y-2">
-              <Label className="flex items-center">
-                <Shield className="w-4 h-4 mr-2" />
-                Account Role
-              </Label>
-              <div className="flex items-center">
-                <Badge className={`${getRoleColor(profile.role)} flex items-center gap-1`}>
-                  {getRoleIcon(profile.role)}
-                  {profile.role.charAt(0).toUpperCase() + profile.role.slice(1)}
-                </Badge>
-              </div>
-              <p className="text-xs text-muted-foreground">Account role cannot be changed</p>
             </div>
           </CardContent>
         </Card>

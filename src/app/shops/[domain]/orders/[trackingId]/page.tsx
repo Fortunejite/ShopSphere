@@ -72,12 +72,12 @@ export default function OrderDetailsPage() {
 
   const getStatusColor = (status: string) => {
     const colors = {
-      pending: 'bg-warning/10 text-warning-foreground',
-      confirmed: 'bg-info/10 text-info-foreground',
+      pending: 'bg-warning text-warning-foreground',
+      confirmed: 'bg-info text-info-foreground',
       processing: 'bg-secondary text-secondary-foreground',
-      shipped: 'bg-primary/10 text-primary',
-      delivered: 'bg-success/10 text-success-foreground',
-      cancelled: 'bg-error/10 text-error-foreground',
+      shipped: 'bg-info text-info-foreground',
+      delivered: 'bg-success text-success-foreground',
+      cancelled: 'bg-error text-error-foreground',
       refunded: 'bg-muted text-muted-foreground'
     };
     return colors[status as keyof typeof colors] || 'bg-muted text-muted-foreground';
@@ -99,9 +99,9 @@ export default function OrderDetailsPage() {
 
   const getPaymentStatusColor = (status: string) => {
     const colors = {
-      pending: 'bg-warning/10 text-warning-foreground',
-      paid: 'bg-success/10 text-success-foreground',
-      failed: 'bg-error/10 text-error-foreground',
+      pending: 'bg-warning text-warning-foreground',
+      paid: 'bg-success text-success-foreground',
+      failed: 'bg-error text-error-foreground',
       refunded: 'bg-muted text-muted-foreground'
     };
     return colors[status as keyof typeof colors] || 'bg-muted text-muted-foreground';

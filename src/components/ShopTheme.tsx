@@ -120,7 +120,7 @@ const generateThemeVariables = (theme: colorTheme, isDark: boolean = false) => {
   const muted = theme.muted ? convertColorToOklch(theme.muted) : secondary;
   const mutedForeground = theme.mutedForeground ? convertColorToOklch(theme.mutedForeground) : text;
   const border = theme.border ? convertColorToOklch(theme.border) : secondary;
-  const input = theme.input ? convertColorToOklch(theme.input) : secondary;
+  const input = theme.input ? convertColorToOklch(theme.input) : border;
   const ring = theme.ring ? convertColorToOklch(theme.ring) : primary;
   
   // Semantic colors with fallbacks

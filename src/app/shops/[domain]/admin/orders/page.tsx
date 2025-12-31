@@ -113,11 +113,11 @@ export default function AdminOrdersPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-white border-b">
+      <div className="border-b">
         <div className="max-w-7xl mx-auto px-2 sm:px-6 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Order Management</h1>
+              <h1 className="text-2xl font-bold text-muted-foreground">Order Management</h1>
               <p className="text-muted-foreground mt-1">
                 Manage and track all shop orders
               </p>
