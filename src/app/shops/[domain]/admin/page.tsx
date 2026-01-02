@@ -170,7 +170,7 @@ export default function AdminDashboardPage() {
                 Welcome back! Here&apos;s what&apos;s happening with {shop?.name || 'your shop'}.
               </p>
             </div>
-            <div className="flex flex-col xs:flex-row items-stretch xs:items-center gap-2 xs:gap-3 w-full xs:w-auto">
+            <div className="flex flex-col xs:flex-row items-stretch xs:items-center gap-2 xs:gap-3 w-full lg:w-max">
               <Button asChild variant="outline" size="sm" className="w-full xs:w-auto">
                 <Link href="/admin/products/new">
                   <Plus className="w-4 h-4 mr-2 flex-shrink-0" />
