@@ -74,7 +74,7 @@ export default function LoginPage() {
     }
   };
 
-  if (status === 'authenticated') {
+  if (status === 'authenticated' && !isMergingCart) {
     router.push(next);
     return null;
   }

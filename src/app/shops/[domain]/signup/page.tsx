@@ -89,7 +89,7 @@ export default function SignupPage() {
     }
   };
 
-  if (status === 'authenticated') {
+  if (status === 'authenticated' && !isMergingCart) {
     router.push(next);
     return null;
   }
