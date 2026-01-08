@@ -354,16 +354,16 @@ export default function AdminDashboardPage() {
             <div className="col-span-full grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fadeIn">
               {/* Confirmed Orders Alert */}
               {stats && stats.confirmedOrders > 0 && (
-                <Card className="border-yellow-200 bg-yellow-50 transition-all duration-300 hover:shadow-lg">
+                <Card className="border-warning bg-warning/50 transition-all duration-300 hover:shadow-lg">
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center">
-                        <Clock className="w-5 h-5 text-yellow-600 mr-3" />
+                        <Clock className="w-5 h-5 text-warning-foreground mr-3" />
                         <div>
-                          <p className="font-medium text-yellow-800">
+                          <p className="font-medium text-warning-foreground">
                             {stats.confirmedOrders} Confirmed Orders
                           </p>
-                          <p className="text-sm text-yellow-700 mt-1">
+                          <p className="text-sm text-warning-foreground mt-1">
                             Confirmed orders waiting to be processed
                           </p>
                         </div>
@@ -380,16 +380,16 @@ export default function AdminDashboardPage() {
 
               {/* Low Stock Alert */}
               {stats && stats.lowStockProducts > 0 && (
-                <Card className="border-red-200 bg-red-50 transition-all duration-300 hover:shadow-lg">
+                <Card className="border-error/20 bg-error/50 transition-all duration-300 hover:shadow-lg">
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center">
-                        <AlertCircle className="w-5 h-5 text-red-600 mr-3" />
+                        <AlertCircle className="w-5 h-5 text-error-foreground mr-3" />
                         <div>
-                          <p className="font-medium text-red-800">
+                          <p className="font-medium text-error-foreground">
                             {stats.lowStockProducts} Low Stock Items
                           </p>
-                          <p className="text-sm text-red-700 mt-1">
+                          <p className="text-sm text-error-foreground mt-1">
                             Products running low on inventory
                           </p>
                         </div>
@@ -485,7 +485,7 @@ export default function AdminDashboardPage() {
                   ) : (
                     <div className="space-y-4">
                       {recentOrders.map((order) => (
-                        <div key={order.id} className="flex items-center justify-between p-3 border rounded-lg transition-all duration-200 hover:bg-gray-50 hover:scale-[1.01]">
+                        <div key={order.id} className="flex items-center justify-between p-3 border rounded-lg transition-all duration-200 hover:bg-accent hover:text-accent-foreground hover:scale-[1.01]">
                           <div className="flex-1">
                             <div className="flex items-center justify-between mb-1">
                               <p className="font-medium text-sm">#{order.tracking_id}</p>
