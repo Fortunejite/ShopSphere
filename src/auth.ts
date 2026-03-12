@@ -3,7 +3,7 @@ import NextAuth from 'next-auth';
 import type { NextAuthConfig } from 'next-auth';
 import { compare } from 'bcrypt';
 import { loginUserSchema } from './lib/schema/auth';
-import { User } from './models/User';
+import { prisma } from './lib/prisma';
 
 const config: NextAuthConfig = {
   pages: {
@@ -18,7 +18,9 @@ const config: NextAuthConfig = {
         // TODO: wrap with try catch block and use a universal error handler
         const { email, password } = loginUserSchema.parse(credentials);
 
-        const user = await User.findByEmail(email);
+        const user = await prisma.user.findUnique({
+          where: { email },
+        });
         if (!user) {
           return null;
         }
