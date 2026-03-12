@@ -3,7 +3,7 @@ import { createShopSchema } from '@/lib/schema/shop';
 import { requireAuth } from '@/lib/apiAuth';
 import { Shop, ShopAttributes } from '@/models/Shop';
 import { NextResponse } from 'next/server';
-import { createAccount } from '@/services/stripe/account';
+import { createStripeAccount } from '@/services/stripe/account';
 
 export const GET = errorHandler(async () => {
   const user = await requireAuth();
@@ -18,7 +18,7 @@ export const POST = errorHandler(async (request) => {
   const body = await request.json();
   const shopData = createShopSchema.parse(body) as ShopAttributes;
 
-  const account = await createAccount(shopData, user.email);
+  const account = await createStripeAccount(shopData);
   if (!account) {
     throw new Error('Failed to create Stripe account');
   }

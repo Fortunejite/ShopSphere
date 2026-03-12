@@ -1,10 +1,10 @@
 import { ShopAttributes } from "@/models/Shop";
 import { stripe } from ".";
 
-export const createAccount = async (shopData: ShopAttributes, email: string) => {
+export const createStripeAccount = async (shopData: ShopAttributes) => {
   const account = await stripe.v2.core.accounts.create({
     display_name: shopData.name,
-    contact_email: email,
+    contact_email: shopData.email,
     dashboard: "full",
     defaults: {
       responsibilities: {

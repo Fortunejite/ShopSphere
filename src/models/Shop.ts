@@ -76,6 +76,8 @@ export interface ShopAttributes {
   banner?: string;
   stripe_account_id: string;
   stripe_account_connected?: boolean;
+  paystack_account_id?: string;
+  paystack_account_connected?: boolean;
   light_theme?: colorTheme;
   dark_theme?: colorTheme;
   created_at?: Date;
@@ -107,9 +109,9 @@ export class Shop {
       INSERT INTO ${Shop.tableName} (
         owner_id, name, domain, category_id, tagline, description, currency, 
         email, phone, address, city, state, postal_code, country, free_shipping_threshold,
-        logo, banner, stripe_account_id, light_theme, dark_theme, created_at, updated_at
+        logo, banner, stripe_account_id, paystack_account_id, light_theme, dark_theme, created_at, updated_at
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
       RETURNING *
     `;
 
@@ -132,6 +134,7 @@ export class Shop {
       shop.logo,
       shop.banner,
       shop.stripe_account_id,
+      shop.paystack_account_id,
       shop.light_theme ? JSON.stringify(shop.light_theme) : null,
       shop.dark_theme ? JSON.stringify(shop.dark_theme) : null,
       shop.created_at,

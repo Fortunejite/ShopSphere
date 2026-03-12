@@ -1,10 +1,10 @@
 import { CartItemWithProduct } from "@/models/Cart";
 import Stripe from "stripe";
-import { toStripeAmount } from "./utils";
 import { PLATFORM_FEE_PERCENTAGE } from "./constants";
 import { UserAttributes } from "@/models/User";
 import { generateURL } from "@/lib/domain";
 import { stripe } from ".";
+import { amountInSmallestCurrencyUnit } from "@/lib/currency";
 
 interface CheckoutItemsParams {
   items: CartItemWithProduct[];
@@ -24,7 +24,7 @@ export const checkoutItems = async ({ items, domain, currency, user, trackingId,
           name: item.product.name,
           images: [item.product.image],
         },
-        unit_amount: toStripeAmount(price, currency),
+        unit_amount: amountInSmallestCurrencyUnit(price, currency),
       },
       quantity: item.quantity,
     };
@@ -51,7 +51,7 @@ export const checkoutItems = async ({ items, domain, currency, user, trackingId,
       domain,
     },
     payment_intent_data: {
-      application_fee_amount: toStripeAmount(platformFee, currency),
+      application_fee_amount: amountInSmallestCurrencyUnit(platformFee, currency),
     },
   } as Stripe.Checkout.SessionCreateParams;
 
