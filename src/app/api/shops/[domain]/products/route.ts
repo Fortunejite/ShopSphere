@@ -1,11 +1,23 @@
 import { NextResponse } from 'next/server';
-import { Product, ProductAttributes, ProductWithDetails } from '@/models/Product';
-import { Shop } from '@/models/Shop';
-import { database } from '@/lib/db';
 import { errorHandler } from '@/lib/errorHandler';
-import { createProductSchema, productQuerySchema, CreateProductInput } from '@/lib/schema/product';
+import {
+  createProductSchema,
+  productQuerySchema,
+  CreateProductInput,
+} from '@/lib/schema/product';
 import { requireAuth } from '@/lib/apiAuth';
 import slugify from 'slugify';
+import { getShopByDomain } from '@/lib/shop';
+import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
+
+// Derive the Prisma result type with included relations
+type ProductWithDetails = Prisma.ProductGetPayload<{
+  include: {
+    shop: { select: { name: true; domain: true } };
+    categories: { select: { name: true } };
+  };
+}>;
 
 interface ProductsResponse {
   products: ProductWithDetails[];
@@ -30,27 +42,19 @@ export const GET = errorHandler(async (request, { params }) => {
     );
   }
 
-  // Get shop by domain
-  const shop = await Shop.findByDomain(domain);
-  if (!shop) {
-    return NextResponse.json({ message: 'Shop not found' }, { status: 404 });
-  }
+  const shop = await getShopByDomain(domain);
 
-  const queryParams = Object.fromEntries(searchParams.entries());
-  const validationResult = productQuerySchema.safeParse(queryParams);
-  
+  const queryParamsObj = Object.fromEntries(searchParams.entries());
+  const validationResult = productQuerySchema.safeParse(queryParamsObj);
+
   if (!validationResult.success) {
-    const errors = validationResult.error.errors.map(err => ({
+    const errors = validationResult.error.errors.map((err) => ({
       field: err.path.join('.'),
       message: err.message,
     }));
-    
     return NextResponse.json(
-      { 
-        message: 'Invalid query parameters',
-        errors 
-      },
-      { status: 400 }
+      { message: 'Invalid query parameters', errors },
+      { status: 400 },
     );
   }
 
@@ -69,24 +73,26 @@ export const GET = errorHandler(async (request, { params }) => {
     sort,
   } = validationResult.data;
 
-  // Handle legacy sort parameter from frontend
+  // Handle legacy sort parameter
   let sortBy = originalSortBy;
   let sortOrder = originalSortOrder;
   let isFeaturedSort = false;
-  
+
   if (sort) {
-    const sortMapping: Record<string, { field: string; order: 'asc' | 'desc'; featured?: boolean }> = {
-      'featured': { field: 'is_featured', order: 'desc', featured: true },
-      'price_low': { field: 'price', order: 'asc' },
-      'price_high': { field: 'price', order: 'desc' },
-      'newest': { field: 'created_at', order: 'desc' },
-      'popular': { field: 'sales_count', order: 'desc' },
-      'rating': { field: 'created_at', order: 'desc' },
+    const sortMapping: Record<
+      string,
+      { field: string; order: 'asc' | 'desc'; featured?: boolean }
+    > = {
+      featured: { field: 'is_featured', order: 'desc', featured: true },
+      price_low: { field: 'price', order: 'asc' },
+      price_high: { field: 'price', order: 'desc' },
+      newest: { field: 'created_at', order: 'desc' },
+      popular: { field: 'sales_count', order: 'desc' },
+      rating: { field: 'created_at', order: 'desc' },
     };
-    
     const mapping = sortMapping[sort];
     if (mapping) {
-      sortBy = mapping.field as 'name' | 'price' | 'created_at' | 'updated_at' | 'sales_count' | 'stock_quantity' | 'is_featured';
+      sortBy = mapping.field as typeof sortBy;
       sortOrder = mapping.order;
       isFeaturedSort = mapping.featured || false;
     }
@@ -95,156 +101,107 @@ export const GET = errorHandler(async (request, { params }) => {
   const offset = (page - 1) * limit;
 
   // Parse categories from comma-separated string
-  const categories = category
+  const categoryList = category
     ? category
         .split(',')
         .map((c) => c.trim())
         .filter(Boolean)
     : [];
 
-  let products: ProductWithDetails[] = [];
-  let totalCount = 0;
+  // Build Prisma where clause
+  const where: Prisma.ProductWhereInput = {
+    shop_id: shop.id,
+  };
 
-  if (search) {
-  // Use search functionality
-  products = await Product.search(search, limit, offset, shop.id);
-  // Get count for search results (simplified - you might want to create a separate count method for search)
-  totalCount = await Product.count(shop.id);
-} else {
-  // Build complex query for filtering
-  const whereConditions: string[] = ['p.shop_id = $1'];
-  const queryParams: (string | number | boolean | string[] | number[])[] = [
-    shop.id,
-  ];
-  let paramCount = 1;
-
-  // Status filter
   if (status && status !== 'all') {
-    paramCount++;
-    whereConditions.push(`p.status = $${paramCount}`);
-    queryParams.push(status);
+    where.status = status as Prisma.EnumProductStatusFilter;
   }
 
-  // Featured filter
   if (featured !== null && featured !== undefined) {
-    paramCount++;
-    whereConditions.push(`p.is_featured = $${paramCount}`);
-    queryParams.push(featured === 'true');
+    where.is_featured = featured === 'true';
   }
 
-  // In stock filter
   if (inStock === 'true') {
-    whereConditions.push('p.stock_quantity > 0');
+    where.stock_quantity = { gt: 0 };
   } else if (inStock === 'false') {
-    whereConditions.push('p.stock_quantity = 0');
+    where.stock_quantity = { equals: 0 };
   }
 
-  // Price range filters
   if (minPrice && !isNaN(Number(minPrice))) {
-    paramCount++;
-    whereConditions.push(`p.price >= $${paramCount}`);
-    queryParams.push(Number(minPrice));
+    where.price = { ...(where.price as object), gte: Number(minPrice) };
   }
 
   if (maxPrice && !isNaN(Number(maxPrice))) {
-    paramCount++;
-    whereConditions.push(`p.price <= $${paramCount}`);
-    queryParams.push(Number(maxPrice));
+    where.price = { ...(where.price as object), lte: Number(maxPrice) };
   }
 
-  // Category filter using array operations
-  if (categories.length > 0) {
-    // Check if categories are numeric IDs or names/slugs
-    const isNumericIds = categories.every(cat => !isNaN(Number(cat)));
-    
+  // Category filter — resolve names/slugs to IDs if needed
+  if (categoryList.length > 0) {
+    const isNumericIds = categoryList.every((cat) => !isNaN(Number(cat)));
+
     if (isNumericIds) {
-      // Categories are IDs, use them directly
-      const categoryIds = categories.map(cat => Number(cat));
-      paramCount++;
-      whereConditions.push(`p.category_ids && $${paramCount}`);
-      queryParams.push(categoryIds);
+      const categoryIds = categoryList.map((cat) => Number(cat));
+      // category_ids array must overlap (hasSome) the requested IDs
+      where.category_ids = { hasSome: categoryIds };
     } else {
-      // Categories are names/slugs, get IDs from names/slugs
-      const categoryQuery = `
-        SELECT ARRAY_AGG(id) as category_ids 
-        FROM categories 
-        WHERE name = ANY($1::text[]) OR slug = ANY($1::text[])
-      `;
+      // Resolve names/slugs → IDs via Prisma
+      const matchedCategories = await prisma.category.findMany({
+        where: {
+          OR: [{ name: { in: categoryList } }, { slug: { in: categoryList } }],
+        },
+        select: { id: true },
+      });
 
-      const categoryResult = await database.query(categoryQuery, [categories]);
-      const categoryIds = categoryResult.rows[0]?.category_ids || [];
-
-      if (categoryIds.length > 0) {
-        paramCount++;
-        whereConditions.push(`p.category_ids && $${paramCount}`);
-        queryParams.push(categoryIds);
+      const resolvedIds = matchedCategories.map((c) => c.id);
+      if (resolvedIds.length > 0) {
+        where.category_ids = { hasSome: resolvedIds };
       }
     }
   }
 
-    // Sort parameters are already validated by schema
-    const sortField = sortBy;
-    const order = sortOrder;
-    
-    // For featured sort, we want featured products first, then sort by creation date
-    const orderByClause = isFeaturedSort 
-      ? `p.is_featured DESC, p.created_at DESC`
-      : `p.${sortField} ${order}`;
+  // Search filter
+  if (search) {
+    where.OR = [
+      { name: { contains: search, mode: 'insensitive' } },
+      { description: { contains: search, mode: 'insensitive' } },
+    ];
+  }
 
-  // Build the main query
-  const query = `
-    SELECT 
-      p.*,
-      s.name AS shop_name,
-      s.domain AS shop_domain,
-      COALESCE(
-        ARRAY_AGG(c.name) FILTER (WHERE c.name IS NOT NULL), 
-        '{}'::text[]
-      ) AS category_names
-    FROM products p
-    JOIN shops s ON p.shop_id = s.id
-    LEFT JOIN categories c ON c.id = ANY(p.category_ids)
-    WHERE ${whereConditions.join(' AND ')}
-    GROUP BY p.id, s.name, s.domain
-    ORDER BY ${orderByClause}
-    LIMIT $${paramCount + 1} OFFSET $${paramCount + 2}
-  `;
+  // Build orderBy — featured sort uses multi-field ordering
+  const orderBy: Prisma.ProductOrderByWithRelationInput[] = isFeaturedSort
+    ? [{ is_featured: 'desc' }, { created_at: 'desc' }]
+    : [{ [sortBy ?? 'created_at']: sortOrder ?? 'desc' }];
 
-  queryParams.push(limit, offset);
+  const include = {
+    shop: { select: { name: true, domain: true } },
+    categories: { select: { name: true } },
+  } satisfies Prisma.ProductInclude;
 
-  const result = await database.query(query, queryParams);
-  products = result.rows;
+  // Run count + findMany in parallel
+  const [totalCount, products] = await prisma.$transaction([
+    prisma.product.count({ where }),
+    prisma.product.findMany({
+      where,
+      include,
+      orderBy,
+      take: limit,
+      skip: offset,
+    }),
+  ]);
 
-  // Get total count for pagination
-  const countQuery = `
-    SELECT COUNT(DISTINCT p.id) as total
-    FROM products p
-    WHERE ${whereConditions.join(' AND ')}
-  `;
+  const totalPages = Math.ceil(totalCount / limit);
 
-  const countResult = await database.query(
-    countQuery,
-    queryParams.slice(0, -2),
-  ); // Remove limit and offset
-  totalCount = parseInt(countResult.rows[0].total);
-}
-
-// Calculate pagination info
-const totalPages = Math.ceil(totalCount / limit);
-const hasNext = page < totalPages;
-const hasPrev = page > 1;
-
-const response: ProductsResponse = {
-  products,
-  pagination: {
-    page,
-    limit,
-    total: totalCount,
-    totalPages,
-    hasNext,
-    hasPrev,
-  },
-};
+  const response: ProductsResponse = {
+    products,
+    pagination: {
+      page,
+      limit,
+      total: totalCount,
+      totalPages,
+      hasNext: page < totalPages,
+      hasPrev: page > 1,
+    },
+  };
 
   return NextResponse.json(response);
 });
@@ -261,11 +218,7 @@ export const POST = errorHandler(async (request, { params }) => {
 
   const user = await requireAuth();
 
-  // Get shop by domain
-  const shop = await Shop.findByDomain(domain);
-  if (!shop) {
-    return NextResponse.json({ message: 'Shop not found' }, { status: 404 });
-  }
+  const shop = await getShopByDomain(domain);
 
   if (shop.owner_id !== user.id) {
     return NextResponse.json(
@@ -275,33 +228,27 @@ export const POST = errorHandler(async (request, { params }) => {
   }
 
   const body = await request.json();
-  // Validate input using Zod schema
   const validationResult = createProductSchema.safeParse(body);
-  
+
   if (!validationResult.success) {
-    const errors = validationResult.error.errors.map(err => ({
+    const errors = validationResult.error.errors.map((err) => ({
       field: err.path.join('.'),
       message: err.message,
     }));
-    
     return NextResponse.json(
-      { 
-        message: 'Validation failed',
-        errors 
-      },
-      { status: 400 }
+      { message: 'Validation failed', errors },
+      { status: 400 },
     );
   }
 
   const validatedData: CreateProductInput = validationResult.data;
-  const slug = slugify(validatedData.name, { lower: true, strict: true })
+  const slug = slugify(validatedData.name, { lower: true, strict: true });
 
-  // Check if product with same slug already exists in this shop
-  const existingProduct = await Product.existsByShopAndSlug(
-    shop.id,
-    slug,
-  );
-  
+  // Check for duplicate slug in this shop
+  const existingProduct = await prisma.product.findUnique({
+    where: { shop_id_slug: { shop_id: shop.id, slug } },
+  });
+
   if (existingProduct) {
     return NextResponse.json(
       { message: 'Product with this slug already exists in this shop' },
@@ -309,56 +256,54 @@ export const POST = errorHandler(async (request, { params }) => {
     );
   }
 
-  // Validate category IDs exist if provided
+  // Validate that all provided category IDs exist
   if (validatedData.category_ids.length > 0) {
-    const categoryCheckQuery = `
-      SELECT COUNT(*) as count 
-      FROM categories 
-      WHERE id = ANY($1)
-    `;
-    
-    const categoryResult = await database.query(categoryCheckQuery, [validatedData.category_ids]);
-    const existingCategoriesCount = parseInt(categoryResult.rows[0].count);
-    
-    if (existingCategoriesCount !== validatedData.category_ids.length) {
+    const existingCategories = await prisma.category.count({
+      where: { id: { in: validatedData.category_ids } },
+    });
+
+    if (existingCategories !== validatedData.category_ids.length) {
       return NextResponse.json(
         { message: 'One or more category IDs are invalid' },
-        { status: 400 }
+        { status: 400 },
       );
     }
   }
 
-  // Prepare product data for database insertion
-  const newProductData = {
-    shop_id: shop.id,
-    category_ids: validatedData.category_ids,
-    name: validatedData.name,
-    slug,
-    description: validatedData.description,
-    price: validatedData.price,
-    discount: validatedData.discount,
-    variants: validatedData.variants,
-    image: validatedData.image,
-    thumbnails: validatedData.thumbnails,
-    is_featured: validatedData.is_featured,
-    weight: validatedData.weight,
-    length: validatedData.length,
-    width: validatedData.width,
-    height: validatedData.height,
-    stock_quantity: validatedData.stock_quantity,
-    status: 'active' as ProductAttributes['status'],
-    sales_count: 0,
-  };
-
-  // Create the product
-  const product = await Product.create(newProductData);
-
-  // Return created product with success status
-  return NextResponse.json(
-    {
-      message: 'Product created successfully',
-      product
+  // Create product — connect categories via relation AND store raw IDs array
+  const product = await prisma.product.create({
+    data: {
+      shop_id: shop.id,
+      category_ids: validatedData.category_ids,
+      name: validatedData.name,
+      slug,
+      description: validatedData.description,
+      price: validatedData.price,
+      discount: validatedData.discount ?? 0,
+      variants: validatedData.variants ?? [],
+      image: validatedData.image,
+      thumbnails: validatedData.thumbnails ?? [],
+      is_featured: validatedData.is_featured ?? false,
+      weight: validatedData.weight ?? 0,
+      length: validatedData.length ?? 0,
+      width: validatedData.width ?? 0,
+      height: validatedData.height ?? 0,
+      stock_quantity: validatedData.stock_quantity ?? 0,
+      status: 'active',
+      sales_count: 0,
+      // Connect the Category relation rows so the join table stays in sync
+      categories: {
+        connect: validatedData.category_ids.map((id) => ({ id })),
+      },
     },
-    { status: 201 }
+    include: {
+      shop: { select: { name: true, domain: true } },
+      categories: { select: { name: true } },
+    },
+  });
+
+  return NextResponse.json(
+    { message: 'Product created successfully', product },
+    { status: 201 },
   );
 });

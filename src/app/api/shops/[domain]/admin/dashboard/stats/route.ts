@@ -1,185 +1,127 @@
 import { NextResponse } from 'next/server';
-import { auth } from '@/auth';
-import { Database } from '@/lib/db';
-import { Product } from '@/models/Product';
+import { prisma } from '@/lib/prisma';
 import { errorHandler } from '@/lib/errorHandler';
+import { requireAuth } from '@/lib/apiAuth';
 import { getShopByDomain } from '@/lib/shop';
 
-export const GET = errorHandler(async (req, { params }) => {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
+export const GET = errorHandler(async (_, { params }) => {
   const { domain } = await params;
   if (!domain) {
-    return NextResponse.json(
-      { error: 'Shop domain is required' },
-      { status: 400 },
-    );
+    throw Object.assign(new Error('Shop domain is required'), { status: 400 });
   }
+
+  const user = await requireAuth();
   const shop = await getShopByDomain(domain);
 
-  if (!shop) {
-    return NextResponse.json({ error: 'Shop not found' }, { status: 404 });
+  if (shop.owner_id !== user.id) {
+    throw Object.assign(new Error('Access denied'), { status: 403 });
   }
 
-  // Check if user is shop owner
-  if (shop.owner_id !== session.user.id) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
-
-  // Get current date info for month calculations
   const now = new Date();
-  const currentMonth = now.getMonth() + 1;
-  const currentYear = now.getFullYear();
-  const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1;
-  const lastMonthYear = currentMonth === 1 ? currentYear - 1 : currentYear;
+  const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 1);
 
-  // Total revenue
-  const totalRevenueResult = await Database.query(
-    `
-      SELECT COALESCE(SUM(total_amount), 0) as total_revenue
-      FROM orders 
-      WHERE shop_id = $1 AND status NOT IN ('cancelled', 'refunded', 'pending')
-    `,
-    [shop.id],
-  );
+  // Statuses excluded from revenue totals
+  const excludeFromRevenue = ['cancelled', 'pending'] as ('cancelled' | 'pending')[];
 
-  // Monthly revenue (current month)
-  const monthlyRevenueResult = await Database.query(
-    `
-      SELECT COALESCE(SUM(total_amount), 0) as monthly_revenue
-      FROM orders 
-      WHERE shop_id = $1 
-        AND status NOT IN ('cancelled', 'refunded', 'pending')
-        AND EXTRACT(YEAR FROM created_at) = $2 
-        AND EXTRACT(MONTH FROM created_at) = $3
-    `,
-    [shop.id, currentYear, currentMonth],
-  );
+  const [
+    totalRevenueAgg,
+    currentMonthRevenueAgg,
+    lastMonthRevenueAgg,
+    totalOrders,
+    currentMonthOrders,
+    lastMonthOrders,
+    totalProducts,
+    activeProducts,
+    totalCustomers,
+    currentMonthCustomers,
+    confirmedOrders,
+    lowStockProducts,
+  ] = await prisma.$transaction([
+    // Total revenue (all time, excluding cancelled/pending)
+    prisma.order.aggregate({
+      where: { shop_id: shop.id, status: { notIn: excludeFromRevenue } },
+      _sum: { total_amount: true },
+    }),
+    // Current month revenue
+    prisma.order.aggregate({
+      where: {
+        shop_id: shop.id,
+        status: { notIn: excludeFromRevenue },
+        created_at: { gte: currentMonthStart },
+      },
+      _sum: { total_amount: true },
+    }),
+    // Last month revenue
+    prisma.order.aggregate({
+      where: {
+        shop_id: shop.id,
+        status: { notIn: excludeFromRevenue },
+        created_at: { gte: lastMonthStart, lt: lastMonthEnd },
+      },
+      _sum: { total_amount: true },
+    }),
+    // Total orders
+    prisma.order.count({ where: { shop_id: shop.id } }),
+    // Current month orders
+    prisma.order.count({
+      where: { shop_id: shop.id, created_at: { gte: currentMonthStart } },
+    }),
+    // Last month orders
+    prisma.order.count({
+      where: { shop_id: shop.id, created_at: { gte: lastMonthStart, lt: lastMonthEnd } },
+    }),
+    // Total products
+    prisma.product.count({ where: { shop_id: shop.id } }),
+    // Active products
+    prisma.product.count({ where: { shop_id: shop.id, status: 'active' } }),
+    // Total unique customers (distinct user_id)
+    prisma.order.groupBy({
+      by: ['user_id'],
+      where: { shop_id: shop.id },
+      orderBy: { user_id: 'asc' },
+    }),
+    // Current month unique customers
+    prisma.order.groupBy({
+      by: ['user_id'],
+      where: { shop_id: shop.id, created_at: { gte: currentMonthStart } },
+      orderBy: { user_id: 'asc' },
+    }),
+    // Processing orders
+    prisma.order.count({ where: { shop_id: shop.id, status: 'processing' } }),
+    // Low stock products (stock <= 10, active)
+    prisma.product.count({
+      where: { shop_id: shop.id, status: 'active', stock_quantity: { lte: 10 } },
+    }),
+  ]);
 
-  // Previous month revenue for growth calculation
-  const lastMonthRevenueResult = await Database.query(
-    `
-      SELECT COALESCE(SUM(total_amount), 0) as last_month_revenue
-      FROM orders 
-      WHERE shop_id = $1 
-        AND status NOT IN ('cancelled', 'refunded', 'pending')
-        AND EXTRACT(YEAR FROM created_at) = $2 
-        AND EXTRACT(MONTH FROM created_at) = $3
-    `,
-    [shop.id, lastMonthYear, lastMonth],
-  );
+  const currentRevenue = currentMonthRevenueAgg._sum?.total_amount ?? 0;
+  const lastRevenue    = lastMonthRevenueAgg._sum?.total_amount    ?? 0;
 
-  // Total orders
-  const totalOrdersResult = await Database.query(
-    `
-      SELECT COUNT(*) as total_orders
-      FROM orders 
-      WHERE shop_id = $1
-    `,
-    [shop.id],
-  );
-
-  // Monthly orders (current month)
-  const monthlyOrdersResult = await Database.query(
-    `
-      SELECT COUNT(*) as monthly_orders
-      FROM orders 
-      WHERE shop_id = $1 
-        AND EXTRACT(YEAR FROM created_at) = $2 
-        AND EXTRACT(MONTH FROM created_at) = $3
-    `,
-    [shop.id, currentYear, currentMonth],
-  );
-
-  // Previous month orders for growth calculation
-  const lastMonthOrdersResult = await Database.query(
-    `
-      SELECT COUNT(*) as last_month_orders
-      FROM orders 
-      WHERE shop_id = $1 
-        AND EXTRACT(YEAR FROM created_at) = $2 
-        AND EXTRACT(MONTH FROM created_at) = $3
-    `,
-    [shop.id, lastMonthYear, lastMonth],
-  );
-
-  // Use existing model methods for product counts
-  const totalProducts = await Product.count(shop.id);
-  const activeProducts = await Product.findByShopId(shop.id, 1000, 0, 'active');
-  const activeProductCount = activeProducts.length;
-
-  // Total customers (unique users who placed orders)
-  const totalCustomersResult = await Database.query(
-    `
-      SELECT COUNT(DISTINCT user_id) as total_customers
-      FROM orders 
-      WHERE shop_id = $1
-    `,
-    [shop.id],
-  );
-
-  // Monthly customers (unique users who placed orders this month)
-  const monthlyCustomersResult = await Database.query(
-    `
-      SELECT COUNT(DISTINCT user_id) as monthly_customers
-      FROM orders 
-      WHERE shop_id = $1 
-        AND EXTRACT(YEAR FROM created_at) = $2 
-        AND EXTRACT(MONTH FROM created_at) = $3
-    `,
-    [shop.id, currentYear, currentMonth],
-  );
-
-  // Confirmed orders
-  const confirmedOrdersResult = await Database.query(
-    `
-      SELECT COUNT(*) as confirmed_orders
-      FROM orders 
-      WHERE shop_id = $1 AND status = 'confirmed'
-    `,
-    [shop.id],
-  );
-
-  // Low stock products (using existing model method)
-  const lowStockProducts = await Product.findLowStock(10, shop.id);
-  const lowStockCount = lowStockProducts.length;
-
-  // Calculate growth percentages
-  const currentRevenue = monthlyRevenueResult.rows[0]?.monthly_revenue || 0;
-  const lastRevenue = lastMonthRevenueResult.rows[0]?.last_month_revenue || 0;
   const revenueGrowth =
     lastRevenue > 0
       ? ((currentRevenue - lastRevenue) / lastRevenue) * 100
-      : currentRevenue > 0
-      ? 100
-      : 0;
+      : currentRevenue > 0 ? 100 : 0;
 
-  const currentOrders = monthlyOrdersResult.rows[0]?.monthly_orders || 0;
-  const lastOrders = lastMonthOrdersResult.rows[0]?.last_month_orders || 0;
   const orderGrowth =
-    lastOrders > 0
-      ? ((currentOrders - lastOrders) / lastOrders) * 100
-      : currentOrders > 0
-      ? 100
-      : 0;
+    lastMonthOrders > 0
+      ? ((currentMonthOrders - lastMonthOrders) / lastMonthOrders) * 100
+      : currentMonthOrders > 0 ? 100 : 0;
 
-  const stats = {
-    totalRevenue: totalRevenueResult.rows[0]?.total_revenue || 0,
-    monthlyRevenue: currentRevenue,
-    totalOrders: totalOrdersResult.rows[0]?.total_orders || 0,
-    monthlyOrders: currentOrders,
-    totalProducts: totalProducts,
-    activeProducts: activeProductCount,
-    totalCustomers: totalCustomersResult.rows[0]?.total_customers || 0,
-    monthlyCustomers: monthlyCustomersResult.rows[0]?.monthly_customers || 0,
-    confirmedOrders: confirmedOrdersResult.rows[0]?.confirmed_orders || 0,
-    lowStockProducts: lowStockCount,
-    revenueGrowth: Math.round(revenueGrowth * 10) / 10, // Round to 1 decimal place
-    orderGrowth: Math.round(orderGrowth * 10) / 10,
-  };
-
-  return NextResponse.json(stats);
+  return NextResponse.json({
+    totalRevenue:     totalRevenueAgg._sum?.total_amount ?? 0,
+    monthlyRevenue:   currentRevenue,
+    totalOrders,
+    monthlyOrders:    currentMonthOrders,
+    totalProducts,
+    activeProducts,
+    totalCustomers:   totalCustomers.length,
+    monthlyCustomers: currentMonthCustomers.length,
+    confirmedOrders,
+    lowStockProducts,
+    revenueGrowth:    Math.round(revenueGrowth * 10) / 10,
+    orderGrowth:      Math.round(orderGrowth * 10) / 10,
+  });
 });
+

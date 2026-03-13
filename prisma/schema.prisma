@@ -42,7 +42,7 @@ enum PaymentStatus {
 model User {
   id            Int      @id @default(autoincrement())
   email         String   @unique
-  username      String
+  username      String   @unique
   phone_number  String
   password_hash String
   role          UserRole @default(user)
@@ -70,6 +70,7 @@ model Category {
   parent   Category?  @relation("CategoryToCategory", fields: [parent_id], references: [id])
   children Category[] @relation("CategoryToCategory")
   products Product[]
+  shops    Shop[]
 
   @@map("categories")
 }
@@ -81,7 +82,7 @@ model Shop {
   name                     String
   description              String?
   tagline                  String?
-  category_id              Int?
+  category_id              Int
   status                   ShopStatus @default(active)
   email                    String
   phone                    String
@@ -102,6 +103,7 @@ model Shop {
   updated_at               DateTime   @updatedAt
 
   owner    User      @relation(fields: [owner_id], references: [id])
+  category Category  @relation(fields: [category_id], references: [id])
   products Product[]
   carts    Cart[]
   orders   Order[]
@@ -151,6 +153,7 @@ model Cart {
   user User @relation(fields: [user_id], references: [id])
   shop Shop @relation(fields: [shop_id], references: [id])
 
+  @@unique([user_id, shop_id])
   @@map("carts")
 }
 

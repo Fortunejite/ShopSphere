@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import { User } from '@/models/User';
 import { z } from 'zod';
 import { requireAuth } from '@/lib/apiAuth';
 import { errorHandler } from '@/lib/errorHandler';
+import { prisma } from '@/lib/prisma';
 
 // Validation schema for profile updates
 const updateProfileSchema = z.object({
@@ -16,8 +16,10 @@ const updateProfileSchema = z.object({
 export const GET = errorHandler(async () => {
   const { id: userId } = await requireAuth();
 
-  const user = await User.findById(userId);
-  
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+
   if (!user) {
     return NextResponse.json(
       { message: 'User not found' },
@@ -54,7 +56,9 @@ export const PUT = errorHandler(async (request) => {
   }
   
   // Check if user exists
-  const existingUser = await User.findById(userId);
+  const existingUser = await prisma.user.findUnique({
+    where: { id: userId },
+  });
   if (!existingUser) {
     return NextResponse.json(
       { message: 'User not found' },
@@ -64,7 +68,9 @@ export const PUT = errorHandler(async (request) => {
 
   // Check if username is already taken (if username is being updated)
   if (validationResult.data.username && validationResult.data.username !== existingUser.username) {
-    const usernameExists = await User.findByUsername(validationResult.data.username);
+    const usernameExists = await prisma.user.findUnique({
+      where: { username: validationResult.data.username },
+    });
     if (usernameExists && usernameExists.id !== userId) {
       return NextResponse.json(
         { message: 'Username already taken' },
@@ -74,7 +80,10 @@ export const PUT = errorHandler(async (request) => {
   }
 
   // Update user profile
-  const updatedUser = await User.update(userId, validationResult.data);
+  const updatedUser = await prisma.user.update({
+    where: { id: userId },
+    data: validationResult.data,
+  });
   
   // Remove sensitive information
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

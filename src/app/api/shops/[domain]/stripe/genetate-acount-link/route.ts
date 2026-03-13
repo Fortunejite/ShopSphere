@@ -9,7 +9,7 @@ export const GET = errorHandler(async (request, { params }) => {
   const user = await requireAuth();
   const shop = await getShopByDomain(domain!);
   
-  if (shop.owner_email !== user.email) {
+  if (shop.owner.email !== user.email) {
     throw Object.assign(new Error('Unauthorized'), { status: 401 });
   }
   const url = await createAccountLink(shop.stripe_account_id, domain!);

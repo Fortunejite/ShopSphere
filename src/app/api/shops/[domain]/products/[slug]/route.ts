@@ -1,11 +1,10 @@
 import { NextResponse } from 'next/server';
 
-import { Product } from '@/models/Product';
-
 import { errorHandler } from '@/lib/errorHandler';
 import { getShopByDomain } from '@/lib/shop';
 import { requireAuth } from '@/lib/apiAuth';
 import { updateProductSchema } from '@/lib/schema/product';
+import { prisma } from '@/lib/prisma';
 
 export const GET = errorHandler(async (_, { params }) => {
   const { slug, domain } = await params;
@@ -18,7 +17,12 @@ export const GET = errorHandler(async (_, { params }) => {
 
   const shop = await getShopByDomain(domain);
 
-  const product = await Product.findByShopAndSlug(shop.id, slug);
+  const product = await prisma.product.findFirst({
+    where: {
+      shop_id: shop.id,
+      slug
+    }
+  });
   if (!product) {
     return NextResponse.json({ message: 'Product not found' }, { status: 404 });
   }
@@ -36,7 +40,12 @@ export const PUT = errorHandler(async (request, { params }) => {
 
   const shop = await getShopByDomain(domain);
 
-  const product = await Product.findByShopAndSlug(shop.id, slug);
+  const product = await prisma.product.findFirst({
+    where: {
+      shop_id: shop.id,
+      slug
+    }
+  });
   if (!product) {
     return NextResponse.json({ message: 'Product not found' }, { status: 404 });
   }
@@ -65,7 +74,7 @@ export const PUT = errorHandler(async (request, { params }) => {
     );
   }
 
-  const updatedProduct = await Product.update(product.id, validationResult.data);
+  const updatedProduct = await prisma.product.update({ where: { id : product.id}, data:  validationResult.data});
   return NextResponse.json(updatedProduct);
 });
 
@@ -80,7 +89,12 @@ export const DELETE = errorHandler(async (_, { params }) => {
 
   const shop = await getShopByDomain(domain);
 
-  const product = await Product.findByShopAndSlug(shop.id, slug);
+  const product = await prisma.product.findFirst({
+    where: {
+      shop_id: shop.id,
+      slug
+    }
+  });
   if (!product) {
     return NextResponse.json({ message: 'Product not found' }, { status: 404 });
   }
@@ -93,6 +107,6 @@ export const DELETE = errorHandler(async (_, { params }) => {
     );
   }
 
-  await Product.delete(product.id);
+  await prisma.product.delete({ where: { id: product.id } });
   return NextResponse.json({ message: 'Product deleted successfully' });
 });

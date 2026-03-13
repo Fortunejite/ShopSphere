@@ -1,10 +1,16 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { Cart } from '@/models/Cart';
+import { prisma } from '@/lib/prisma';
 import { errorHandler } from '@/lib/errorHandler';
 import { requireAuth } from '@/lib/apiAuth';
 import { getShopByDomain } from '@/lib/shop';
-import { database } from '@/lib/db'
+import { Prisma } from '@prisma/client';
+
+interface CartItem {
+  product_id: number;
+  quantity: number;
+  variant_index?: number;
+}
 
 const mergeCartSchema = z.object({
   items: z.array(z.object({
@@ -16,7 +22,7 @@ const mergeCartSchema = z.object({
 
 /**
  * POST /api/shops/[domain]/cart/merge
- * Merge local storage cart with user's cart
+ * Merge local storage cart items into the user's server-side cart
  */
 export const POST = errorHandler(async (request, { params }) => {
   const { domain } = await params;
@@ -27,47 +33,87 @@ export const POST = errorHandler(async (request, { params }) => {
   const user = await requireAuth();
   const shop = await getShopByDomain(domain);
 
-  // Parse request body
-  const body = await request.json();
-  const { items } = mergeCartSchema.parse(body);
+  const { items: sourceItems } = mergeCartSchema.parse(await request.json());
 
-  // Validate that all items belong to this shop by checking product shop_id
-  // This prevents users from adding products from other shops
-  if (items.length > 0) {
-    const productIds = [... new Set(items.map(item => item.product_id))];
-    const productCheck = await database.query(
-      `SELECT id FROM products WHERE id = ANY($1) AND shop_id = $2`,
-      [productIds, shop.id]
-    )
-    if (productCheck.rows.length !== productIds.length) {
+  // Verify all items belong to this shop in one query
+  if (sourceItems.length > 0) {
+    const productIds = [...new Set(sourceItems.map((i) => i.product_id))];
+    const validProducts = await prisma.product.findMany({
+      where: { id: { in: productIds }, shop_id: shop.id },
+      select: { id: true },
+    });
+    if (validProducts.length !== productIds.length) {
       throw Object.assign(new Error('Some products do not belong to this shop'), { status: 400 });
     }
   }
 
-  // Merge the local storage cart items with user's cart
-  const mergedCart = await Cart.mergeCarts(
-    user.id,
-    shop.id,
-    items // Pass the items from local storage
-  );
+  // Fetch existing server-side cart
+  const existing = await prisma.cart.findUnique({
+    where: { user_id_shop_id: { user_id: user.id, shop_id: shop.id } },
+  });
 
-  // Get the updated cart with product details
-  const cartWithProducts = mergedCart ? 
-    await Cart.findByShopAndUserId(shop.id, user.id) : 
-    null;
+  const targetItems = (existing?.items as unknown as CartItem[]) ?? [];
+
+  // Merge: accumulate quantities for matching product+variant, append the rest
+  const mergedItems = [...targetItems];
+  for (const src of sourceItems) {
+    const idx = mergedItems.findIndex(
+      (i) => i.product_id === src.product_id && i.variant_index === src.variant_index,
+    );
+    if (idx >= 0) {
+      mergedItems[idx] = { ...mergedItems[idx], quantity: mergedItems[idx].quantity + src.quantity };
+    } else {
+      mergedItems.push(src);
+    }
+  }
+
+  await prisma.cart.upsert({
+    where: { user_id_shop_id: { user_id: user.id, shop_id: shop.id } },
+    create: {
+      user_id: user.id,
+      shop_id: shop.id,
+      items: mergedItems as unknown as Prisma.InputJsonValue,
+    },
+    update: { items: mergedItems as unknown as Prisma.InputJsonValue },
+  });
+
+  // Return the enriched cart
+  const productIds = [...new Set(mergedItems.map((i) => i.product_id))];
+  const products = await prisma.product.findMany({
+    where: { id: { in: productIds } },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      image: true,
+      price: true,
+      discount: true,
+      variants: true,
+      stock_quantity: true,
+      status: true,
+    },
+  });
+
+  const productMap = new Map(products.map((p) => [p.id, p]));
+  const enrichedItems = mergedItems.map((item) => {
+    const product = productMap.get(item.product_id);
+    if (!product) return { ...item, product: null, subtotal: 0 };
+    const effectivePrice = product.price * (1 - (product.discount ?? 0) / 100);
+    return { ...item, product, subtotal: effectivePrice * item.quantity };
+  });
+
+  const total_items = enrichedItems.reduce((sum, i) => sum + i.quantity, 0);
+  const total_amount = enrichedItems.reduce((sum, i) => sum + i.subtotal, 0);
 
   return NextResponse.json({
     success: true,
     message: 'Cart merged successfully',
-    cart: cartWithProducts || {
-      id: null,
+    cart: {
       user_id: user.id,
       shop_id: shop.id,
-      items: [],
-      total_items: 0,
-      total_amount: 0,
-      created_at: new Date(),
-      updated_at: new Date(),
+      items: enrichedItems,
+      total_items,
+      total_amount,
     },
   });
 });

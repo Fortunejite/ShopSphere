@@ -1,17 +1,13 @@
 import { errorHandler } from '@/lib/errorHandler';
+import { prisma } from '@/lib/prisma';
 import { createShopSchema } from '@/lib/schema/shop';
 import { getShopByDomain } from '@/lib/shop';
-import { Shop } from '@/models/Shop';
 import { NextResponse } from 'next/server';
 
 export const GET = errorHandler(async (_, { params }) => {
   const { domain } = await params;
 
-  const shop = await Shop.findByDomain(domain!);
-
-  if (!shop)
-    return NextResponse.json({ message: 'Shop not found.' }, { status: 404 });
-
+  const shop = await getShopByDomain(domain!);
   return NextResponse.json(shop);
 });
 
@@ -24,10 +20,13 @@ export const PUT = errorHandler(async (request, { params }) => {
   
   // Extract domain separately since it might have a different name
   const { domain: newDomain, ...updateData } = validatedData;
-  
-  const updatedShop = await Shop.update(shop.id, { 
-    ...updateData, 
-    domain: newDomain 
+
+  const updatedShop = await prisma.shop.update({
+    where: { id: shop.id },
+    data: {
+      ...updateData,
+      domain: newDomain
+    }
   });
   return NextResponse.json(updatedShop);
 });
@@ -36,6 +35,6 @@ export const DELETE = errorHandler(async (_, { params }) => {
   const { domain } = await params;
   const shop = await getShopByDomain(domain!);
 
-  await Shop.delete(shop.id);
+  await prisma.shop.delete({ where: { id: shop.id } });
   return NextResponse.json({ message: 'Shop deleted successfully.' });
 });

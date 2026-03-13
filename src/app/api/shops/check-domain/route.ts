@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { Shop } from '@/models/Shop';
 import { errorHandler } from '@/lib/errorHandler';
+import { prisma } from '@/lib/prisma';
 
 export const GET = errorHandler(async (request) => {
   const { searchParams } = new URL(request.url);
@@ -49,7 +49,7 @@ export const GET = errorHandler(async (request) => {
 
   try {
     // Check if domain already exists
-    const existingShop = await Shop.findByDomain(domain);
+    const existingShop = await prisma.shop.findUnique({ where: { domain } });
     
     return NextResponse.json({
       available: !existingShop,

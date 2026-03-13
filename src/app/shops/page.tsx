@@ -232,7 +232,7 @@ export default function ShopsPage() {
                       </CardDescription>
                     </div>
                     <Badge variant="secondary" className="text-xs">
-                      {shop.category}
+                      {shop.category.name}
                     </Badge>
                   </div>
                 </CardHeader>
