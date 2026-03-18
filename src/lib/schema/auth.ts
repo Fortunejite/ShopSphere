@@ -23,3 +23,10 @@ export const loginUserSchema = z.object({
   email: z.string().email('Invalid email format'),
   password: z.string().min(6, 'Password must be at least 6 characters long'),
 });
+
+export const updateProfileSchema = z.object({
+  username: z.string().min(2, 'Username must be at least 2 characters').max(50, 'Username must be less than 50 characters').optional(),
+  phone_number: z.string().min(10, 'Phone number must be at least 10 characters').max(20, 'Phone number must be less than 20 characters').optional(),
+  address: z.string().max(255, 'Address must be less than 255 characters').optional(),
+  city: z.string().max(100, 'City must be less than 100 characters').optional(),
+});

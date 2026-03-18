@@ -95,7 +95,7 @@ model Shop {
   currency                 String
   logo                     String?
   banner                   String?
-  stripe_account_id        String
+  stripe_account_id        String @unique
   stripe_account_connected Boolean    @default(false)
   light_theme              Json?
   dark_theme               Json?
