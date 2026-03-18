@@ -1,4 +1,4 @@
-import { create, findAll } from "@/repositories/category.repository";
+import { countCategories, create, findAll } from "@/repositories/category.repository";
 import { authorizeUser } from "./user.service";
 import slugify from "slugify";
 
@@ -14,6 +14,13 @@ class CategoryService {
     }
     const slug = slugify(data.name, { lower: true, strict: true });
     return await create({ ...data, slug });
+  }
+
+  static async verifyCategoriesExists(categoryIds: number[]) {
+    const count = await countCategories(categoryIds);
+    if (count !== categoryIds.length) {
+      throw { message: 'One or more category IDs are invalid', status: 400 };
+    }
   }
 }
 

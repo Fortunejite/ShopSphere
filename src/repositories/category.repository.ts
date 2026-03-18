@@ -8,6 +8,11 @@ export const findAll = async () => {
   return categories;
 };
 
+export const countCategories = async (categoryIds?: Category['id'][]) => {
+  const where = categoryIds ? { id: { in: categoryIds } } : {};
+  return await prisma.category.count({ where });
+};
+
 export const create = async (data: {
   name: Category['name'];
   slug: Category['slug'];

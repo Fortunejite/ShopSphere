@@ -33,13 +33,13 @@ export const findByDomain = async (domain: Shop['domain']) => {
   });
 };
 
-export const create = async (data: Prisma.ShopUncheckedCreateInput) => {
+export const create = async (data: Prisma.ShopCreateInput) => {
   return await prisma.shop.create({
     data,
   });
 };
 
-export const update = async (id: Shop['id'], data: Prisma.ShopUncheckedUpdateInput) => {
+export const update = async (id: Shop['id'], data: Prisma.ShopUpdateInput) => {
   return await prisma.shop.update({
     where: {
       id

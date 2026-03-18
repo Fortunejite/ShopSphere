@@ -71,7 +71,7 @@ class ShopService {
 
   static async createShop(data: z.infer<typeof createShopSchema>) {
     const user = await authorizeUser();
-    const shopData = createShopSchema.parse(data) as Omit<
+    const { category_id, ...shopData } = createShopSchema.parse(data) as Omit<
       Shop,
       'light_theme' | 'dark_theme'
     > & {
@@ -88,8 +88,11 @@ class ShopService {
       ...shopData,
       light_theme: shopData.light_theme || {},
       dark_theme: shopData.dark_theme || {},
-      owner_id: user.id,
       stripe_account_id: account.id,
+
+      // Connect relations
+      owner: { connect: { id: user.id } },
+      category: { connect: { id: category_id } },
     });
     return shop;
   }
@@ -105,7 +108,7 @@ class ShopService {
       throw { message: 'Unauthorized', status: 403 };
     }
 
-    const validatedData = createShopSchema.parse(data) as Omit<
+    const { category_id, ...validatedData } = createShopSchema.parse(data) as Omit<
       Shop,
       'light_theme' | 'dark_theme'
     > & {
@@ -117,7 +120,10 @@ class ShopService {
       ...validatedData,
       light_theme: validatedData.light_theme || {},
       dark_theme: validatedData.dark_theme || {},
-      owner_id: user.id,
+
+      // Connect relations
+      owner: { connect: { id: user.id } },
+      category: { connect: { id: category_id } },
     });
 
     return updatedShop;
