@@ -3,7 +3,7 @@ import { Prisma, Shop, User } from '@prisma/client';
 import { authorizeUser } from './user.service';
 import ShopService from './shop.service';
 import ProductService from './product.service';
-import { CartItem } from '@/types';
+import { CartItemWithProduct, CartItem } from '@/types';
 import {
   cartItemSchema,
   mergeCartSchema,
@@ -23,7 +23,7 @@ class CartService {
         id: null,
         user_id: userId,
         shop_id: shopId,
-        items: [] as CartItem[],
+        items: [] as CartItemWithProduct[],
         total_items: 0,
         total_amount: 0,
         created_at: new Date(),
@@ -36,7 +36,7 @@ class CartService {
     if (rawItems.length === 0) {
       return {
         ...cart,
-        items: [] as CartItem[],
+        items: [] as CartItemWithProduct[],
         total_items: 0,
         total_amount: 0,
       };
@@ -68,7 +68,7 @@ class CartService {
     const shop = await ShopService.getShopByDomain(domain);
     const user = await authorizeUser();
 
-    return await CartService.getEnhancedCartWithProducts(user.id, shop.id);
+    return await this.getEnhancedCartWithProducts(user.id, shop.id);
   }
 
   static async getUserPlainCart(userId: User['id'], shopId: Shop['id']) {
@@ -120,7 +120,7 @@ class CartService {
       update: { items: updatedItems as unknown as Prisma.InputJsonValue },
     });
 
-    return await CartService.getEnhancedCartWithProducts(user.id, shop.id);
+    return await this.getEnhancedCartWithProducts(user.id, shop.id);
   }
 
   static async updateCartItemQuantity(
@@ -161,7 +161,7 @@ class CartService {
       { items: updatedItems as unknown as Prisma.InputJsonValue },
     );
 
-    return await CartService.getEnhancedCartWithProducts(user.id, shop.id);
+    return await this.getEnhancedCartWithProducts(user.id, shop.id);
   }
 
   static async removeItemFromCart(
@@ -191,7 +191,7 @@ class CartService {
       { items: updatedItems as unknown as Prisma.InputJsonValue },
     );
 
-    return await CartService.getEnhancedCartWithProducts(user.id, shop.id);
+    return await this.getEnhancedCartWithProducts(user.id, shop.id);
   }
 
   static async mergeLocalCartWithServerCart(
@@ -250,7 +250,7 @@ class CartService {
       update: { items: mergedItems as unknown as Prisma.InputJsonValue },
     });
 
-    return await CartService.getEnhancedCartWithProducts(user.id, shop.id);
+    return await this.getEnhancedCartWithProducts(user.id, shop.id);
   }
 }
 
