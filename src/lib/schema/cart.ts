@@ -6,10 +6,29 @@ export const cartItemSchema = z.object({
   quantity: z.number().min(1, 'Quantity must be at least 1').default(1),
 });
 
+export const updateQuantitySchema = z.object({
+  product_id: z.number().int().positive(),
+  quantity: z.number().int().min(0).max(99),
+  variant_index: z.number().int().min(0).optional(),
+});
+
+export const removeItemSchema = z.object({
+  product_id: z.number().int().positive(),
+  variant_index: z.number().int().min(0).optional(),
+});
+
+export const mergeCartSchema = z.object({
+  items: z.array(z.object({
+    product_id: z.number().int().positive(),
+    quantity: z.number().int().min(1).max(99),
+    variant_index: z.number().int().min(0).optional(),
+  })),
+});
+
 export const cartSchema = z.object({
   user_id: z.number().min(1),
   shop_id: z.number().min(1),
   items: z.array(cartItemSchema),
   created_at: z.date(),
-  updated_at: z.date()
+  updated_at: z.date(),
 });
