@@ -1,10 +1,6 @@
 import { NextResponse } from 'next/server';
-
 import { errorHandler } from '@/lib/errorHandler';
-import { getShopByDomain } from '@/lib/shop';
-import { requireAuth } from '@/lib/apiAuth';
-import { updateProductSchema } from '@/lib/schema/product';
-import { prisma } from '@/lib/prisma';
+import ProductService from '@/services/product.service';
 
 export const GET = errorHandler(async (_, { params }) => {
   const { slug, domain } = await params;
@@ -14,18 +10,7 @@ export const GET = errorHandler(async (_, { params }) => {
       { status: 400 },
     );
   }
-
-  const shop = await getShopByDomain(domain);
-
-  const product = await prisma.product.findFirst({
-    where: {
-      shop_id: shop.id,
-      slug
-    }
-  });
-  if (!product) {
-    return NextResponse.json({ message: 'Product not found' }, { status: 404 });
-  }
+  const product = await ProductService.getProductBySlug(slug, domain);
   return NextResponse.json(product);
 });
 
@@ -37,44 +22,9 @@ export const PUT = errorHandler(async (request, { params }) => {
       { status: 400 },
     );
   }
-
-  const shop = await getShopByDomain(domain);
-
-  const product = await prisma.product.findFirst({
-    where: {
-      shop_id: shop.id,
-      slug
-    }
-  });
-  if (!product) {
-    return NextResponse.json({ message: 'Product not found' }, { status: 404 });
-  }
-
-  const user = await requireAuth();
-  if (shop.owner_id !== user.id) {
-    return NextResponse.json(
-      { message: 'Unauthorized to update this product' },
-      { status: 403 },
-    );
-  }
-
+  
   const body = await request.json();
-  const validationResult = updateProductSchema.safeParse(body);
-  if (!validationResult.success) {
-    const errors = validationResult.error.errors.map(err => ({
-      field: err.path.join('.'),
-      message: err.message,
-    }));
-    return NextResponse.json(
-      {
-        message: 'Invalid product data',
-        errors
-      },
-      { status: 400 }
-    );
-  }
-
-  const updatedProduct = await prisma.product.update({ where: { id : product.id}, data:  validationResult.data});
+  const updatedProduct = await ProductService.updateProductBySlug(slug, domain, body);
   return NextResponse.json(updatedProduct);
 });
 
@@ -86,27 +36,7 @@ export const DELETE = errorHandler(async (_, { params }) => {
       { status: 400 },
     );
   }
-
-  const shop = await getShopByDomain(domain);
-
-  const product = await prisma.product.findFirst({
-    where: {
-      shop_id: shop.id,
-      slug
-    }
-  });
-  if (!product) {
-    return NextResponse.json({ message: 'Product not found' }, { status: 404 });
-  }
-
-  const user = await requireAuth();
-  if (shop.owner_id !== user.id) {
-    return NextResponse.json(
-      { message: 'Unauthorized to delete this product' },
-      { status: 403 },
-    );
-  }
-
-  await prisma.product.delete({ where: { id: product.id } });
-  return NextResponse.json({ message: 'Product deleted successfully' });
+  
+  const product = await ProductService.deleteProductBySlug(slug, domain);
+  return NextResponse.json({ product, message: 'Product deleted successfully' });
 });
