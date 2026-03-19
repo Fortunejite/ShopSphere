@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { errorHandler } from '@/lib/errorHandler';
-import cartService from '@/services/cart.service';
+import CartService from '@/services/cart.service';
 
 /**
  * POST /api/shops/[domain]/cart/merge
@@ -12,7 +12,7 @@ export const POST = errorHandler(async (request, { params }) => {
     throw Object.assign(new Error('Shop domain is required'), { status: 400 });
   }
 
-  const updatedCart = await cartService.mergeLocalCartWithServerCart(
+  const updatedCart = await CartService.mergeLocalCartWithServerCart(
     domain,
     await request.json(),
   );

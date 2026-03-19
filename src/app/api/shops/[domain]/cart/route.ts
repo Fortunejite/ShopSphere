@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { errorHandler } from '@/lib/errorHandler';
-import cartService from '@/services/cart.service';
+import CartService from '@/services/cart.service';
 
 export const GET = errorHandler(async (_, { params }) => {
   const { domain } = await params;
@@ -8,7 +8,7 @@ export const GET = errorHandler(async (_, { params }) => {
     throw Object.assign(new Error('Shop domain is required'), { status: 400 });
   }
 
-  const cart = cartService.getCurrentUserCart(domain);
+  const cart = CartService.getCurrentUserCart(domain);
 
   return NextResponse.json(cart);
 });
@@ -19,7 +19,7 @@ export const POST = errorHandler(async (request, { params }) => {
     throw Object.assign(new Error('Shop domain is required'), { status: 400 });
   }
 
-  const newCart = await cartService.addNewItemToCart(
+  const newCart = await CartService.addNewItemToCart(
     domain,
     await request.json(),
   );
@@ -35,7 +35,7 @@ export const PUT = errorHandler(async (request, { params }) => {
     throw Object.assign(new Error('Shop domain is required'), { status: 400 });
   }
 
-  const updatedCart = await cartService.updateCartItemQuantity(
+  const updatedCart = await CartService.updateCartItemQuantity(
     domain,
     await request.json(),
   );
@@ -52,7 +52,7 @@ export const DELETE = errorHandler(async (request, { params }) => {
     throw Object.assign(new Error('Shop domain is required'), { status: 400 });
   }
 
-  const updatedCart = await cartService.removeItemFromCart(
+  const updatedCart = await CartService.removeItemFromCart(
     domain,
     await request.json(),
   );

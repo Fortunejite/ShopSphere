@@ -13,10 +13,7 @@ import {
 import z from 'zod';
 
 class CartService {
-  private async enhanceCartWithProducts(
-    userId: User['id'],
-    shopId: Shop['id'],
-  ) {
+  static async getEnhancedCartWithProducts(userId: User['id'], shopId: Shop['id']) {
     const cart = await findUnique({
       user_id_shop_id: { user_id: userId, shop_id: shopId },
     });
@@ -67,20 +64,20 @@ class CartService {
     return { ...cart, items: enrichedItems, total_items, total_amount };
   }
 
-  async getCurrentUserCart(domain: Shop['domain']) {
+  static async getCurrentUserCart(domain: Shop['domain']) {
     const shop = await ShopService.getShopByDomain(domain);
     const user = await authorizeUser();
 
-    return await this.enhanceCartWithProducts(user.id, shop.id);
+    return await CartService.getEnhancedCartWithProducts(user.id, shop.id);
   }
 
-  async getUserPlainCart(userId: User['id'], shopId: Shop['id']) {
+  static async getUserPlainCart(userId: User['id'], shopId: Shop['id']) {
     return await findUnique({
       user_id_shop_id: { user_id: userId, shop_id: shopId },
     });
   }
 
-  async addNewItemToCart(
+  static async addNewItemToCart(
     domain: Shop['domain'],
     data: z.infer<typeof cartItemSchema>,
   ) {
@@ -123,10 +120,10 @@ class CartService {
       update: { items: updatedItems as unknown as Prisma.InputJsonValue },
     });
 
-    return await this.enhanceCartWithProducts(user.id, shop.id);
+    return await CartService.getEnhancedCartWithProducts(user.id, shop.id);
   }
 
-  async updateCartItemQuantity(
+  static async updateCartItemQuantity(
     domain: Shop['domain'],
     data: z.infer<typeof updateQuantitySchema>,
   ) {
@@ -164,10 +161,10 @@ class CartService {
       { items: updatedItems as unknown as Prisma.InputJsonValue },
     );
 
-    return await this.enhanceCartWithProducts(user.id, shop.id);
+    return await CartService.getEnhancedCartWithProducts(user.id, shop.id);
   }
 
-  async removeItemFromCart(
+  static async removeItemFromCart(
     domain: Shop['domain'],
     data: z.infer<typeof removeItemSchema>,
   ) {
@@ -194,10 +191,10 @@ class CartService {
       { items: updatedItems as unknown as Prisma.InputJsonValue },
     );
 
-    return await this.enhanceCartWithProducts(user.id, shop.id);
+    return await CartService.getEnhancedCartWithProducts(user.id, shop.id);
   }
 
-  async mergeLocalCartWithServerCart(
+  static async mergeLocalCartWithServerCart(
     domain: Shop['domain'],
     data: z.infer<typeof mergeCartSchema>,
   ) {
@@ -253,10 +250,8 @@ class CartService {
       update: { items: mergedItems as unknown as Prisma.InputJsonValue },
     });
 
-    return await this.enhanceCartWithProducts(user.id, shop.id);
+    return await CartService.getEnhancedCartWithProducts(user.id, shop.id);
   }
 }
 
-const cartService = new CartService();
-
-export default cartService;
+export default CartService;
