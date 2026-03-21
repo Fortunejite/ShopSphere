@@ -18,12 +18,13 @@ import {
 } from '@/lib/schema/product';
 import slugify from 'slugify';
 import CategoryService from './category.service';
+import { CartItem, OrderItem } from '@/types';
 
 class ProductService {
   static async getProductByIds(productIds: Product['id'][]) {
     return await findMany({ where: { id: { in: productIds } } });
   }
-  
+
   static async getProductById(productId: Product['id']) {
     const product = await findOne({ id: productId });
 
@@ -171,6 +172,29 @@ class ProductService {
       throw { message: 'Product not found', status: 404 };
     }
     return product;
+  }
+
+  static async getEnrichedItems(items: CartItem[] | OrderItem[]) {
+    const productIds = [...new Set(items.map((i) => i.product_id))];
+    const products = await this.getProductByIds(productIds);
+
+    const productMap = new Map(products.map((p) => [p.id, p]));
+
+    return items.map((item) => {
+      const product = productMap.get(item.product_id);
+      if (!product) return { ...item, product: null, subtotal: 0 };
+
+      if ('unit_price_at_purchase' in item && item.unit_price_at_purchase) {
+        const productWithPrice = { ...product, price: item.unit_price_at_purchase };
+        return { ...item, product: productWithPrice };
+      }
+
+      const effectivePrice =
+        product.price * (1 - (product.discount ?? 0) / 100);
+      const subtotal = effectivePrice * item.quantity;
+
+      return { ...item, product, subtotal };
+    });
   }
 
   static async createProduct(

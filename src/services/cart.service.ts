@@ -1,5 +1,5 @@
 import { findUnique, update, upsert } from '@/repositories/cart.repository';
-import { Prisma, Shop, User } from '@prisma/client';
+import { Cart, Prisma, Shop, User } from '@prisma/client';
 import { authorizeUser } from './user.service';
 import ShopService from './shop.service';
 import ProductService from './product.service';
@@ -42,21 +42,7 @@ class CartService {
       };
     }
 
-    const productIds = [...new Set(rawItems.map((i) => i.product_id))];
-    const products = await ProductService.getProductByIds(productIds);
-
-    const productMap = new Map(products.map((p) => [p.id, p]));
-
-    const enrichedItems = rawItems.map((item) => {
-      const product = productMap.get(item.product_id);
-      if (!product) return { ...item, product: null, subtotal: 0 };
-
-      const effectivePrice =
-        product.price * (1 - (product.discount ?? 0) / 100);
-      const subtotal = effectivePrice * item.quantity;
-
-      return { ...item, product, subtotal };
-    });
+    const enrichedItems = await ProductService.getEnrichedItems(rawItems);
 
     const total_items = enrichedItems.reduce((sum, i) => sum + i.quantity, 0);
     const total_amount = enrichedItems.reduce((sum, i) => sum + i.subtotal, 0);
@@ -251,6 +237,10 @@ class CartService {
     });
 
     return await this.getEnhancedCartWithProducts(user.id, shop.id);
+  }
+
+  static async clearCart(cartId: Cart['id']) {
+    await update({ id: cartId }, { items: [] });
   }
 }
 
