@@ -8,7 +8,7 @@ export const GET = errorHandler(async (_, { params }) => {
     throw Object.assign(new Error('Shop domain is required'), { status: 400 });
   }
 
-  const cart = CartService.getCurrentUserCart(domain);
+  const cart = await CartService.getCurrentUserCart(domain);
 
   return NextResponse.json(cart);
 });
