@@ -62,8 +62,9 @@ export const authorizeUser = async () => {
   return session.user;
 };
 
-export const getUserProfile = async (userId: number) => {
-  const user = await findById(userId);
+export const getUserProfile = async () => {
+  const { id } = await authorizeUser();
+  const user = await findById(id);
   if (!user) {
     throw { message: 'User not found', status: 404 };
   }
@@ -74,11 +75,11 @@ export const getUserProfile = async (userId: number) => {
 };
 
 export const updateUserProfile = async (
-  userId: number,
   data: z.infer<typeof updateProfileSchema>,
 ) => {
+  const user = await authorizeUser();
   const userData = updateProfileSchema.parse(data);
-  const existingUser = await findById(userId);
+  const existingUser = await findById(user.id);
   if (!existingUser) {
     throw { message: 'User not found', status: 404 };
   }
@@ -86,12 +87,12 @@ export const updateUserProfile = async (
   // Check if username is already taken (if username is being updated)
   if (userData.username && userData.username !== existingUser.username) {
     const usernameExists = await findByUsername(userData.username);
-    if (usernameExists && usernameExists.id !== userId) {
+    if (usernameExists && usernameExists.id !== user.id) {
       throw { message: 'Username already taken', status: 409 };
     }
   }
 
-  const updatedUser = await updateById(userId, userData);
+  const updatedUser = await updateById(user.id, userData);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { password_hash: _, ...safeUser } = updatedUser;

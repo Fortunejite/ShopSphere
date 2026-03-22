@@ -1,13 +1,13 @@
-import { requireAuth } from '@/lib/apiAuth';
 import { errorHandler } from '@/lib/errorHandler';
-import { getShopByDomain } from '@/lib/shop';
+import ShopService from '@/services/shop.service';
 import { createAccountLink } from '@/services/stripe/account';
+import { authorizeUser } from '@/services/user.service';
 import { NextResponse } from 'next/server';
 
 export const GET = errorHandler(async (request, { params }) => {
   const { domain } = await params;
-  const user = await requireAuth();
-  const shop = await getShopByDomain(domain!);
+  const user = await authorizeUser();
+  const shop = await ShopService.getShopByDomain(domain!);
   
   if (shop.owner.email !== user.email) {
     throw Object.assign(new Error('Unauthorized'), { status: 401 });

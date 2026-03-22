@@ -258,6 +258,20 @@ class ProductService {
     return await update(product.id, validationResult);
   }
 
+  // Called from inventory service, so no slug/domain - just direct ID update
+  static async updateProductById(
+    id: Product['id'],
+    data: Prisma.ProductUpdateInput,
+  ) {
+    const product = await findUnique({ id });
+
+    if (!product) {
+      throw { message: 'Product not found', status: 404 };
+    }
+
+    return await update(product.id, data);
+  }
+
   static async deleteProductBySlug(
     slug: Product['slug'],
     domain: Shop['domain'],

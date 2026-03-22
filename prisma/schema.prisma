@@ -25,11 +25,11 @@ enum ProductStatus {
 }
 
 enum OrderStatus {
-  pending
-  processing
-  shipped
-  delivered
-  cancelled
+  pending // Order has been created but not paid so can't be processed yet
+  processing // Order has been paid and is being prepared for shipment
+  shipped // Order has been shipped
+  delivered // Order has been delivered
+  cancelled // Order has been cancelled
 }
 
 enum PaymentStatus {

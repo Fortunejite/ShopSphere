@@ -1,4 +1,4 @@
-import { createOrderSchema } from '@/lib/schema/order';
+import { createOrderSchema, updateOrderSchema } from '@/lib/schema/order';
 import { Order, OrderStatus, Prisma, Shop } from '@prisma/client';
 import z from 'zod';
 import CartService from './cart.service';
@@ -14,8 +14,16 @@ import {
 } from '@/repositories/order.repository';
 import PaymentService from './payment.service';
 import ProductService from './product.service';
+import StatsService from './stats.service';
 
 class OrderService {
+  static timestampsForStatus(status: OrderStatus) {
+    return {
+      ...(status === 'shipped' && { shipped_at: new Date() }),
+      ...(status === 'delivered' && { delivered_at: new Date() }),
+      ...(status === 'cancelled' && { cancelled_at: new Date() }),
+    };
+  }
   static async verifyOrderOwnership(domain: Shop['domain'], order: Order) {
     const user = await authorizeUser();
     const shop = await ShopService.getShopByDomain(domain);
@@ -30,7 +38,7 @@ class OrderService {
     const isOwner = order.user_id === user.id;
     const isShopOwner = shop.owner_id === user.id;
 
-    if (!isOwner && !isShopOwner) {
+    if (!isOwner || !isShopOwner) {
       throw {
         message: 'Access denied',
         status: 403,
@@ -78,6 +86,53 @@ class OrderService {
     };
   }
 
+  static async getShopOrders(
+    domain: Shop['domain'],
+    params: {
+      [k: string]: string;
+    },
+  ) {
+    const shop = await ShopService.getShopByDomain(domain);
+    const user = await authorizeUser();
+
+    if (shop.owner_id !== user.id) {
+      throw {
+        message: 'Access denied',
+        status: 403,
+      };
+    }
+
+    const page = parseInt(params.page) || 1;
+    const limit = Math.min(parseInt(params.limit) || 10, 50);
+    const statusParam = params.status || undefined;
+    const offset = (page - 1) * limit;
+
+    const where: Prisma.OrderWhereInput = {
+      shop_id: shop.id,
+      ...(statusParam
+        ? { status: statusParam as Prisma.EnumOrderStatusFilter }
+        : {}),
+    };
+
+    const [totalOrders, orders] = await Promise.all([
+      count(where),
+      findMany(where, limit, offset),
+    ]);
+
+    const stats = StatsService.getOrderStats(shop.id);
+
+    return {
+      orders,
+      pagination: {
+        page,
+        limit,
+        total: totalOrders,
+        pages: Math.ceil(totalOrders / limit),
+      },
+      stats,
+    };
+  }
+
   static async getOrderByTrackingId(
     domain: Shop['domain'],
     trackingId: string,
@@ -108,6 +163,21 @@ class OrderService {
       items: enrichedItems,
       total_items,
     };
+  }
+
+  static async getOrderById(id: Order['id']) {
+    const order = await findUnique({
+      id,
+    });
+
+    if (!order) {
+      throw {
+        message: 'Order not found',
+        status: 404,
+      };
+    }
+
+    return order;
   }
 
   static generateTrackingId(): string {
@@ -245,6 +315,51 @@ class OrderService {
       domain: shop.domain,
       trackingId,
     });
+  }
+
+  static async adminOrderUpdate(
+    domain: Shop['domain'],
+    trackingId: string,
+    data: z.infer<typeof updateOrderSchema>,
+  ) {
+    const order = await findUnique({
+      tracking_id: trackingId,
+    });
+
+    if (!order) {
+      throw {
+        message: 'Order not found',
+        status: 404,
+      };
+    }
+
+    await this.verifyOrderOwnership(domain, order);
+
+    const { status, admin_notes } = updateOrderSchema.parse(data);
+
+    const updateData: Prisma.OrderUpdateInput = {};
+
+    if (status && status !== order.status) {
+      updateData.status = status;
+      Object.assign(updateData, this.timestampsForStatus(status));
+    }
+
+    if (admin_notes !== undefined) {
+      updateData.admin_notes = order.admin_notes
+        ? `${order.admin_notes}\n${admin_notes}`
+        : admin_notes;
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      throw {
+        message: 'No valid fields provided for update',
+        status: 400,
+      };
+    }
+
+    await update(order.id, updateData);
+
+    return await this.getOrderByTrackingId(domain, trackingId);
   }
 
   static async cancelOrder(
