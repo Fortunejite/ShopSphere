@@ -32,13 +32,6 @@ enum OrderStatus {
   cancelled // Order has been cancelled
 }
 
-enum PaymentStatus {
-  pending
-  completed
-  failed
-  refunded
-}
-
 model User {
   id            Int      @id @default(autoincrement())
   email         String   @unique
@@ -169,7 +162,6 @@ model Order {
   final_amount      Float
   items             Json          @default("[]")
   status            OrderStatus   @default(pending)
-  payment_status    PaymentStatus @default(pending)
   payment_reference String?
   shipping_address  Json?
   notes             String?
