@@ -75,6 +75,17 @@ class OrderService {
       findMany(where, limit, offset),
     ]);
 
+    const enrichedItemsPromises = orders.map(order =>
+      ProductService.getEnrichedItems(
+        order.items as unknown as CartItem[],
+      ),
+    );
+    const enrichedItems = await Promise.all(enrichedItemsPromises);
+
+    for (let i = 0; i < orders.length; i++) {
+      orders[i].items = enrichedItems[i] as unknown as Prisma.JsonValue;
+    }
+
     return {
       orders,
       pagination: {
@@ -119,7 +130,18 @@ class OrderService {
       findMany(where, limit, offset),
     ]);
 
-    const stats = StatsService.getOrderStats(shop.id);
+    const enrichedItemsPromises = orders.map(order =>
+      ProductService.getEnrichedItems(
+        order.items as unknown as CartItem[],
+      ),
+    );
+    const enrichedItems = await Promise.all(enrichedItemsPromises);
+
+    for (let i = 0; i < orders.length; i++) {
+      orders[i].items = enrichedItems[i] as unknown as Prisma.JsonValue;
+    }
+
+    const stats = await StatsService.getOrderStats(shop.id);
 
     return {
       orders,

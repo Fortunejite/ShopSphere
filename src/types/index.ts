@@ -1,7 +1,10 @@
-import { colorTheme } from "@/lib/customTheme";
-import { Cart, Category, Product, Shop, User } from "@prisma/client";
+import { colorTheme } from '@/lib/customTheme';
+import { Cart, Category, Prisma, Product, Shop, User } from '@prisma/client';
 
-export interface ShopWithOwner extends Omit<Shop, 'dark_theme' | 'light_theme'> {
+export interface ShopWithOwner extends Omit<
+  Shop,
+  'dark_theme' | 'light_theme'
+> {
   owner: User;
   category: Category;
   light_theme: colorTheme;
@@ -26,7 +29,7 @@ export interface OrderItem extends CartItem {
 }
 
 export interface CartItemWithProduct extends CartItem {
-  product: Omit<Product, 'variants'> & { variants : ProductVariant[] };
+  product: Omit<Product, 'variants'> & { variants: ProductVariant[] };
   subtotal: number;
 }
 
@@ -46,3 +49,17 @@ export interface AddressInfo {
   postal_code: string;
   country: string;
 }
+
+export interface ClientProduct extends Omit<
+  Prisma.ProductGetPayload<{
+    include: {
+      shop: { select: { name: true; domain: true } };
+      categories: { select: { name: true } };
+    };
+  }>,
+  'variants'
+> {
+  variants: ProductVariant[];
+}
+
+// export interface
