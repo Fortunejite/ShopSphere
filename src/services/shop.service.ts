@@ -1,7 +1,7 @@
 import { authorizeUser } from './user.service';
 import { createShopSchema } from '@/lib/schema/shop';
 import { Shop } from '@prisma/client';
-import { createAccount } from './stripe/account';
+import { createStripeAccount } from './stripe/account';
 import z from 'zod';
 import {
   create,
@@ -79,7 +79,7 @@ class ShopService {
       dark_theme?: Shop['dark_theme'];
     };
 
-    const account = await createAccount(shopData.name, user.email);
+    const account = await createStripeAccount(shopData.name, user.email);
     if (!account) {
       throw { message: 'Failed to create Stripe account', status: 500 };
     }

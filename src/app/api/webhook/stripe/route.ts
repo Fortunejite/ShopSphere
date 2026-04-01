@@ -1,6 +1,6 @@
 import { errorHandler } from '@/lib/errorHandler';
-import { emitInventoryEvent } from '@/lib/inventory';
 import { prisma } from '@/lib/prisma';
+import OrderService from '@/services/order.service';
 import { stripe } from '@/services/stripe';
 import { Prisma } from '@prisma/client';
 import { NextResponse } from 'next/server';
@@ -62,21 +62,7 @@ export const POST = errorHandler(async (req) => {
       if (!data.metadata?.trackingId) {
         throw new Error('Tracking ID not found in metadata');
       }
-      // const lineItems = expandedSession.line_items.data as Stripe.LineItem[];
-      const order = await prisma.order.findUnique({
-        where: { tracking_id: data.metadata.trackingId },
-      });
-      if (!order) {
-        throw new Error(
-          'Order not found for tracking ID: ' + data.metadata.trackingId,
-        );
-      }
-
-      await prisma.order.update({
-        where: { id: order.id },
-        data: { status: 'processing' },
-      });
-      await emitInventoryEvent('ORDER_PAID', order.id);
+      await OrderService.processPaidOrder(data.metadata?.trackingId)
       break;
 
     case 'account.updated':

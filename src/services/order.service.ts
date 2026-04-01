@@ -15,6 +15,7 @@ import {
 import PaymentService from './payment.service';
 import ProductService from './product.service';
 import StatsService from './stats.service';
+import { emitInventoryEvent } from '@/lib/inventory';
 
 class OrderService {
   static timestampsForStatus(status: OrderStatus) {
@@ -75,10 +76,8 @@ class OrderService {
       findMany(where, limit, offset),
     ]);
 
-    const enrichedItemsPromises = orders.map(order =>
-      ProductService.getEnrichedItems(
-        order.items as unknown as CartItem[],
-      ),
+    const enrichedItemsPromises = orders.map((order) =>
+      ProductService.getEnrichedItems(order.items as unknown as CartItem[]),
     );
     const enrichedItems = await Promise.all(enrichedItemsPromises);
 
@@ -130,10 +129,8 @@ class OrderService {
       findMany(where, limit, offset),
     ]);
 
-    const enrichedItemsPromises = orders.map(order =>
-      ProductService.getEnrichedItems(
-        order.items as unknown as CartItem[],
-      ),
+    const enrichedItemsPromises = orders.map((order) =>
+      ProductService.getEnrichedItems(order.items as unknown as CartItem[]),
     );
     const enrichedItems = await Promise.all(enrichedItemsPromises);
 
@@ -321,13 +318,6 @@ class OrderService {
 
     const { shop } = await this.verifyOrderOwnership(domain, order);
 
-    if (order.payment_status !== 'pending') {
-      throw {
-        message: 'Payment has already been completed for this order',
-        status: 400,
-      };
-    }
-
     const enrichedItems = await ProductService.getEnrichedItems(
       order.items as unknown as OrderItem[],
     );
@@ -421,6 +411,19 @@ class OrderService {
     });
 
     return cancelledOrder;
+  }
+
+  static async processPaidOrder(trackingId: Order['tracking_id']) {
+    const order = await findUnique({ tracking_id: trackingId });
+    if (!order) {
+      throw {
+        message: 'Order not found for tracking ID: ' + trackingId,
+        status: 404,
+      };
+    }
+
+    await update(order.id, { status: 'processing' });
+    await emitInventoryEvent('ORDER_PAID', order.id);
   }
 }
 

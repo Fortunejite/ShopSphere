@@ -1,9 +1,9 @@
 import { stripe } from ".";
 
-export const createAccount = async (shopName: string, email: string) => {
+export const createStripeAccount  = async (shopName: string, shopEmail: string) => {
   const account = await stripe.v2.core.accounts.create({
     display_name: shopName,
-    contact_email: email,
+    contact_email: shopEmail,
     dashboard: "full",
     defaults: {
       responsibilities: {
@@ -28,7 +28,7 @@ export const createAccount = async (shopName: string, email: string) => {
   return account;
 }
 
-export const createAccountLink = async (accountId: string, domain: string) => {
+export const createStripeAccountLink = async (accountId: string, domain: string) => {
   const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN
   const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
   const url = `${protocol}://${domain}.${rootDomain}/admin`;

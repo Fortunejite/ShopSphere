@@ -69,31 +69,36 @@ model Category {
 }
 
 model Shop {
-  id                       Int        @id @default(autoincrement())
-  owner_id                 Int
-  domain                   String     @unique
-  name                     String
-  description              String?
-  tagline                  String?
-  category_id              Int
-  status                   ShopStatus @default(active)
-  email                    String
-  phone                    String
-  address                  String
-  city                     String
-  state                    String
-  postal_code              String
-  country                  String
-  free_shipping_threshold  Float      @default(50)
-  currency                 String
-  logo                     String?
-  banner                   String?
-  stripe_account_id        String @unique
-  stripe_account_connected Boolean    @default(false)
-  light_theme              Json?
-  dark_theme               Json?
-  created_at               DateTime   @default(now())
-  updated_at               DateTime   @updatedAt
+  id                      Int        @id @default(autoincrement())
+  owner_id                Int
+  domain                  String     @unique
+  name                    String
+  description             String?
+  tagline                 String?
+  category_id             Int
+  status                  ShopStatus @default(active)
+  email                   String
+  phone                   String
+  address                 String
+  city                    String
+  state                   String
+  postal_code             String
+  country                 String
+  free_shipping_threshold Float      @default(50)
+  currency                String
+  logo                    String?
+  banner                  String?
+
+  stripe_account_id        String  @unique
+  stripe_account_connected Boolean @default(false)
+
+  paystack_account_id        String? @unique
+  paystack_account_connected Boolean @default(false)
+
+  light_theme Json?
+  dark_theme  Json?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
 
   owner    User      @relation(fields: [owner_id], references: [id])
   category Category  @relation(fields: [category_id], references: [id])
@@ -151,17 +156,17 @@ model Cart {
 }
 
 model Order {
-  id                Int           @id @default(autoincrement())
+  id                Int         @id @default(autoincrement())
   user_id           Int
   shop_id           Int
-  tracking_id       String        @unique
+  tracking_id       String      @unique
   total_amount      Float
-  discount_amount   Float         @default(0)
-  tax_amount        Float         @default(0)
-  shipping_amount   Float         @default(0)
+  discount_amount   Float       @default(0)
+  tax_amount        Float       @default(0)
+  shipping_amount   Float       @default(0)
   final_amount      Float
-  items             Json          @default("[]")
-  status            OrderStatus   @default(pending)
+  items             Json        @default("[]")
+  status            OrderStatus @default(pending)
   payment_reference String?
   shipping_address  Json?
   notes             String?
@@ -169,8 +174,8 @@ model Order {
   shipped_at        DateTime?
   delivered_at      DateTime?
   cancelled_at      DateTime?
-  created_at        DateTime      @default(now())
-  updated_at        DateTime      @updatedAt
+  created_at        DateTime    @default(now())
+  updated_at        DateTime    @updatedAt
 
   user User @relation(fields: [user_id], references: [id])
   shop Shop @relation(fields: [shop_id], references: [id])

@@ -1,20 +1,27 @@
-import { CartItemWithProduct } from "@/models/Cart";
-import Stripe from "stripe";
-import { toStripeAmount } from "./utils";
-import { PLATFORM_FEE_PERCENTAGE } from "./constants";
-import { UserAttributes } from "@/models/User";
-import { generateURL } from "@/lib/domain";
-import { stripe } from ".";
+import Stripe from 'stripe';
+import { amountInSmallestCurrencyUnit } from '@/lib/currency';
+import { PLATFORM_FEE_PERCENTAGE } from './constants';
+import { generateURL } from '@/lib/domain';
+import { stripe } from '.';
+import { User } from '@prisma/client';
+import { CartItemWithProduct } from '@/types';
 
 interface CheckoutItemsParams {
   items: CartItemWithProduct[];
   domain: string;
   currency: string;
-  user: UserAttributes;
-  stripeAccountId: string;
+  user: User;
+  accountId: string;
   trackingId: string;
 }
-export const checkoutItems = async ({ items, domain, currency, user, trackingId, stripeAccountId }: CheckoutItemsParams) => {
+export const checkoutItems = async ({
+  items,
+  domain,
+  currency,
+  user,
+  trackingId,
+  accountId,
+}: CheckoutItemsParams) => {
   const lineItems = items.map((item) => {
     const price = item.subtotal / item.quantity;
     return {
@@ -24,7 +31,7 @@ export const checkoutItems = async ({ items, domain, currency, user, trackingId,
           name: item.product.name,
           images: [item.product.image],
         },
-        unit_amount: toStripeAmount(price, currency),
+        unit_amount: amountInSmallestCurrencyUnit(price, currency),
       },
       quantity: item.quantity,
     };
@@ -51,13 +58,22 @@ export const checkoutItems = async ({ items, domain, currency, user, trackingId,
       domain,
     },
     payment_intent_data: {
-      application_fee_amount: toStripeAmount(platformFee, currency),
+      application_fee_amount: amountInSmallestCurrencyUnit(
+        platformFee,
+        currency,
+      ),
     },
   } as Stripe.Checkout.SessionCreateParams;
 
   const checkout = await stripe.checkout.sessions.create(checkoutData, {
-    stripeAccount: stripeAccountId,
+    stripeAccount: accountId,
   });
+
+  if (!checkout.url) {
+    throw {
+      message: 'Checkout Initilazation failed',
+    };
+  }
 
   return checkout.url;
 };
