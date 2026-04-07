@@ -62,4 +62,15 @@ export interface ClientProduct extends Omit<
   variants: ProductVariant[];
 }
 
-// export interface
+export interface Bank {
+  id: number;
+  name: string;
+  slug: string;
+  code: string;
+  country: string;
+}
+
+export interface PaystackSubAccount {
+  account_number: string;
+  settlement_bank: string;
+}
