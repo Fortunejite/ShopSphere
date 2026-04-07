@@ -97,14 +97,7 @@ export default function AdminProductsPage() {
       if (searchTerm) queryParams.set('search', searchTerm)
       if (selectedStatus !== 'all') queryParams.set('status', selectedStatus)
       if (selectedCategory !== 'all') {
-        // Find category name by ID to send to API
-        const category = categories.find(c => c.id.toString() === selectedCategory);
-        if (category) {
-          queryParams.set('category', category.name);
-        } else {
-          // Fallback: send the selectedCategory as-is (might be name or slug)
-          queryParams.set('category', selectedCategory);
-        }
+        queryParams.set('category', selectedCategory);
       }
       if (sortBy) queryParams.set('sortBy', sortBy)
       if (sortOrder) queryParams.set('sortOrder', sortOrder)
@@ -123,7 +116,6 @@ export default function AdminProductsPage() {
     } finally {
       setIsLoading(false);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [domain, searchTerm, selectedStatus, selectedCategory, sortBy, sortOrder, currentPage, productsPerPage, router]);
 
   useEffect(() => {

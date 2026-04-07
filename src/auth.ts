@@ -1,9 +1,9 @@
 import Credentials from 'next-auth/providers/credentials';
 import NextAuth from 'next-auth';
 import type { NextAuthConfig } from 'next-auth';
-import { compare } from 'bcrypt';
 import { loginUserSchema } from './lib/schema/auth';
-import { User } from './models/User';
+import { loginUser } from './services/user.service';
+import z from 'zod';
 
 const config: NextAuthConfig = {
   pages: {
@@ -16,16 +16,7 @@ const config: NextAuthConfig = {
 
       authorize: async (credentials) => {
         // TODO: wrap with try catch block and use a universal error handler
-        const { email, password } = loginUserSchema.parse(credentials);
-
-        const user = await User.findByEmail(email);
-        if (!user) {
-          return null;
-        }
-
-        const isValid = await compare(password, user.password_hash);
-        if (!isValid) return null;
-
+        const user = await loginUser(credentials as z.infer<typeof loginUserSchema>);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return user as any;
       },

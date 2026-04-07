@@ -1,4 +1,4 @@
-import { CartWithProducts, CartItemWithProduct } from '@/models/Cart';
+import { CartWithProducts, CartItemWithProduct } from '@/types';
 import { ProductVariant } from '@/models/Product';
 
 const CART_STORAGE_KEY = 'shop_sphere_cart';
@@ -53,7 +53,7 @@ function extractCartProductData(product: CartItemWithProduct['product']): CartPr
 // Helper to convert LocalCartItem to CartItemWithProduct
 function convertLocalItemToCartItem(localItem: LocalCartItem): CartItemWithProduct {
   // Create a full ProductAttributes object by filling in the missing fields with defaults
-  const fullProduct: CartItemWithProduct['product'] = {
+  const fullProduct = {
     ...localItem.product,
     shop_id: 0, // We don't need this in cart context
     category_ids: [], // We don't need this in cart context
@@ -73,7 +73,7 @@ function convertLocalItemToCartItem(localItem: LocalCartItem): CartItemWithProdu
     product_id: localItem.product_id,
     quantity: localItem.quantity,
     variant_index: localItem.variant_index,
-    product: fullProduct,
+    product: fullProduct as unknown as CartItemWithProduct['product'],
     subtotal: localItem.subtotal,
   };
 }

@@ -30,7 +30,7 @@ import {
 import axios from 'axios';
 import { ProductLoading } from '@/components/Loading';
 import { cn } from '@/lib/utils';
-import { ProductAttributes } from '@/models/Product';
+import { ClientProduct } from '@/types';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux.hook';
 import { formatPrice } from '@/lib/currency';
 import { 
@@ -52,7 +52,7 @@ export default function ProductDetailsPage() {
   const reduxState = useAppSelector(state => state);
   const cartStatus = useAppSelector(selectCartStatus);
 
-  const [product, setProduct] = useState<ProductAttributes | null>(null);
+  const [product, setProduct] = useState<ClientProduct | null>(null);
   // const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -63,7 +63,7 @@ export default function ProductDetailsPage() {
   
   // Product interaction states
   const [selectedImage, setSelectedImage] = useState<string>('');
-  const [selectedVariant, setSelectedVariant] = useState<ProductAttributes['variants'][0] | null>(null);
+  const [selectedVariant, setSelectedVariant] = useState<ClientProduct['variants'][0] | null>(null);
   const [selectedAttributes, setSelectedAttributes] = useState<Record<string, string>>({});
   const [quantity, setQuantity] = useState(1);
   const [isInWishlist, setIsInWishlist] = useState(false);
@@ -100,7 +100,7 @@ export default function ProductDetailsPage() {
       
       // Set default variant if available
       if (productData.variants && productData.variants.length > 0) {
-        const defaultVariant = productData.variants.find((v: ProductAttributes['variants'][0]) => v.is_default) || productData.variants[0];
+        const defaultVariant = productData.variants.find((v: ClientProduct['variants'][0]) => v.is_default) || productData.variants[0];
         setSelectedVariant(defaultVariant);
         setSelectedAttributes(defaultVariant.attributes);
       }
