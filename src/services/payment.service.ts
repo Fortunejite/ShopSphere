@@ -55,7 +55,7 @@ class PaymentService {
     return url;
   }
 
-  static async generatePaystackAccount(
+  static async createPaystackAccount(
     domain: Shop['domain'],
     data: z.infer<typeof accountConnectSchema>,
   ) {
@@ -72,18 +72,13 @@ class PaymentService {
     if (!account) {
       throw new Error('Failed to create Paystack account');
     }
-    return account;
-  }
 
-  static async linkPaystackAccount(
-    shopId: Shop['id'],
-    subaccount_code: string,
-    connected: boolean,
-  ) {
-    await shopUpdate(shopId, {
-      paystack_account_id: subaccount_code,
-      paystack_account_connected: connected,
+    await shopUpdate(shop.id, {
+      paystack_account_id: account.subaccount_code,
+      paystack_account_connected: true,
     });
+
+    return account;
   }
 
   static async linkStripeAccount(domain: Shop['domain']) {

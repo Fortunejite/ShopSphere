@@ -13,7 +13,7 @@ export const GET = errorHandler(async (request, { params }) => {
 export const POST = errorHandler(async (request, { params }) => {
   const { domain } = await params;
 
-  const account = await PaymentService.generatePaystackAccount(
+  const account = await PaymentService.createPaystackAccount(
     domain!,
     await request.json(),
   );
