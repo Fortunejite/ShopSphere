@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge';
 
 import { useAppDispatch, useAppSelector } from '@/hooks/redux.hook';
 import { fetchShop } from '@/redux/shopSlice';
-import { ShopWithOwner } from '@/models/Shop';
+import { ShopWithOwner } from '@/types';
 import ShopNavbar from '@/components/ShopNavbar';
 import ShopFooter from '@/components/ShopFooter';
 import ShopTheme from '@/components/ShopTheme';

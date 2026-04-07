@@ -26,7 +26,7 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import { useAppSelector } from '@/hooks/redux.hook';
-import { ShopWithOwner } from '@/models/Shop';
+import { ShopWithOwner } from '@/types';
 import { generateURL } from '@/lib/domain';
 import { useSession } from 'next-auth/react';
 
@@ -232,7 +232,7 @@ export default function ShopsPage() {
                       </CardDescription>
                     </div>
                     <Badge variant="secondary" className="text-xs">
-                      {shop.category}
+                      {shop.category.name}
                     </Badge>
                   </div>
                 </CardHeader>

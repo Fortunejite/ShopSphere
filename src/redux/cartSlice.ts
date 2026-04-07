@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk, isAnyOf } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { clientErrorHandler } from '@/lib/errorHandler';
-import { CartWithProducts, CartItem, CartItemWithProduct } from '@/models/Cart';
+import { CartWithProducts, CartItem, CartItemWithProduct } from '@/types';
 import { 
   getLocalCart,
   addToLocalCart, 

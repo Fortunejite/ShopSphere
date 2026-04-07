@@ -1,25 +1,25 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import axios from 'axios';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { toast } from 'sonner';
 import { 
   Settings,
   Store,
   Palette,
   Mail,
   Save,
-  AlertCircle,
-  CheckCircle,
   Upload,
+  CreditCard,
+  ExternalLink,
   Image as ImageIcon,
   Loader2,
   X,
@@ -27,29 +27,35 @@ import {
 import { ProductLoading } from '@/components/Loading';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux.hook';
 import { uploadPhoto } from '@/lib/uploadPhoto';
+import { accountConnectSchema } from '@/lib/schema/paystack';
 import { createShopSchema } from '@/lib/schema/shop';
 import { colorTheme } from '@/models/Shop';
 import Image from 'next/image';
 import { updateShop } from '@/redux/shopSlice';
+import { Bank, PaystackSubAccount } from '@/types';
 import ThemeCustomizer from '@/components/ThemeCustomizer';
+import { Toaster } from '@/components/ui/sonner';
+import { generateURL } from '@/lib/domain';
 
 type ShopSettingsFormData = z.infer<typeof createShopSchema>;
+type PaystackConnectFormData = z.infer<typeof accountConnectSchema>;
 
 export default function AdminSettingsPage() {
   const { domain } = useParams();
+  const shopDomain = Array.isArray(domain) ? domain[0] : domain;
   const dispatch = useAppDispatch();
   const { shop } = useAppSelector(state => state.shop);
   
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [toast, setToast] = useState<{ 
-    type: 'success' | 'error'; 
-    title: string; 
-    message: string; 
-    show: boolean 
-  } | null>(null);
   const [isLogoUploading, setIsLogoUploading] = useState(false);
   const [isBannerUploading, setIsBannerUploading] = useState(false);
+  const [isStripeActionLoading, setIsStripeActionLoading] = useState(false);
+  const [isPaystackLoading, setIsPaystackLoading] = useState(false);
+  const [isCreatingPaystackAccount, setIsCreatingPaystackAccount] = useState(false);
+  const [banks, setBanks] = useState<Bank[]>([]);
+  const [bankSearch, setBankSearch] = useState('');
+  const [paystackSubAccount, setPaystackSubAccount] = useState<PaystackSubAccount | null>(null);
   
   // Theme state
   const [lightTheme, setLightTheme] = useState<colorTheme>({
@@ -69,7 +75,9 @@ export default function AdminSettingsPage() {
   });
   
   const [hasThemeChanges, setHasThemeChanges] = useState(false);
+  const [activeTab, setActiveTab] = useState<'basic' | 'contact' | 'appearance' | 'payments'>('basic');
 
+  // Note: using `sonner` for toasts instead of local toast state
   const form = useForm<ShopSettingsFormData>({
     resolver: zodResolver(createShopSchema),
     defaultValues: {
@@ -92,14 +100,13 @@ export default function AdminSettingsPage() {
     }
   });
 
-  // Toast notification helper
-  const showToast = (type: 'success' | 'error', title: string, message: string) => {
-    setToast({ type, title, message, show: true });
-    setTimeout(() => {
-      setToast(prev => prev ? { ...prev, show: false } : null);
-      setTimeout(() => setToast(null), 300); // Allow fade out animation
-    }, 4000);
-  };
+  const paystackForm = useForm<PaystackConnectFormData>({
+    resolver: zodResolver(accountConnectSchema),
+    defaultValues: {
+      bankCode: '',
+      accountNumber: '',
+    },
+  });
 
   useEffect(() => {
     if (shop) {
@@ -143,20 +150,12 @@ export default function AdminSettingsPage() {
       
       if (result.success) {
         form.setValue(type, result.url);
-        showToast(
-          'success',
-          'Upload Successful!',
-          `Your ${type === 'logo' ? 'logo' : 'banner'} has been uploaded successfully.`
-        );
+        toast.success(`Your ${type === 'logo' ? 'logo' : 'banner'} has been uploaded successfully.`);
       } else {
-        showToast('error', 'Upload Failed', result.error || 'Failed to upload image. Please try again.');
+        toast.error(result.error || 'Failed to upload image. Please try again.');
       }
     } catch (error) {
-      showToast(
-        'error', 
-        'Upload Error',
-        error instanceof Error ? error.message : 'An unexpected error occurred during upload.'
-      );
+      toast.error(error instanceof Error ? error.message : 'An unexpected error occurred during upload.');
     } finally {
       const uploadSetter = type === 'logo' ? setIsLogoUploading : setIsBannerUploading;
       uploadSetter(false);
@@ -165,11 +164,7 @@ export default function AdminSettingsPage() {
 
   const handleImageRemove = (type: 'logo' | 'banner') => {
     form.setValue(type, '');
-    showToast(
-      'success',
-      'Image Removed',
-      `${type === 'logo' ? 'Logo' : 'Banner'} has been removed successfully.`
-    );
+    toast.success(`${type === 'logo' ? 'Logo' : 'Banner'} has been removed successfully.`);
   };
 
   const handleThemeColorChange = (
@@ -273,11 +268,7 @@ export default function AdminSettingsPage() {
     setDarkTheme(defaultDark);
     setHasThemeChanges(true);
     
-    showToast(
-      'success',
-      'Theme Reset',
-      'Theme colors have been reset to defaults.'
-    );
+    toast.success('Theme colors have been reset to defaults.');
   };
 
   const onSubmit = async (data: ShopSettingsFormData) => {
@@ -291,25 +282,110 @@ export default function AdminSettingsPage() {
         dark_theme: darkTheme
       };
 
-      await axios.put(`/api/shops/${domain}`, submitData);
-      showToast(
-        'success',
-        'Settings Updated!',
-        'Your shop settings have been saved successfully.'
-      );
+      await axios.put(`/api/shops/${shopDomain}`, submitData);
+      toast.success('Your shop settings have been saved successfully.');
       dispatch(updateShop(submitData));
       setHasThemeChanges(false);
     } catch (error) {
       console.error('Error updating settings:', error);
-      showToast(
-        'error',
-        'Update Failed',
-        'Failed to update your settings. Please check your connection and try again.'
-      );
+      toast.error('Failed to update your settings. Please check your connection and try again.');
     } finally {
       setIsSaving(false);
     }
   };
+
+  const filteredBanks = banks.filter((bank) =>
+    `${bank.name} ${bank.code}`.toLowerCase().includes(bankSearch.toLowerCase()),
+  );
+
+  const selectedBankCode = paystackForm.watch('bankCode');
+  const selectedBank = banks.find((bank) => bank.code === selectedBankCode);
+
+  const fetchPaystackBanks = useCallback(async () => {
+    if (!shopDomain) return;
+    try {
+      const { data } = await axios.get(`/api/shops/${shopDomain}/paystack/banks`);
+      setBanks(data?.banks ?? []);
+    } catch (error) {
+      console.error('Error fetching banks:', error);
+      toast.error('Unable to load banks. Please refresh and try again.');
+    }
+  }, [shopDomain]);
+
+  const fetchPaystackSubAccount = useCallback(async () => {
+    if (!shopDomain) return;
+
+    try {
+      setIsPaystackLoading(true);
+      const { data } = await axios.get(`/api/shops/${shopDomain}/paystack/sub-account`);
+      setPaystackSubAccount(data as PaystackSubAccount);
+    } catch (error) {
+      console.error('Error fetching Paystack sub-account:', error);
+      toast.error('Unable to load Paystack account details.');
+    } finally {
+      setIsPaystackLoading(false);
+    }
+  }, [shopDomain]);
+
+  const handleCreatePaystackAccount = async (data: PaystackConnectFormData) => {
+    if (!shopDomain) return;
+
+    try {
+      setIsCreatingPaystackAccount(true);
+      const response = await axios.post(`/api/shops/${shopDomain}/paystack/sub-account`, data);
+      const account = response.data?.account;
+
+      setPaystackSubAccount({
+        account_number: account?.account_number ?? data.accountNumber,
+        settlement_bank: account?.settlement_bank ?? selectedBank?.name ?? data.bankCode,
+      });
+
+      dispatch(updateShop({ paystack_account_connected: true }));
+      toast.success('Paystack sub-account connected successfully.');
+    } catch (error) {
+      console.error('Error creating Paystack sub-account:', error);
+      toast.error('Failed to connect Paystack sub-account. Please verify details and try again.');
+    } finally {
+      setIsCreatingPaystackAccount(false);
+    }
+  };
+
+  const handleConnectStripe = async () => {
+    if (!shopDomain) return;
+
+    try {
+      setIsStripeActionLoading(true);
+      const { data } = await axios.get(`/api/shops/${shopDomain}/stripe/genetate-acount-link`);
+      if (data?.url) {
+        window.location.href = data.url;
+      }
+    } catch (error) {
+      console.error('Error connecting Stripe account:', error);
+      toast.error('Failed to connect Stripe. Please try again.');
+      setIsStripeActionLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab !== 'payments' || !shopDomain) return;
+
+    if (banks.length === 0) {
+      fetchPaystackBanks();
+    }
+
+    if (shop?.paystack_account_connected && !paystackSubAccount && !isPaystackLoading) {
+      fetchPaystackSubAccount();
+    }
+  }, [
+    activeTab,
+    shopDomain,
+    shop?.paystack_account_connected,
+    banks.length,
+    paystackSubAccount,
+    isPaystackLoading,
+    fetchPaystackBanks,
+    fetchPaystackSubAccount,
+  ]);
 
   if (isLoading) {
     return <ProductLoading text="Loading shop settings..." fullPage />;
@@ -318,7 +394,7 @@ export default function AdminSettingsPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-card border-b">
+      <div className="bg-card">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
             <div>
@@ -334,393 +410,614 @@ export default function AdminSettingsPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Basic Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Store className="w-5 h-5" />
-                  Basic Information
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="name">Shop Name *</Label>
-                  <Input
-                    id="name"
-                    {...form.register('name')}
-                    placeholder="My Awesome Shop"
-                  />
-                  {form.formState.errors.name && (
-                    <p className="text-sm text-error mt-1">
-                      {form.formState.errors.name.message}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    {...form.register('description')}
-                    placeholder="Describe your shop and what you sell..."
-                    rows={3}
-                  />
-                  {form.formState.errors.description && (
-                    <p className="text-sm text-error mt-1">
-                      {form.formState.errors.description.message}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <Label htmlFor="tagline">Tagline</Label>
-                  <Input
-                    id="tagline"
-                    {...form.register('tagline')}
-                    placeholder="Enter a catchy tagline for your shop"
-                  />
-                  {form.formState.errors.tagline && (
-                    <p className="text-sm text-error mt-1">
-                      {form.formState.errors.tagline.message}
-                    </p>
-                  )}
-                  <p className="text-xs text-muted-foreground mt-1">
-                    A short, memorable phrase that captures your shop&apos;s essence (max 100 characters)
-                  </p>
-                </div>
-
-                <div>
-                  <Label htmlFor="domain">Shop Domain *</Label>
-                  <Input
-                    id="domain"
-                    {...form.register('domain')}
-                    placeholder="myshop"
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Your shop will be accessible at: /shops/{form.watch('domain')}
-                  </p>
-                  {form.formState.errors.domain && (
-                    <p className="text-sm text-error mt-1">
-                      {form.formState.errors.domain.message}
-                    </p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Contact Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Mail className="w-5 h-5" />
-                  Contact Information
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    {...form.register('email')}
-                    placeholder="contact@myshop.com"
-                  />
-                  {form.formState.errors.email && (
-                    <p className="text-sm text-error mt-1">
-                      {form.formState.errors.email.message}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <Label htmlFor="phone">Phone</Label>
-                  <Input
-                    id="phone"
-                    {...form.register('phone')}
-                    placeholder="+1 (555) 123-4567"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="address">Address</Label>
-                  <Input
-                    id="address"
-                    {...form.register('address')}
-                    placeholder="123 Business St"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="city">City</Label>
-                    <Input
-                      id="city"
-                      {...form.register('city')}
-                      placeholder="New York"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="state">State</Label>
-                    <Input
-                      id="state"
-                      {...form.register('state')}
-                      placeholder="NY"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="postal_code">Postal Code</Label>
-                    <Input
-                      id="postal_code"
-                      {...form.register('postal_code')}
-                      placeholder="10001"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="country">Country</Label>
-                    <select
-                      id="country"
-                      {...form.register('country')}
-                      className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                    >
-                      <option value="US">United States</option>
-                      <option value="CA">Canada</option>
-                      <option value="GB">United Kingdom</option>
-                      <option value="AU">Australia</option>
-                      <option value="DE">Germany</option>
-                      <option value="FR">France</option>
-                    </select>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Appearance */}
-            <Card className="lg:col-span-2">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Palette className="w-5 h-5" />
-                  Appearance
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Logo Upload */}
-                <div>
-                  <Label>Shop Logo</Label>
-                  <div className="mt-3">
-                    {form.watch('logo') ? (
-                      <div className="relative inline-block">
-                        <Image
-                          src={form.watch('logo') ?? ''}
-                          alt="Shop logo"
-                          width={80}
-                          height={80}
-                          className="w-20 h-20 object-cover rounded-lg border-2 border-border"
-                        />
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="sm"
-                          className="absolute -top-2 -right-2 w-6 h-6 p-0 rounded-full"
-                          onClick={() => handleImageRemove('logo')}
-                          disabled={isSaving}
-                        >
-                          <X className="w-3 h-3" />
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="w-20 h-20 bg-muted border-2 border-dashed border-border rounded-lg flex items-center justify-center">
-                        <ImageIcon className="w-8 h-8 text-muted-foreground" />
-                      </div>
-                    )}
-                    
-                    <div className="mt-3">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) handleImageUpload(file, 'logo');
-                        }}
-                        disabled={isSaving || isLogoUploading}
-                        className="hidden"
-                        id="logo-upload"
-                      />
-                      <Button 
-                        type="button" 
-                        variant="outline" 
-                        size="sm"
-                        disabled={isSaving || isLogoUploading}
-                        asChild
-                      >
-                        <label htmlFor="logo-upload" className="cursor-pointer">
-                          {isLogoUploading ? (
-                            <>
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                              Uploading...
-                            </>
-                          ) : (
-                            <>
-                              <Upload className="w-4 h-4 mr-2" />
-                              Upload Logo
-                            </>
-                          )}
-                        </label>
-                      </Button>
-                      <p className="text-xs text-muted-foreground mt-2">
-                        PNG, JPG up to 5MB. Recommended: 200x200px
-                      </p>
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="flex flex-col md:flex-row md:items-start gap-6 md:gap-0">
+          {/* Sidebar */}
+          <aside className="w-full md:w-56 md:sticky md:top-20">
+            <nav className="flex md:flex-col gap-2 overflow-auto" role="tablist" aria-orientation="vertical">
+              <button
+                role="tab"
+                aria-selected={activeTab === 'basic'}
+                onClick={() => setActiveTab('basic')}
+                className={`w-full text-left px-3 py-2 rounded-md text-sm flex items-center gap-2 ${activeTab === 'basic' ? 'bg-muted font-semibold' : 'hover:bg-muted'}`}>
+                <Store className="w-4 h-4" />
+                Basic
+              </button>
+              <button
+                role="tab"
+                aria-selected={activeTab === 'contact'}
+                onClick={() => setActiveTab('contact')}
+                className={`w-full text-left px-3 py-2 rounded-md text-sm flex items-center gap-2 ${activeTab === 'contact' ? 'bg-muted font-semibold' : 'hover:bg-muted'}`}>
+                <Mail className="w-4 h-4" />
+                Contact
+              </button>
+              <button
+                role="tab"
+                aria-selected={activeTab === 'appearance'}
+                onClick={() => setActiveTab('appearance')}
+                className={`w-full text-left px-3 py-2 rounded-md text-sm flex items-center gap-2 ${activeTab === 'appearance' ? 'bg-muted font-semibold' : 'hover:bg-muted'}`}>
+                <Palette className="w-4 h-4" />
+                Appearance
+              </button>
+              <button
+                role="tab"
+                aria-selected={activeTab === 'payments'}
+                onClick={() => setActiveTab('payments')}
+                className={`w-full text-left px-3 py-2 rounded-md text-sm flex items-center gap-2 ${activeTab === 'payments' ? 'bg-muted font-semibold' : 'hover:bg-muted'}`}>
+                <CreditCard className="w-4 h-4" />
+                Payments
+              </button>
+            </nav>
+          </aside>
+  
+          {/* Main content / form */}
+          <main className="flex-1">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <div className="grid grid-cols-1 gap-6">
+                {/* Basic tab */}
+                {activeTab === 'basic' && (
+                  <section id="basic" className="bg-card/70 p-6 pt-0 rounded-md">
+                    <div className="mb-3">
+                      <h2 className="text-lg font-semibold flex items-center gap-2"><Store className="w-5 h-5" /> Basic Information</h2>
                     </div>
-                  </div>
-                </div>
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="name">Shop Name *</Label>
+                        <Input id="name" {...form.register('name')} placeholder="My Awesome Shop" />
+                        {form.formState.errors.name && (
+                          <p className="text-sm text-error mt-1">
+                            {form.formState.errors.name.message}
+                          </p>
+                        )}
+                      </div>
 
-                {/* Banner Upload */}
-                <div>
-                  <Label>Banner Image</Label>
-                  <div className="mt-3">
-                    {form.watch('banner') ? (
-                      <div className="relative inline-block">
-                        <Image
-                          src={form.watch('banner') ?? ''}
-                          alt="Shop banner"
-                          width={240}
-                          height={80}
-                          className="w-60 h-20 object-cover rounded-lg border-2 border-border"
+                      <div>
+                        <Label htmlFor="description">Description</Label>
+                        <Textarea
+                          id="description"
+                          {...form.register('description')}
+                          placeholder="Describe your shop and what you sell..."
+                          rows={3}
                         />
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="sm"
-                          className="absolute -top-2 -right-2 w-6 h-6 p-0 rounded-full"
-                          onClick={() => handleImageRemove('banner')}
-                          disabled={isSaving}
-                        >
-                          <X className="w-3 h-3" />
-                        </Button>
+                        {form.formState.errors.description && (
+                          <p className="text-sm text-error mt-1">
+                            {form.formState.errors.description.message}
+                          </p>
+                        )}
                       </div>
-                    ) : (
-                      <div className="w-60 h-20 bg-muted border-2 border-dashed border-border rounded-lg flex items-center justify-center">
-                        <ImageIcon className="w-6 h-6 text-muted-foreground" />
+
+                      <div>
+                        <Label htmlFor="tagline">Tagline</Label>
+                        <Input
+                          id="tagline"
+                          {...form.register('tagline')}
+                          placeholder="Enter a catchy tagline for your shop"
+                        />
+                        {form.formState.errors.tagline && (
+                          <p className="text-sm text-error mt-1">
+                            {form.formState.errors.tagline.message}
+                          </p>
+                        )}
+                        <p className="text-xs text-muted-foreground mt-1">
+                          A short, memorable phrase that captures your shop&apos;s essence (max 100 characters)
+                        </p>
                       </div>
-                    )}
-                    
-                    <div className="mt-3">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) handleImageUpload(file, 'banner');
-                        }}
-                        disabled={isSaving || isBannerUploading}
-                        className="hidden"
-                        id="banner-upload"
-                      />
-                      <Button 
-                        type="button" 
-                        variant="outline" 
-                        size="sm"
-                        disabled={isSaving || isBannerUploading}
-                        asChild
-                      >
-                        <label htmlFor="banner-upload" className="cursor-pointer">
-                          {isBannerUploading ? (
-                            <>
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                              Uploading...
-                            </>
-                          ) : (
-                            <>
-                              <Upload className="w-4 h-4 mr-2" />
-                              Upload Banner
-                            </>
-                          )}
-                        </label>
-                      </Button>
-                      <p className="text-xs text-muted-foreground mt-2">
-                        PNG, JPG up to 5MB. Recommended: 1200x400px
-                      </p>
+
+                      <div>
+                        <Label htmlFor="domain">Shop Domain *</Label>
+                        <Input
+                          id="domain"
+                          {...form.register('domain')}
+                          placeholder="myshop"
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Your shop will be accessible at: {generateURL(form.watch('domain'))}
+                        </p>
+                        {form.formState.errors.domain && (
+                          <p className="text-sm text-error mt-1">
+                            {form.formState.errors.domain.message}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </div>
-
-                {/* Theme Customization */}
-                <ThemeCustomizer 
-                  lightTheme={lightTheme}
-                  darkTheme={darkTheme}
-                  hasThemeChanges={hasThemeChanges}
-                  resetThemeToDefaults={resetThemeToDefaults}
-                  handleThemeColorChange={handleThemeColorChange}
-                />
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Save Button */}
-          <div className="flex justify-end">
-            <Button
-              type="submit"
-              disabled={isSaving || isLogoUploading || isBannerUploading}
-              className="flex items-center gap-2"
-            >
-              <Save className="w-4 h-4" />
-              {isSaving ? 'Saving...' : 'Save Settings'}
-            </Button>
-          </div>
-        </form>
-      </div>
-
-      {/* Toast Notification */}
-      {toast && (
-        <div className={`fixed top-4 right-4 z-50 transition-all duration-300 transform ${
-          toast.show ? 'translate-y-0 opacity-100' : '-translate-y-2 opacity-0'
-        }`}>
-          <div className={`max-w-md w-full rounded-lg shadow-lg p-4 ${
-            toast.type === 'success' 
-              ? 'bg-success/10 border-l-4 border-success' 
-              : 'bg-error/10 border-l-4 border-error'
-          }`}>
-            <div className="flex items-start">
-              <div className="shrink-0">
-                {toast.type === 'success' ? (
-                  <CheckCircle className="h-5 w-5 text-success" />
-                ) : (
-                  <AlertCircle className="h-5 w-5 text-error" />
+                  </section>
                 )}
+
+                {/* Contact tab */}
+                {activeTab === 'contact' && (
+                  <section id="contact" className="bg-card/70 p-6 rounded-md">
+                    <div className="mb-3">
+                      <h2 className="text-lg font-semibold flex items-center gap-2"><Mail className="w-5 h-5" /> Contact Information</h2>
+                    </div>
+                    <div className="space-y-4">
+                       <div>
+                         <Label htmlFor="email">Email</Label>
+                         <Input
+                           id="email"
+                           type="email"
+                           {...form.register('email')}
+                           placeholder="contact@myshop.com"
+                         />
+                         {form.formState.errors.email && (
+                           <p className="text-sm text-error mt-1">
+                             {form.formState.errors.email.message}
+                           </p>
+                         )}
+                       </div>
+
+                       <div>
+                         <Label htmlFor="phone">Phone</Label>
+                         <Input
+                           id="phone"
+                           {...form.register('phone')}
+                           placeholder="+1 (555) 123-4567"
+                         />
+                       </div>
+
+                       <div>
+                         <Label htmlFor="address">Address</Label>
+                         <Input
+                           id="address"
+                           {...form.register('address')}
+                           placeholder="123 Business St"
+                         />
+                       </div>
+
+                       <div className="grid grid-cols-2 gap-4">
+                         <div>
+                           <Label htmlFor="city">City</Label>
+                           <Input
+                             id="city"
+                             {...form.register('city')}
+                             placeholder="New York"
+                           />
+                         </div>
+                         <div>
+                           <Label htmlFor="state">State</Label>
+                           <Input
+                             id="state"
+                             {...form.register('state')}
+                             placeholder="NY"
+                           />
+                         </div>
+                       </div>
+
+                       <div className="grid grid-cols-2 gap-4">
+                         <div>
+                           <Label htmlFor="postal_code">Postal Code</Label>
+                           <Input
+                             id="postal_code"
+                             {...form.register('postal_code')}
+                             placeholder="10001"
+                           />
+                         </div>
+                         <div>
+                           <Label htmlFor="country">Country</Label>
+                           <select
+                             id="country"
+                             {...form.register('country')}
+                             className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                           >
+                             <option value="US">United States</option>
+                             <option value="CA">Canada</option>
+                             <option value="GB">United Kingdom</option>
+                             <option value="AU">Australia</option>
+                             <option value="DE">Germany</option>
+                             <option value="FR">France</option>
+                           </select>
+                         </div>
+                       </div>
+                     </div>
+                   </section>
+                )}
+
+                {/* Appearance tab */}
+                {activeTab === 'appearance' && (
+                  <section id="appearance" className="bg-card/70 p-6 rounded-md lg:col-span-2">
+                    <div className="mb-3">
+                      <h2 className="text-lg font-semibold flex items-center gap-2"><Palette className="w-5 h-5" /> Appearance</h2>
+                    </div>
+                    <div className="space-y-6">
+                       {/* Logo and Banner Uploads */}
+                       <div>
+                         <Label>Shop Logo</Label>
+                         <div className="mt-3">
+                           {form.watch('logo') ? (
+                             <div className="relative inline-block">
+                               <Image
+                                 src={form.watch('logo') ?? ''}
+                                 alt="Shop logo"
+                                 width={80}
+                                 height={80}
+                                 className="w-20 h-20 object-cover rounded-lg border-2 border-border"
+                               />
+                               <Button
+                                 type="button"
+                                 variant="destructive"
+                                 size="sm"
+                                 className="absolute -top-2 -right-2 w-6 h-6 p-0 rounded-full"
+                                 onClick={() => handleImageRemove('logo')}
+                                 disabled={isSaving}
+                               >
+                                 <X className="w-3 h-3" />
+                               </Button>
+                             </div>
+                           ) : (
+                             <div className="w-20 h-20 bg-muted border-2 border-dashed border-border rounded-lg flex items-center justify-center">
+                               <ImageIcon className="w-8 h-8 text-muted-foreground" />
+                             </div>
+                           )}
+                           
+                           <div className="mt-3">
+                             <input
+                               type="file"
+                               accept="image/*"
+                               onChange={(e) => {
+                                 const file = e.target.files?.[0];
+                                 if (file) handleImageUpload(file, 'logo');
+                               }}
+                               disabled={isSaving || isLogoUploading}
+                               className="hidden"
+                               id="logo-upload"
+                             />
+                             <Button 
+                               type="button" 
+                               variant="outline" 
+                               size="sm"
+                               disabled={isSaving || isLogoUploading}
+                               asChild
+                             >
+                               <label htmlFor="logo-upload" className="cursor-pointer">
+                                 {isLogoUploading ? (
+                                   <>
+                                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                     Uploading...
+                                   </>
+                                 ) : (
+                                   <>
+                                     <Upload className="w-4 h-4 mr-2" />
+                                     Upload Logo
+                                   </>
+                                 )}
+                               </label>
+                             </Button>
+                             <p className="text-xs text-muted-foreground mt-2">
+                               PNG, JPG up to 5MB. Recommended: 200x200px
+                             </p>
+                           </div>
+                         </div>
+                       </div>
+
+                       <div>
+                         <Label>Banner Image</Label>
+                         <div className="mt-3">
+                           {form.watch('banner') ? (
+                             <div className="relative inline-block">
+                               <Image
+                                 src={form.watch('banner') ?? ''}
+                                 alt="Shop banner"
+                                 width={240}
+                                 height={80}
+                                 className="w-60 h-20 object-cover rounded-lg border-2 border-border"
+                               />
+                               <Button
+                                 type="button"
+                                 variant="destructive"
+                                 size="sm"
+                                 className="absolute -top-2 -right-2 w-6 h-6 p-0 rounded-full"
+                                 onClick={() => handleImageRemove('banner')}
+                                 disabled={isSaving}
+                               >
+                                 <X className="w-3 h-3" />
+                               </Button>
+                             </div>
+                           ) : (
+                             <div className="w-60 h-20 bg-muted border-2 border-dashed border-border rounded-lg flex items-center justify-center">
+                               <ImageIcon className="w-6 h-6 text-muted-foreground" />
+                             </div>
+                           )}
+                           
+                           <div className="mt-3">
+                             <input
+                               type="file"
+                               accept="image/*"
+                               onChange={(e) => {
+                                 const file = e.target.files?.[0];
+                                 if (file) handleImageUpload(file, 'banner');
+                               }}
+                               disabled={isSaving || isBannerUploading}
+                               className="hidden"
+                               id="banner-upload"
+                             />
+                             <Button 
+                               type="button" 
+                               variant="outline" 
+                               size="sm"
+                               disabled={isSaving || isBannerUploading}
+                               asChild
+                             >
+                               <label htmlFor="banner-upload" className="cursor-pointer">
+                                 {isBannerUploading ? (
+                                   <>
+                                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                     Uploading...
+                                   </>
+                                 ) : (
+                                   <>
+                                     <Upload className="w-4 h-4 mr-2" />
+                                     Upload Banner
+                                   </>
+                                 )}
+                               </label>
+                             </Button>
+                             <p className="text-xs text-muted-foreground mt-2">
+                               PNG, JPG up to 5MB. Recommended: 1200x400px
+                             </p>
+                           </div>
+                         </div>
+                       </div>
+
+                       {/* Simple Theme Editor: core colors with live preview (more advanced editor remains in ThemeCustomizer) */}
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                         <div className="p-3 border rounded-md">
+                           <h3 className="text-sm font-semibold mb-2">Light Theme</h3>
+                           <div className="grid grid-cols-2 gap-2 items-center">
+                             <label className="text-xs">Primary</label>
+                             <input
+                               aria-label="Light primary color"
+                               type="color"
+                               value={lightTheme.primary}
+                               onChange={(e) => handleThemeColorChange('light', 'primary', e.target.value)}
+                               className="w-full h-8 p-0 border rounded"
+                             />
+
+                             <label className="text-xs">Background</label>
+                             <input
+                               aria-label="Light background color"
+                               type="color"
+                               value={lightTheme.background}
+                               onChange={(e) => handleThemeColorChange('light', 'background', e.target.value)}
+                               className="w-full h-8 p-0 border rounded"
+                             />
+
+                             <label className="text-xs">Text</label>
+                             <input
+                               aria-label="Light text color"
+                               type="color"
+                               value={lightTheme.text}
+                               onChange={(e) => handleThemeColorChange('light', 'text', e.target.value)}
+                               className="w-full h-8 p-0 border rounded"
+                             />
+
+                             <label className="text-xs">Accent</label>
+                             <input
+                               aria-label="Light accent color"
+                               type="color"
+                               value={lightTheme.accent}
+                               onChange={(e) => handleThemeColorChange('light', 'accent', e.target.value)}
+                               className="w-full h-8 p-0 border rounded"
+                             />
+                           </div>
+
+                           <div className="mt-3 p-2 rounded" style={{background: lightTheme.background, color: lightTheme.text}}>
+                             <p className="text-sm">Preview: <span style={{color: lightTheme.primary}}>Primary</span> • <span style={{background: lightTheme.accent, padding: '2px 6px', borderRadius: 4}}>Accent</span></p>
+                           </div>
+                         </div>
+
+                         <div className="p-3 border rounded-md">
+                           <h3 className="text-sm font-semibold mb-2">Dark Theme</h3>
+                           <div className="grid grid-cols-2 gap-2 items-center">
+                             <label className="text-xs">Primary</label>
+                             <input
+                               aria-label="Dark primary color"
+                               type="color"
+                               value={darkTheme.primary}
+                               onChange={(e) => handleThemeColorChange('dark', 'primary', e.target.value)}
+                               className="w-full h-8 p-0 border rounded"
+                             />
+
+                             <label className="text-xs">Background</label>
+                             <input
+                               aria-label="Dark background color"
+                               type="color"
+                               value={darkTheme.background}
+                               onChange={(e) => handleThemeColorChange('dark', 'background', e.target.value)}
+                               className="w-full h-8 p-0 border rounded"
+                             />
+
+                             <label className="text-xs">Text</label>
+                             <input
+                               aria-label="Dark text color"
+                               type="color"
+                               value={darkTheme.text}
+                               onChange={(e) => handleThemeColorChange('dark', 'text', e.target.value)}
+                               className="w-full h-8 p-0 border rounded"
+                             />
+
+                             <label className="text-xs">Accent</label>
+                             <input
+                               aria-label="Dark accent color"
+                               type="color"
+                               value={darkTheme.accent}
+                               onChange={(e) => handleThemeColorChange('dark', 'accent', e.target.value)}
+                               className="w-full h-8 p-0 border rounded"
+                             />
+                           </div>
+
+                           <div className="mt-3 p-2 rounded" style={{background: darkTheme.background, color: darkTheme.text}}>
+                             <p className="text-sm">Preview: <span style={{color: darkTheme.primary}}>Primary</span> • <span style={{background: darkTheme.accent, padding: '2px 6px', borderRadius: 4}}>Accent</span></p>
+                           </div>
+                         </div>
+                       </div>
+
+                       {/* Advanced customizer kept */}
+                       <div>
+                         <Label>Advanced Theme Customization</Label>
+                         <p className="text-xs text-muted-foreground">Fine tune more theme tokens below.</p>
+                         <div className="mt-3">
+                           <ThemeCustomizer 
+                             lightTheme={lightTheme}
+                             darkTheme={darkTheme}
+                             hasThemeChanges={hasThemeChanges}
+                             resetThemeToDefaults={resetThemeToDefaults}
+                             handleThemeColorChange={handleThemeColorChange}
+                           />
+                         </div>
+                       </div>
+                     </div>
+                   </section>
+                )}
+
+                {/* Payments tab */}
+                {activeTab === 'payments' && (
+                  <section id="payments" className="bg-card/70 p-6 rounded-md">
+                    <div className="mb-3">
+                      <h2 className="text-lg font-semibold flex items-center gap-2"><CreditCard className="w-5 h-5" /> Payments</h2>
+                    </div>
+
+                    <div className="space-y-8">
+                      <div className="space-y-3">
+                        <h3 className="font-medium text-foreground">Stripe</h3>
+                        {shop?.stripe_account_connected ? (
+                          <div className="space-y-3">
+                            <p className="text-sm text-muted-foreground">Stripe is connected.</p>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => window.open('https://dashboard.stripe.com', '_blank', 'noopener,noreferrer')}
+                            >
+                              <ExternalLink className="w-4 h-4 mr-2" />
+                              Visit Stripe Dashboard
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="space-y-3">
+                            <p className="text-sm text-muted-foreground">Connect Stripe to receive payments.</p>
+                            <Button type="button" onClick={handleConnectStripe} disabled={isStripeActionLoading}>
+                              {isStripeActionLoading ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                  Redirecting...
+                                </>
+                              ) : (
+                                'Connect Stripe'
+                              )}
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="space-y-3">
+                        <h3 className="font-medium text-foreground">Paystack</h3>
+
+                        {shop?.paystack_account_connected ? (
+                          <div className="space-y-2">
+                            {isPaystackLoading ? (
+                              <p className="text-sm text-muted-foreground">Loading Paystack account details...</p>
+                            ) : paystackSubAccount ? (
+                              <div className="space-y-1 text-sm">
+                                <p><span className="text-muted-foreground">Account Number:</span> {paystackSubAccount.account_number}</p>
+                                <p><span className="text-muted-foreground">Settlement Bank:</span> {paystackSubAccount.settlement_bank}</p>
+                              </div>
+                            ) : (
+                              <Button type="button" variant="outline" onClick={fetchPaystackSubAccount}>
+                                Refresh Paystack Details
+                              </Button>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="space-y-4 max-w-md">
+                            <div className="space-y-2">
+                              <Label htmlFor="bank-search">Search Bank</Label>
+                              <Input
+                                id="bank-search"
+                                placeholder="Type bank name or code"
+                                value={bankSearch}
+                                onChange={(e) => setBankSearch(e.target.value)}
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label>Choose Bank</Label>
+                              <div className="max-h-44 overflow-y-auto rounded-md border border-border">
+                                {filteredBanks.length > 0 ? (
+                                  filteredBanks.map((bank) => (
+                                    <button
+                                      key={bank.id}
+                                      type="button"
+                                      onClick={() => {
+                                        paystackForm.setValue('bankCode', bank.code, { shouldValidate: true });
+                                        setBankSearch(bank.name);
+                                      }}
+                                      className={`w-full px-3 py-2 text-left text-sm hover:bg-muted ${selectedBankCode === bank.code ? 'bg-muted' : ''}`}
+                                    >
+                                      <span className="font-medium">{bank.name}</span>
+                                    </button>
+                                  ))
+                                ) : (
+                                  <p className="px-3 py-2 text-sm text-muted-foreground">No banks found.</p>
+                                )}
+                              </div>
+                              {paystackForm.formState.errors.bankCode && (
+                                <p className="text-sm text-error">{paystackForm.formState.errors.bankCode.message}</p>
+                              )}
+                              {selectedBank && (
+                                <p className="text-xs text-muted-foreground">Selected: {selectedBank.name}</p>
+                              )}
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="accountNumber">Account Number</Label>
+                              <Input
+                                id="accountNumber"
+                                placeholder="0123456789"
+                                {...paystackForm.register('accountNumber')}
+                              />
+                              {paystackForm.formState.errors.accountNumber && (
+                                <p className="text-sm text-error">{paystackForm.formState.errors.accountNumber.message}</p>
+                              )}
+                            </div>
+
+                            <Button
+                              type="button"
+                              onClick={paystackForm.handleSubmit(handleCreatePaystackAccount)}
+                              disabled={isCreatingPaystackAccount}
+                            >
+                              {isCreatingPaystackAccount ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                  Connecting...
+                                </>
+                              ) : (
+                                'Connect Paystack Account'
+                              )}
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </section>
+                )}
+
+                {/* Save Button */}
+                <div className="flex justify-end">
+                  <Button
+                    type="submit"
+                    disabled={isSaving || isLogoUploading || isBannerUploading}
+                    className="flex items-center gap-2"
+                  >
+                    <Save className="w-4 h-4" />
+                    {isSaving ? 'Saving...' : 'Save Settings'}
+                  </Button>
+                </div>
               </div>
-              <div className="ml-3 flex-1">
-                <p className={`text-sm font-semibold ${
-                  toast.type === 'success' ? 'text-success-foreground' : 'text-error-foreground'
-                }`}>
-                  {toast.title}
-                </p>
-                <p className={`text-sm mt-1 ${
-                  toast.type === 'success' ? 'text-success-foreground' : 'text-error-foreground'
-                }`}>
-                  {toast.message}
-                </p>
-              </div>
-              <div className="shrink-0 ml-4">
-                <button
-                  onClick={() => setToast(prev => prev ? { ...prev, show: false } : null)}
-                  className={`rounded-md inline-flex ${
-                    toast.type === 'success' 
-                      ? 'text-success hover:text-success/80 focus:ring-success' 
-                      : 'text-error hover:text-error/80 focus:ring-error'
-                  } focus:outline-none focus:ring-2 focus:ring-offset-2`}
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+             </form>
+           </main>
+         </div>
+       </div>
+
+      {/* Sonner Toaster */}
+      <Toaster richColors />
     </div>
   );
 }

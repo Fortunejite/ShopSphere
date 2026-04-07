@@ -1,0 +1,196 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  user
+  admin
+  guest
+}
+
+enum ShopStatus {
+  active
+  inactive
+  suspended
+}
+
+enum ProductStatus {
+  active
+  inactive
+  out_of_stock
+}
+
+enum OrderStatus {
+  pending // Order has been created but not paid so can't be processed yet
+  processing // Order has been paid and is being prepared for shipment
+  shipped // Order has been shipped
+  delivered // Order has been delivered
+  cancelled // Order has been cancelled
+}
+
+model User {
+  id            Int      @id @default(autoincrement())
+  email         String   @unique
+  username      String   @unique
+  phone_number  String
+  password_hash String
+  role          UserRole @default(user)
+  address       String
+  city          String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  shops  Shop[]
+  carts  Cart[]
+  orders Order[]
+
+  @@map("users")
+}
+
+model Category {
+  id         Int      @id @default(autoincrement())
+  name       String   @unique
+  slug       String   @unique
+  parent_id  Int?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  parent   Category?  @relation("CategoryToCategory", fields: [parent_id], references: [id])
+  children Category[] @relation("CategoryToCategory")
+  products Product[]
+  shops    Shop[]
+
+  @@map("categories")
+}
+
+model Shop {
+  id                      Int        @id @default(autoincrement())
+  owner_id                Int
+  domain                  String     @unique
+  name                    String
+  description             String?
+  tagline                 String?
+  category_id             Int
+  status                  ShopStatus @default(active)
+  email                   String
+  phone                   String
+  address                 String
+  city                    String
+  state                   String
+  postal_code             String
+  country                 String
+  free_shipping_threshold Float      @default(50)
+  currency                String
+  logo                    String?
+  banner                  String?
+
+  stripe_account_id        String  @unique
+  stripe_account_connected Boolean @default(false)
+
+  paystack_account_id        String? @unique
+  paystack_account_connected Boolean @default(false)
+
+  light_theme Json?
+  dark_theme  Json?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  owner    User      @relation(fields: [owner_id], references: [id])
+  category Category  @relation(fields: [category_id], references: [id])
+  products Product[]
+  carts    Cart[]
+  orders   Order[]
+
+  @@map("shops")
+}
+
+model Product {
+  id             Int           @id @default(autoincrement())
+  shop_id        Int
+  category_ids   Int[]
+  name           String
+  slug           String
+  description    String
+  price          Float
+  discount       Float         @default(0)
+  variants       Json          @default("[]")
+  image          String
+  thumbnails     String[]      @default([])
+  is_featured    Boolean       @default(false)
+  weight         Float         @default(0)
+  length         Float         @default(0)
+  width          Float         @default(0)
+  height         Float         @default(0)
+  stock_quantity Int           @default(0)
+  status         ProductStatus @default(active)
+  sales_count    Int           @default(0)
+  created_at     DateTime      @default(now())
+  updated_at     DateTime      @updatedAt
+
+  shop       Shop       @relation(fields: [shop_id], references: [id])
+  categories Category[]
+
+  @@unique([shop_id, slug])
+  @@index([shop_id, slug])
+  @@map("products")
+}
+
+model Cart {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  shop_id    Int
+  items      Json     @default("[]")
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  user User @relation(fields: [user_id], references: [id])
+  shop Shop @relation(fields: [shop_id], references: [id])
+
+  @@unique([user_id, shop_id])
+  @@map("carts")
+}
+
+model Order {
+  id                Int         @id @default(autoincrement())
+  user_id           Int
+  shop_id           Int
+  tracking_id       String      @unique
+  total_amount      Float
+  discount_amount   Float       @default(0)
+  tax_amount        Float       @default(0)
+  shipping_amount   Float       @default(0)
+  final_amount      Float
+  items             Json        @default("[]")
+  status            OrderStatus @default(pending)
+  payment_reference String?
+  shipping_address  Json?
+  notes             String?
+  admin_notes       String?
+  shipped_at        DateTime?
+  delivered_at      DateTime?
+  cancelled_at      DateTime?
+  created_at        DateTime    @default(now())
+  updated_at        DateTime    @updatedAt
+
+  user User @relation(fields: [user_id], references: [id])
+  shop Shop @relation(fields: [shop_id], references: [id])
+
+  @@index([user_id])
+  @@index([shop_id])
+  @@index([tracking_id])
+  @@map("orders")
+}
+
+model StripeEvent {
+  event_id    String   @id
+  event_type  String
+  payload     Json
+  received_at DateTime @default(now())
+
+  @@map("stripe_events")
+}

@@ -18,16 +18,16 @@ import {
 import Image from 'next/image';
 import axios from 'axios';
 import { ProductLoading, CardLoading } from '@/components/Loading';
-import { cn } from '@/lib/utils';
-import { ProductAttributes } from '@/models/Product';
+import { cn } from '@/lib/utils'
 import ProductCard from '@/components/ProductCard';
+import { ClientProduct } from '@/types';
 
 export default function ShopHomePage() {
   const { shop } = useAppSelector((s) => s.shop);
   const categoriesState = useAppSelector(state => state.category.categories);
   const categories = categoriesState.filter(cat => cat.parent_id === shop?.category_id);
   
-  const [products, setProducts] = useState<ProductAttributes[]>([]);
+  const [products, setProducts] = useState<ClientProduct[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   

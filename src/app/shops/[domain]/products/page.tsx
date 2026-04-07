@@ -18,8 +18,8 @@ import axios from 'axios';
 import { ProductLoading, CardLoading } from '@/components/Loading';
 import { cn } from '@/lib/utils';
 import { useAppSelector } from '@/hooks/redux.hook';
-import { ProductAttributes } from '@/models/Product';
 import ProductCard from '@/components/ProductCard';
+import { ClientProduct } from '@/types';
 
 export default function ProductsPage() {
   const { domain } = useParams();
@@ -29,7 +29,7 @@ export default function ProductsPage() {
   const categoriesState = useAppSelector(state => state.category.categories);
   const categories = categoriesState.filter(cat => cat.parent_id === shop!.category_id);
   
-  const [products, setProducts] = useState<ProductAttributes[]>([]);
+  const [products, setProducts] = useState<ClientProduct[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   
@@ -126,14 +126,7 @@ export default function ProductsPage() {
       
       if (searchTerm) queryParams.set('search', searchTerm);
       if (selectedCategory !== 'all') {
-        // Find category name by ID to send to API
-        const category = categories.find(c => c.id.toString() === selectedCategory);
-        if (category) {
-          queryParams.set('category', category.name);
-        } else {
-          // Fallback: send the selectedCategory as-is (might be name or slug)
-          queryParams.set('category', selectedCategory);
-        }
+        queryParams.set('category', selectedCategory);
       }
       if (sortBy) {
         // Map frontend sort values to API values

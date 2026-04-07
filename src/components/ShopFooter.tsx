@@ -18,7 +18,7 @@ import {
   Sun,
   Moon
 } from 'lucide-react';
-import { ShopWithOwner } from '@/models/Shop';
+import { ShopWithOwner } from '@/types';
 
 interface ShopFooterProps {
   shop: ShopWithOwner;
