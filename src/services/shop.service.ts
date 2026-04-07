@@ -66,7 +66,7 @@ class ShopService {
     }
 
     const shop = await findByDomain(domain);
-    return !!shop;
+    return shop ? false : true;
   }
 
   static async createShop(data: z.infer<typeof createShopSchema>) {
