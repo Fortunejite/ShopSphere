@@ -19,3 +19,13 @@ export const POST = errorHandler(async (request, { params }) => {
   );
   return NextResponse.json({ account });
 });
+
+export const PUT = errorHandler(async (request, { params }) => {
+  const { domain } = await params;
+
+  const account = await PaymentService.updatePaystackAccount(
+    domain!,
+    await request.json(),
+  );
+  return NextResponse.json({ account });
+});

@@ -5,7 +5,10 @@ import { authorizeUser } from './user.service';
 import { Shop } from '@prisma/client';
 import z from 'zod';
 import { accountConnectSchema } from '@/lib/schema/paystack';
-import { createPaystackAccount } from './paystack/account';
+import {
+  createPaystackAccount,
+  updatePaystackAccount,
+} from './paystack/account';
 import { update as shopUpdate } from '@/repositories/shop.repository';
 import { createStripeAccountLink } from './stripe/account';
 import { paystackCheckout } from './paystack/checkout';
@@ -38,7 +41,9 @@ class PaymentService {
       trackingId,
       currency: shop.currency,
       user,
-      accountId: shop.paystack_account_connected ? shop.paystack_account_id! : shop.stripe_account_id!,
+      accountId: shop.paystack_account_connected
+        ? shop.paystack_account_id!
+        : shop.stripe_account_id!,
     };
 
     const url = shop.paystack_account_connected
@@ -78,6 +83,32 @@ class PaymentService {
       paystack_account_connected: true,
     });
 
+    return account;
+  }
+
+  static async updatePaystackAccount(
+    domain: Shop['domain'],
+    data: z.infer<typeof accountConnectSchema>,
+  ) {
+    const user = await authorizeUser();
+    const shop = await ShopService.getShopByDomain(domain);
+
+    if (shop.owner_id !== user.id) {
+      throw Object.assign(new Error('Unauthorized'), { status: 401 });
+    }
+    if (!shop.paystack_account_connected || !shop.paystack_account_id) {
+      throw {
+        message: 'No Paystack account linked to this shop',
+        status: 400,
+      };
+    }
+    const bankDetails = accountConnectSchema.parse(data);
+
+    const account = await updatePaystackAccount(shop, bankDetails);
+
+    if (!account) {
+      throw new Error('Failed to update Paystack account');
+    }
     return account;
   }
 
