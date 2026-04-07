@@ -26,16 +26,9 @@ export const updateOrderSchema = z.object({
   admin_notes: z.string().max(1000).optional(),
 });
 
-// Update payment status schema
-export const updatePaymentStatusSchema = z.object({
-  payment_status: z.enum(['pending', 'paid', 'failed', 'refunded']),
-  payment_method: z.string().optional(),
-});
-
 // Order filters schema
 export const orderFiltersSchema = z.object({
   status: z.enum(['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded']).optional(),
-  payment_status: z.enum(['pending', 'paid', 'failed', 'refunded']).optional(),
   page: z.coerce.number().min(1).default(1),
   limit: z.coerce.number().min(1).max(100).default(10),
   start_date: z.string().datetime().optional(),

@@ -315,6 +315,13 @@ class OrderService {
       };
     }
 
+    if (order.status !== 'pending') {
+      throw {
+        message: 'Payment can only be initialized for pending orders',
+        status: 400,
+      };
+    }
+
     const { shop } = await this.verifyOrderOwnership(domain, order);
 
     const enrichedItems = await ProductService.getEnrichedItems(

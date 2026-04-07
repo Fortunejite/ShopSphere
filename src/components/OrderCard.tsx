@@ -64,16 +64,6 @@ export default function OrderCard({
     return <IconComponent className="w-3 h-3" />;
   };
 
-  const getPaymentStatusColor = (status: string) => {
-    const colors = {
-      pending: 'bg-warning text-warning-foreground',
-      paid: 'bg-success text-success-foreground',
-      failed: 'bg-error text-error-foreground',
-      refunded: 'bg-muted text-muted-foreground'
-    };
-    return colors[status as keyof typeof colors] || 'bg-muted text-muted-foreground';
-  };
-
   const handleSaveStatus = () => {
     onStatusUpdate(order.tracking_id, newStatus, adminNotes);
     setIsEditingStatus(false);
@@ -111,9 +101,6 @@ export default function OrderCard({
                         <option value="refunded">Refunded</option>
                       </select>
                     )}
-                    <Badge className={cn('text-xs', getPaymentStatusColor(order.payment_status))}>
-                      {order.payment_status.charAt(0).toUpperCase() + order.payment_status.slice(1)}
-                    </Badge>
                   </div>
                 </div>
                 <div className="flex flex-col xs:flex-row xs:items-center gap-2 xs:gap-4 text-sm text-muted-foreground">
@@ -198,7 +185,7 @@ export default function OrderCard({
                 size="sm"
                 onClick={() => setIsEditingStatus(true)}
                 className="flex items-center gap-2"
-                disabled={order.payment_status === 'pending'}
+                disabled={order.status === 'pending'}
               >
                 <Edit className="w-4 h-4" />
                 Update Status

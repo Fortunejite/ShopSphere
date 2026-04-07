@@ -97,16 +97,6 @@ export default function OrderDetailsPage() {
     return <IconComponent className="w-4 h-4" />;
   };
 
-  const getPaymentStatusColor = (status: string) => {
-    const colors = {
-      pending: 'bg-warning text-warning-foreground',
-      paid: 'bg-success text-success-foreground',
-      failed: 'bg-error text-error-foreground',
-      refunded: 'bg-muted text-muted-foreground'
-    };
-    return colors[status as keyof typeof colors] || 'bg-muted text-muted-foreground';
-  };
-
   const copyTrackingId = () => {
     if (order) {
       navigator.clipboard.writeText(order.tracking_id);
@@ -120,17 +110,10 @@ export default function OrderDetailsPage() {
     const timeline = [
       {
         status: 'pending',
-        title: 'Order Placed',
-        description: 'Your order has been received',
+        title: 'Order Pending',
+        description: 'Your order is awaiting payment for processing',
         date: order.created_at,
         completed: true
-      },
-      {
-        status: 'confirmed',
-        title: 'Order Confirmed',
-        description: 'Your order has been confirmed',
-        date: order.created_at, // This would be updated based on actual status changes
-        completed: ['confirmed', 'processing', 'shipped', 'delivered'].includes(order.status)
       },
       {
         status: 'processing',
@@ -231,7 +214,7 @@ export default function OrderDetailsPage() {
                 size="sm"
                 className="w-fit"
               >
-                <ArrowLeft className="w-4 h-4 mr-2 flex-shrink-0" />
+                <ArrowLeft className="w-4 h-4 mr-2 shrink-0" />
                 <span className="xs:inline">Back to Orders</span>
               </Button>
               <div>
@@ -254,7 +237,7 @@ export default function OrderDetailsPage() {
                 onClick={copyTrackingId}
                 className="flex items-center justify-center gap-2 w-full xs:w-auto"
               >
-                <Copy className="w-4 h-4 flex-shrink-0" />
+                <Copy className="w-4 h-4 shrink-0" />
                 <span>Copy ID</span>
               </Button>
             </div>
@@ -408,12 +391,6 @@ export default function OrderDetailsPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Status:</span>
-                  <Badge className={getPaymentStatusColor(order.payment_status)}>
-                    {order.payment_status.charAt(0).toUpperCase() + order.payment_status.slice(1)}
-                  </Badge>
-                </div>
                 {order.payment_method && (
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-muted-foreground">Method:</span>
@@ -424,7 +401,7 @@ export default function OrderDetailsPage() {
                   <span className="text-sm text-muted-foreground">Total Paid:</span>
                   <span className="font-medium">{formatCurrency(order.final_amount, shop!.currency)}</span>
                 </div>
-                {order.payment_status === 'pending' && (
+                {order.status === 'pending' && (
                   <Button className="w-full" onClick={handelPayNow} disabled={paying}>
                     {paying ? (
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />

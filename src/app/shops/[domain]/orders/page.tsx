@@ -104,16 +104,6 @@ export default function OrdersPage() {
     return <IconComponent className="w-3 h-3" />;
   };
 
-  const getPaymentStatusColor = (status: string) => {
-    const colors = {
-      pending: 'bg-warning text-warning-foreground',
-      paid: 'bg-success text-success-foreground',
-      failed: 'bg-error text-error-foreground',
-      refunded: 'bg-muted text-muted-foreground'
-    };
-    return colors[status as keyof typeof colors] || 'bg-muted text-muted-foreground';
-  };
-
   const filteredOrders = orders.filter(order =>
     searchTerm === '' ||
     order.tracking_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -234,9 +224,6 @@ export default function OrdersPage() {
                             <Badge className={cn('flex items-center gap-1', getStatusColor(order.status))}>
                               {getStatusIcon(order.status)}
                               {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                            </Badge>
-                            <Badge className={getPaymentStatusColor(order.payment_status)}>
-                              {order.payment_status.charAt(0).toUpperCase() + order.payment_status.slice(1)}
                             </Badge>
                           </div>
                           <div className="flex items-center gap-4 text-sm text-muted-foreground">

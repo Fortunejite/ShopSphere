@@ -32,7 +32,6 @@ export default function AdminOrdersPage() {
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [paymentFilter, setPaymentFilter] = useState<string>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalOrders, setTotalOrders] = useState(0);
@@ -45,7 +44,7 @@ export default function AdminOrdersPage() {
 
   useEffect(() => {
     fetchOrders();
-  }, [domain, currentPage, statusFilter, paymentFilter]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [domain, currentPage, statusFilter]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchOrders = async () => {
     try {
@@ -59,10 +58,6 @@ export default function AdminOrdersPage() {
 
       if (statusFilter !== 'all') {
         params.append('status', statusFilter);
-      }
-
-      if (paymentFilter !== 'all') {
-        params.append('payment_status', paymentFilter);
       }
 
       const response = await axios.get(`/api/shops/${domain}/admin/orders?${params}`);
@@ -213,31 +208,11 @@ export default function AdminOrdersPage() {
                   className="px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 >
                   <option value="all">All Status</option>
-                  <option value="pending">Pending</option>
-                  <option value="confirmed">Confirmed</option>
-                  <option value="processing">Processing</option>
                   <option value="shipped">Shipped</option>
                   <option value="delivered">Delivered</option>
                   <option value="cancelled">Cancelled</option>
-                  <option value="refunded">Refunded</option>
                 </select>
               </div>
-
-              {/* Payment Filter */}
-              <select
-                value={paymentFilter}
-                onChange={(e) => {
-                  setPaymentFilter(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-              >
-                <option value="all">All Payments</option>
-                <option value="pending">Payment Pending</option>
-                <option value="paid">Paid</option>
-                <option value="failed">Failed</option>
-                <option value="refunded">Refunded</option>
-              </select>
             </div>
           </CardContent>
         </Card>
@@ -254,7 +229,7 @@ export default function AdminOrdersPage() {
               <Package className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-medium text-foreground mb-2">No orders found</h3>
               <p className="text-muted-foreground">
-                {searchTerm || statusFilter !== 'all' || paymentFilter !== 'all'
+                {searchTerm || statusFilter !== 'all'
                   ? 'No orders match your current filters.'
                   : "No orders have been placed yet."}
               </p>
