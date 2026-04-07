@@ -38,7 +38,7 @@ class PaymentService {
       trackingId,
       currency: shop.currency,
       user,
-      accountId: shop.stripe_account_id!,
+      accountId: shop.paystack_account_connected ? shop.paystack_account_id! : shop.stripe_account_id!,
     };
 
     const url = shop.paystack_account_connected

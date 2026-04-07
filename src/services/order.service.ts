@@ -258,6 +258,7 @@ class OrderService {
       };
     }
 
+    console.log("Cart validated successfully. Creating order...")
     const trackingId = this.generateTrackingId();
     const orderItems: OrderItem[] = cart.items.map((i) => {
       const product = i.product!;
@@ -288,11 +289,13 @@ class OrderService {
       shop: { connect: { id: shop.id } },
     };
 
+    console.log("Creating checkout link...")
     const checkoutUrl = await PaymentService.getCheckoutLink({
       items: cart.items as unknown as CartItemWithProduct[],
       domain: shop.domain,
       trackingId,
     });
+    console.log("Checkout link created. Creating order record...")
     await create(orderData);
     // Clear the cart after creating the order
     await CartService.clearCart(cart.id);
