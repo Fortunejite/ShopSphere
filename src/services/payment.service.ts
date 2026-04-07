@@ -25,7 +25,7 @@ class PaymentService {
     const user = await authorizeUser();
     const shop = await ShopService.getShopByDomain(domain);
 
-    if (!shop.stripe_account_connected || !shop.paystack_account_connected) {
+    if (!shop.stripe_account_connected && !shop.paystack_account_connected) {
       throw {
         message: 'Shop not connected to a payment method',
         status: 400,
