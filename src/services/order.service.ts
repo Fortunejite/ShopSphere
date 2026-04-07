@@ -296,6 +296,7 @@ class OrderService {
       trackingId,
     });
     console.log("Checkout link created. Creating order record...")
+    console.log(checkoutUrl);
     await create(orderData);
     // Clear the cart after creating the order
     await CartService.clearCart(cart.id);
