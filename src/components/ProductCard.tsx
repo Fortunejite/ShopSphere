@@ -1,4 +1,3 @@
-import { ProductAttributes } from '@/models/Product';
 import { Eye, ShoppingCart, Star, Heart, StarHalf, Loader2 } from 'lucide-react';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
@@ -14,6 +13,7 @@ import {
 import { useAppDispatch, useAppSelector } from '@/hooks/redux.hook';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { ClientProduct } from '@/types';
 
 const getStockStatus = (quantity: number) => {
   if (quantity === 0)
@@ -52,7 +52,7 @@ const ProductCard = ({
   product,
   isListView = false,
 }: {
-  product: ProductAttributes;
+  product: ClientProduct;
   isListView?: boolean;
 }) => {
   const router = useRouter();

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { ShopWithOwner } from '@/models/Shop';
+import { ShopWithOwner } from '@/types';
 import {
   Store,
   Home,

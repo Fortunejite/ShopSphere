@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { clientErrorHandler } from '@/lib/errorHandler';
-import { ShopWithOwner } from '@/models/Shop';
+import { ShopWithOwner } from '@/types';
 
 interface IInitialState {
   error: string | null;
