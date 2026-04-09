@@ -28,17 +28,17 @@ import {
   DollarSign
 } from 'lucide-react';
 import { ProductLoading } from '@/components/Loading';
-import { OrderWithProducts } from '@/models/Order';
 import { cn } from '@/lib/utils';
 import { formatCurrency } from '@/lib/currency';
 import { useAppSelector } from '@/hooks/redux.hook';
+import { RichOrder } from '@/types';
 
 export default function AdminOrderDetailsPage() {
   const { domain, trackingId } = useParams();
   const router = useRouter();
   const shop = useAppSelector((s) => s.shop.shop);
   
-  const [order, setOrder] = useState<OrderWithProducts | null>(null);
+  const [order, setOrder] = useState<RichOrder | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [isEditingStatus, setIsEditingStatus] = useState(false);
@@ -402,12 +402,6 @@ export default function AdminOrderDetailsPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {order.payment_method && (
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Method:</span>
-                    <span className="text-sm capitalize">{order.payment_method.replace('_', ' ')}</span>
-                  </div>
-                )}
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">Total Amount:</span>
                   <span className="font-medium">{formatCurrency(order.final_amount, shop!.currency)}</span>

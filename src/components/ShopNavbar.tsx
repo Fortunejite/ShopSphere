@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { ShopWithOwner } from '@/types';
+import { CartWithProducts, ShopWithOwner } from '@/types';
 import {
   Store,
   Home,
@@ -24,7 +24,6 @@ import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
-import { CartWithProducts } from '@/models/Cart';
 import { cn } from '@/lib/utils';
 
 interface Props {

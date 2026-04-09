@@ -17,17 +17,17 @@ import {
   DollarSign,
 } from 'lucide-react';
 import { ProductLoading } from '@/components/Loading';
-import { OrderWithProducts } from '@/models/Order';
 import OrderCard from '@/components/OrderCard';
 import { formatCurrency } from '@/lib/currency';
 import { useAppSelector } from '@/hooks/redux.hook';
+import { RichOrder } from '@/types';
 
 export default function AdminOrdersPage() {
   const { domain } = useParams();
   const router = useRouter();
   const shop = useAppSelector(state => state.shop.shop);
 
-  const [orders, setOrders] = useState<OrderWithProducts[]>([]);
+  const [orders, setOrders] = useState<RichOrder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');

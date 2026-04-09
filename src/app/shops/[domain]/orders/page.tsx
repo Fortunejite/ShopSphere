@@ -24,11 +24,11 @@ import {
   CreditCard
 } from 'lucide-react';
 import { ProductLoading } from '@/components/Loading';
-import { OrderWithProducts } from '@/models/Order';
 import { cn } from '@/lib/utils';
 import { formatCurrency } from '@/lib/currency';
 import { useAppSelector } from '@/hooks/redux.hook';
 import { useSession } from 'next-auth/react';
+import { RichOrder } from '@/types';
 
 export default function OrdersPage() {
   const { domain } = useParams();
@@ -37,7 +37,7 @@ export default function OrdersPage() {
   const router = useRouter();
   const shop = useAppSelector(state => state.shop.shop);
 
-  const [orders, setOrders] = useState<OrderWithProducts[]>([]);
+  const [orders, setOrders] = useState<RichOrder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -294,7 +294,7 @@ export default function OrdersPage() {
                         </Button>
                       )}
 
-                      {(order.status === 'pending' || order.status === 'confirmed') && (
+                      {(order.status === 'pending') && (
                         <Button
                           variant="outline"
                           size="sm"

@@ -17,10 +17,10 @@ import {
   Save,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { OrderWithProducts } from '@/models/Order';
 import { useState } from 'react';
 import { formatCurrency } from '@/lib/currency';
 import { useAppSelector } from '@/hooks/redux.hook';
+import { RichOrder } from '@/types';
 
 
 export default function OrderCard({ 
@@ -28,7 +28,7 @@ export default function OrderCard({
   onStatusUpdate,
   onViewDetails
 }: {
-  order: OrderWithProducts;
+  order: RichOrder;
   onStatusUpdate: (id: string, status: string, notes?: string) => void;
   onViewDetails: () => void;
 }) {

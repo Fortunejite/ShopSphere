@@ -17,7 +17,7 @@ import { updateProductSchema } from '@/lib/schema/product';
 import axios from 'axios';
 import ProductStepForm from '@/components/productForm/ProductStepForm';
 import { ProductLoading } from '@/components/Loading';
-import { ProductAttributes } from '@/models/Product';
+import { Product } from '@prisma/client';
 
 interface ProductFormData {
   name: string;
@@ -41,7 +41,7 @@ export default function EditProductPage() {
   const { domain, slug } = useParams();
   const router = useRouter();
   
-  const [product, setProduct] = useState<ProductAttributes | null>(null);
+  const [product, setProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');

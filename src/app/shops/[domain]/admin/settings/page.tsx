@@ -30,13 +30,13 @@ import { useAppDispatch, useAppSelector } from '@/hooks/redux.hook';
 import { uploadPhoto } from '@/lib/uploadPhoto';
 import { accountConnectSchema } from '@/lib/schema/paystack';
 import { createShopSchema } from '@/lib/schema/shop';
-import { colorTheme } from '@/models/Shop';
 import Image from 'next/image';
 import { updateShop } from '@/redux/shopSlice';
 import { Bank, PaystackSubAccount } from '@/types';
 import ThemeCustomizer from '@/components/ThemeCustomizer';
 import { Toaster } from '@/components/ui/sonner';
 import { generateURL } from '@/lib/domain';
+import { colorTheme } from '@/lib/customTheme';
 
 type ShopSettingsFormData = z.infer<typeof createShopSchema>;
 type PaystackConnectFormData = z.infer<typeof accountConnectSchema>;

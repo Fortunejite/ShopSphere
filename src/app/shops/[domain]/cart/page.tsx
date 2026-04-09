@@ -34,8 +34,8 @@ import {
   selectCartTotal,
 } from '@/redux/cartSlice';
 import { cn } from '@/lib/utils';
-import { CartItemWithProduct } from '@/models/Cart';
 import { formatCurrency } from '@/lib/currency';
+import { CartItemWithProduct } from '@/types';
 
 export default function CartPage() {
   const router = useRouter();

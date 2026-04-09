@@ -25,10 +25,10 @@ import {
   Loader2
 } from 'lucide-react';
 import { ProductLoading } from '@/components/Loading';
-import { OrderWithProducts } from '@/models/Order';
 import { cn } from '@/lib/utils';
 import { formatCurrency } from '@/lib/currency';
 import { useAppSelector } from '@/hooks/redux.hook';
+import { RichOrder } from '@/types';
 
 export default function OrderDetailsPage() {
   const { domain, trackingId } = useParams();
@@ -37,7 +37,7 @@ export default function OrderDetailsPage() {
   const searchParams = useSearchParams();
   const isSuccess = searchParams.get('success') === 'true';
   
-  const [order, setOrder] = useState<OrderWithProducts | null>(null);
+  const [order, setOrder] = useState<RichOrder | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [paying, setPaying] = useState(false);
   const [error, setError] = useState('');
@@ -139,7 +139,7 @@ export default function OrderDetailsPage() {
     ];
 
     return timeline.filter(() => 
-      order.status !== 'cancelled' && order.status !== 'refunded'
+      order.status !== 'cancelled'
     );
   };
 
@@ -250,7 +250,7 @@ export default function OrderDetailsPage() {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Order Timeline */}
-            {order.status !== 'cancelled' && order.status !== 'refunded' && (
+            {order.status !== 'cancelled' && (
               <Card>
                 <CardHeader>
                   <CardTitle>Order Status</CardTitle>
@@ -391,12 +391,6 @@ export default function OrderDetailsPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {order.payment_method && (
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Method:</span>
-                    <span className="text-sm capitalize">{order.payment_method.replace('_', ' ')}</span>
-                  </div>
-                )}
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Total Paid:</span>
                   <span className="font-medium">{formatCurrency(order.final_amount, shop!.currency)}</span>
