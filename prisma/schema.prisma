@@ -196,7 +196,7 @@ model StripeEvent {
 }
 
 model PaystackEvent {
-  event_id    Int   @id
+  event_id    String   @id
   event_type  String
   payload     Json
   received_at DateTime @default(now())
