@@ -14,7 +14,6 @@ import {
   Star,
   StarHalf,
   ShoppingCart,
-  Heart,
   Share2,
   Truck,
   Shield,
@@ -41,6 +40,8 @@ import {
   removeFromCart,
   getCartItemQuantity,
 } from '@/redux/cartSlice';
+import { generateURL } from '@/lib/domain';
+import { toast } from 'sonner';
 
 // TODO: Implement Reviews
 
@@ -66,7 +67,6 @@ export default function ProductDetailsPage() {
   const [selectedVariant, setSelectedVariant] = useState<ClientProduct['variants'][0] | null>(null);
   const [selectedAttributes, setSelectedAttributes] = useState<Record<string, string>>({});
   const [quantity, setQuantity] = useState(1);
-  const [isInWishlist, setIsInWishlist] = useState(false);
 
   // Sync quantity with cart when product, variant, or cart state changes
   useEffect(() => {
@@ -140,6 +140,12 @@ export default function ProductDetailsPage() {
       setIsLoading(false);
     }
   };
+
+  const copyProductLink = () => {
+    const productURL = `${generateURL(domain as string)}/products/${slug}`;
+    navigator.clipboard.writeText(productURL);
+    toast.success('Product link copied to clipboard!');
+  }
 
   const getCurrentPrice = () => formatPrice(product?.price || 0, product?.discount || 0, shop!.currency);
 
@@ -687,14 +693,7 @@ export default function ProductDetailsPage() {
                           : 'Add to Cart'
                   }
                 </Button>
-                <Button 
-                  variant="outline" 
-                  size="lg"
-                  onClick={() => setIsInWishlist(!isInWishlist)}
-                >
-                  <Heart className={cn('w-5 h-5', isInWishlist && 'fill-error text-error')} />
-                </Button>
-                <Button variant="outline" size="lg">
+                <Button variant="outline" size="lg" onClick={copyProductLink}>
                   <Share2 className="w-5 h-5" />
                 </Button>
               </div>

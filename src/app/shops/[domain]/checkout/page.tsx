@@ -120,8 +120,8 @@ export default function CheckoutPage() {
       setError('');
       const response = await axios.post(`/api/shops/${domain}/orders`, data);
       
-      // Redirect to order confirmation page
-      router.push(response.data.checkoutUrl);
+      const { checkoutUrl } = response.data;
+      window.location.href = checkoutUrl;
     } catch (error) {
       console.error('Error creating order:', error);
       if (axios.isAxiosError(error)) {

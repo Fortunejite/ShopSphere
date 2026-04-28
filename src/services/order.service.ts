@@ -82,7 +82,15 @@ class OrderService {
     const enrichedItems = await Promise.all(enrichedItemsPromises);
 
     for (let i = 0; i < orders.length; i++) {
-      orders[i].items = enrichedItems[i] as unknown as Prisma.JsonValue;
+      const order = orders[i] as typeof orders[number] & {
+        total_items: number;
+      };
+
+      order.items = enrichedItems[i] as unknown as Prisma.JsonValue;
+      order.total_items = enrichedItems[i].reduce(
+        (sum, item) => sum + item.quantity,
+        0,
+      );
     }
 
     return {
@@ -135,7 +143,15 @@ class OrderService {
     const enrichedItems = await Promise.all(enrichedItemsPromises);
 
     for (let i = 0; i < orders.length; i++) {
-      orders[i].items = enrichedItems[i] as unknown as Prisma.JsonValue;
+      const order = orders[i] as typeof orders[number] & {
+        total_items: number;
+      };
+
+      order.items = enrichedItems[i] as unknown as Prisma.JsonValue;
+      order.total_items = enrichedItems[i].reduce(
+        (sum, item) => sum + item.quantity,
+        0,
+      );
     }
 
     const stats = await StatsService.getOrderStats(shop.id);
