@@ -32,7 +32,7 @@ export const POST = errorHandler(async (request, { params }) => {
   }
 
   const body = await request.json();
-  const checkoutUrl = await OrderService.createOrderFromCart(domain, body);
+  const { checkoutUrl } = await OrderService.createOrderFromCart(domain, body);
 
   return NextResponse.json(
     { message: 'Order created successfully', checkoutUrl },
