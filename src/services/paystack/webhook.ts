@@ -82,7 +82,7 @@ export const paystackWebhookHandler = async (body: PaystackWebhookEvent) => {
 
   // check if event has been processed before
   const existingEvent = await prisma.paystackEvent.findUnique({
-    where: { event_id: body.data.id },
+    where: { event_id: body.data.id.toString() },
   });
   if (existingEvent) {
     console.log('Paystack event already processed', {
@@ -95,7 +95,7 @@ export const paystackWebhookHandler = async (body: PaystackWebhookEvent) => {
   // store the event
   await prisma.paystackEvent.create({
     data: {
-      event_id: body.data.id,
+      event_id: body.data.id.toString(),
       event_type: body.event,
       payload: body.data as unknown as Prisma.InputJsonValue,
       received_at: new Date(),
