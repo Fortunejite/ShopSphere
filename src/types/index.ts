@@ -1,5 +1,13 @@
 import { colorTheme } from '@/lib/customTheme';
-import { Cart, Category, Prisma, Product, Shop, User } from '@prisma/client';
+import {
+  Cart,
+  Category,
+  Order,
+  Prisma,
+  Product,
+  Shop,
+  User,
+} from '@prisma/client';
 
 export interface ShopWithOwner extends Omit<
   Shop,
@@ -22,15 +30,19 @@ export interface CartItem {
   variant_index?: number;
 }
 
+export interface CartItemWithProduct extends CartItem {
+  product: Omit<Product, 'variants'> & { variants: ProductVariant[] };
+  subtotal: number;
+}
+
 export interface OrderItem extends CartItem {
   unit_price_at_purchase: number;
   discount_at_purchase: number;
   subtotal: number;
 }
 
-export interface CartItemWithProduct extends CartItem {
-  product: Omit<Product, 'variants'> & { variants: ProductVariant[] };
-  subtotal: number;
+export interface OrderItemWithProduct extends OrderItem {
+  product: Product & { variants: ProductVariant[] };
 }
 
 export interface CartWithProducts extends Omit<Cart, 'items'> {
@@ -48,6 +60,12 @@ export interface AddressInfo {
   state: string;
   postal_code: string;
   country: string;
+}
+
+export interface RichOrder extends Omit<Order, 'items' | 'shipping_address'> {
+  items: OrderItemWithProduct[];
+  shipping_address: AddressInfo;
+  total_items: number;
 }
 
 export interface ClientProduct extends Omit<

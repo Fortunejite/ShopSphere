@@ -20,6 +20,7 @@ import {
   Upload,
   CreditCard,
   ExternalLink,
+  Landmark,
   Image as ImageIcon,
   Loader2,
   X,
@@ -29,13 +30,13 @@ import { useAppDispatch, useAppSelector } from '@/hooks/redux.hook';
 import { uploadPhoto } from '@/lib/uploadPhoto';
 import { accountConnectSchema } from '@/lib/schema/paystack';
 import { createShopSchema } from '@/lib/schema/shop';
-import { colorTheme } from '@/models/Shop';
 import Image from 'next/image';
 import { updateShop } from '@/redux/shopSlice';
 import { Bank, PaystackSubAccount } from '@/types';
 import ThemeCustomizer from '@/components/ThemeCustomizer';
 import { Toaster } from '@/components/ui/sonner';
 import { generateURL } from '@/lib/domain';
+import { colorTheme } from '@/lib/customTheme';
 
 type ShopSettingsFormData = z.infer<typeof createShopSchema>;
 type PaystackConnectFormData = z.infer<typeof accountConnectSchema>;
@@ -53,9 +54,11 @@ export default function AdminSettingsPage() {
   const [isStripeActionLoading, setIsStripeActionLoading] = useState(false);
   const [isPaystackLoading, setIsPaystackLoading] = useState(false);
   const [isCreatingPaystackAccount, setIsCreatingPaystackAccount] = useState(false);
+  const [isUpdatingPaystackAccount, setIsUpdatingPaystackAccount] = useState(false);
   const [banks, setBanks] = useState<Bank[]>([]);
   const [bankSearch, setBankSearch] = useState('');
   const [paystackSubAccount, setPaystackSubAccount] = useState<PaystackSubAccount | null>(null);
+  const [showPaystackUpdateForm, setShowPaystackUpdateForm] = useState(false);
   
   // Theme state
   const [lightTheme, setLightTheme] = useState<colorTheme>({
@@ -267,8 +270,6 @@ export default function AdminSettingsPage() {
     setLightTheme(defaultLight);
     setDarkTheme(defaultDark);
     setHasThemeChanges(true);
-    
-    toast.success('Theme colors have been reset to defaults.');
   };
 
   const onSubmit = async (data: ShopSettingsFormData) => {
@@ -319,13 +320,14 @@ export default function AdminSettingsPage() {
       setIsPaystackLoading(true);
       const { data } = await axios.get(`/api/shops/${shopDomain}/paystack/sub-account`);
       setPaystackSubAccount(data as PaystackSubAccount);
+      paystackForm.setValue('accountNumber', data?.account_number ?? '');
     } catch (error) {
       console.error('Error fetching Paystack sub-account:', error);
       toast.error('Unable to load Paystack account details.');
     } finally {
       setIsPaystackLoading(false);
     }
-  }, [shopDomain]);
+  }, [shopDomain, paystackForm]);
 
   const handleCreatePaystackAccount = async (data: PaystackConnectFormData) => {
     if (!shopDomain) return;
@@ -342,11 +344,35 @@ export default function AdminSettingsPage() {
 
       dispatch(updateShop({ paystack_account_connected: true }));
       toast.success('Paystack sub-account connected successfully.');
+      setShowPaystackUpdateForm(false);
     } catch (error) {
       console.error('Error creating Paystack sub-account:', error);
       toast.error('Failed to connect Paystack sub-account. Please verify details and try again.');
     } finally {
       setIsCreatingPaystackAccount(false);
+    }
+  };
+
+  const handleUpdatePaystackAccount = async (data: PaystackConnectFormData) => {
+    if (!shopDomain) return;
+
+    try {
+      setIsUpdatingPaystackAccount(true);
+      const response = await axios.put(`/api/shops/${shopDomain}/paystack/sub-account`, data);
+      const account = response.data?.account;
+
+      setPaystackSubAccount({
+        account_number: account?.account_number ?? data.accountNumber,
+        settlement_bank: account?.settlement_bank ?? selectedBank?.name ?? data.bankCode,
+      });
+
+      toast.success('Paystack account updated successfully.');
+      setShowPaystackUpdateForm(false);
+    } catch (error) {
+      console.error('Error updating Paystack sub-account:', error);
+      toast.error('Failed to update Paystack account.');
+    } finally {
+      setIsUpdatingPaystackAccount(false);
     }
   };
 
@@ -394,7 +420,7 @@ export default function AdminSettingsPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-card">
+      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80 border-b border-border">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
             <div>
@@ -525,7 +551,7 @@ export default function AdminSettingsPage() {
 
                 {/* Contact tab */}
                 {activeTab === 'contact' && (
-                  <section id="contact" className="bg-card/70 p-6 rounded-md">
+                  <section id="contact" className="bg-card/70 p-6 pt-0 rounded-md">
                     <div className="mb-3">
                       <h2 className="text-lg font-semibold flex items-center gap-2"><Mail className="w-5 h-5" /> Contact Information</h2>
                     </div>
@@ -593,18 +619,11 @@ export default function AdminSettingsPage() {
                          </div>
                          <div>
                            <Label htmlFor="country">Country</Label>
-                           <select
+                           <Input
                              id="country"
                              {...form.register('country')}
-                             className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                           >
-                             <option value="US">United States</option>
-                             <option value="CA">Canada</option>
-                             <option value="GB">United Kingdom</option>
-                             <option value="AU">Australia</option>
-                             <option value="DE">Germany</option>
-                             <option value="FR">France</option>
-                           </select>
+                             placeholder="United States"
+                           />
                          </div>
                        </div>
                      </div>
@@ -613,271 +632,181 @@ export default function AdminSettingsPage() {
 
                 {/* Appearance tab */}
                 {activeTab === 'appearance' && (
-                  <section id="appearance" className="bg-card/70 p-6 rounded-md lg:col-span-2">
+                  <section id="appearance" className="bg-card/70 p-6 pt-0 rounded-md lg:col-span-2">
                     <div className="mb-3">
                       <h2 className="text-lg font-semibold flex items-center gap-2"><Palette className="w-5 h-5" /> Appearance</h2>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Update your brand assets first, then tune your theme in one place.
+                      </p>
                     </div>
-                    <div className="space-y-6">
-                       {/* Logo and Banner Uploads */}
-                       <div>
-                         <Label>Shop Logo</Label>
-                         <div className="mt-3">
-                           {form.watch('logo') ? (
-                             <div className="relative inline-block">
-                               <Image
-                                 src={form.watch('logo') ?? ''}
-                                 alt="Shop logo"
-                                 width={80}
-                                 height={80}
-                                 className="w-20 h-20 object-cover rounded-lg border-2 border-border"
-                               />
-                               <Button
-                                 type="button"
-                                 variant="destructive"
-                                 size="sm"
-                                 className="absolute -top-2 -right-2 w-6 h-6 p-0 rounded-full"
-                                 onClick={() => handleImageRemove('logo')}
-                                 disabled={isSaving}
-                               >
-                                 <X className="w-3 h-3" />
-                               </Button>
-                             </div>
-                           ) : (
-                             <div className="w-20 h-20 bg-muted border-2 border-dashed border-border rounded-lg flex items-center justify-center">
-                               <ImageIcon className="w-8 h-8 text-muted-foreground" />
-                             </div>
-                           )}
-                           
-                           <div className="mt-3">
-                             <input
-                               type="file"
-                               accept="image/*"
-                               onChange={(e) => {
-                                 const file = e.target.files?.[0];
-                                 if (file) handleImageUpload(file, 'logo');
-                               }}
-                               disabled={isSaving || isLogoUploading}
-                               className="hidden"
-                               id="logo-upload"
-                             />
-                             <Button 
-                               type="button" 
-                               variant="outline" 
-                               size="sm"
-                               disabled={isSaving || isLogoUploading}
-                               asChild
-                             >
-                               <label htmlFor="logo-upload" className="cursor-pointer">
-                                 {isLogoUploading ? (
-                                   <>
-                                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                     Uploading...
-                                   </>
-                                 ) : (
-                                   <>
-                                     <Upload className="w-4 h-4 mr-2" />
-                                     Upload Logo
-                                   </>
-                                 )}
-                               </label>
-                             </Button>
-                             <p className="text-xs text-muted-foreground mt-2">
-                               PNG, JPG up to 5MB. Recommended: 200x200px
-                             </p>
-                           </div>
-                         </div>
-                       </div>
+                    <div className="space-y-8">
+                      <div className="space-y-4">
+                        <h3 className="text-sm font-semibold text-foreground">Brand Assets</h3>
 
-                       <div>
-                         <Label>Banner Image</Label>
-                         <div className="mt-3">
-                           {form.watch('banner') ? (
-                             <div className="relative inline-block">
-                               <Image
-                                 src={form.watch('banner') ?? ''}
-                                 alt="Shop banner"
-                                 width={240}
-                                 height={80}
-                                 className="w-60 h-20 object-cover rounded-lg border-2 border-border"
-                               />
-                               <Button
-                                 type="button"
-                                 variant="destructive"
-                                 size="sm"
-                                 className="absolute -top-2 -right-2 w-6 h-6 p-0 rounded-full"
-                                 onClick={() => handleImageRemove('banner')}
-                                 disabled={isSaving}
-                               >
-                                 <X className="w-3 h-3" />
-                               </Button>
-                             </div>
-                           ) : (
-                             <div className="w-60 h-20 bg-muted border-2 border-dashed border-border rounded-lg flex items-center justify-center">
-                               <ImageIcon className="w-6 h-6 text-muted-foreground" />
-                             </div>
-                           )}
-                           
-                           <div className="mt-3">
-                             <input
-                               type="file"
-                               accept="image/*"
-                               onChange={(e) => {
-                                 const file = e.target.files?.[0];
-                                 if (file) handleImageUpload(file, 'banner');
-                               }}
-                               disabled={isSaving || isBannerUploading}
-                               className="hidden"
-                               id="banner-upload"
-                             />
-                             <Button 
-                               type="button" 
-                               variant="outline" 
-                               size="sm"
-                               disabled={isSaving || isBannerUploading}
-                               asChild
-                             >
-                               <label htmlFor="banner-upload" className="cursor-pointer">
-                                 {isBannerUploading ? (
-                                   <>
-                                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                     Uploading...
-                                   </>
-                                 ) : (
-                                   <>
-                                     <Upload className="w-4 h-4 mr-2" />
-                                     Upload Banner
-                                   </>
-                                 )}
-                               </label>
-                             </Button>
-                             <p className="text-xs text-muted-foreground mt-2">
-                               PNG, JPG up to 5MB. Recommended: 1200x400px
-                             </p>
-                           </div>
-                         </div>
-                       </div>
+                        <div className="rounded-lg border border-border bg-background/30 p-4">
+                          <Label className="text-sm">Shop Logo</Label>
+                          <div className="mt-4 flex flex-col items-center gap-4">
+                            {form.watch('logo') ? (
+                              <div className="relative inline-block">
+                                <Image
+                                  src={form.watch('logo') ?? ''}
+                                  alt="Shop logo"
+                                  width={160}
+                                  height={160}
+                                  className="w-40 h-40 object-cover rounded-2xl border-2 border-border"
+                                />
+                                <Button
+                                  type="button"
+                                  variant="destructive"
+                                  size="sm"
+                                  className="absolute -top-2 -right-2 w-7 h-7 p-0 rounded-full"
+                                  onClick={() => handleImageRemove('logo')}
+                                  disabled={isSaving}
+                                >
+                                  <X className="w-3 h-3" />
+                                </Button>
+                              </div>
+                            ) : (
+                              <div className="w-40 h-40 bg-muted border-2 border-dashed border-border rounded-2xl flex items-center justify-center">
+                                <ImageIcon className="w-12 h-12 text-muted-foreground" />
+                              </div>
+                            )}
 
-                       {/* Simple Theme Editor: core colors with live preview (more advanced editor remains in ThemeCustomizer) */}
-                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                         <div className="p-3 border rounded-md">
-                           <h3 className="text-sm font-semibold mb-2">Light Theme</h3>
-                           <div className="grid grid-cols-2 gap-2 items-center">
-                             <label className="text-xs">Primary</label>
-                             <input
-                               aria-label="Light primary color"
-                               type="color"
-                               value={lightTheme.primary}
-                               onChange={(e) => handleThemeColorChange('light', 'primary', e.target.value)}
-                               className="w-full h-8 p-0 border rounded"
-                             />
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) handleImageUpload(file, 'logo');
+                              }}
+                              disabled={isSaving || isLogoUploading}
+                              className="hidden"
+                              id="logo-upload"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              disabled={isSaving || isLogoUploading}
+                              asChild
+                            >
+                              <label htmlFor="logo-upload" className="cursor-pointer">
+                                {isLogoUploading ? (
+                                  <>
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    Uploading...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Upload className="w-4 h-4 mr-2" />
+                                    Upload Logo
+                                  </>
+                                )}
+                              </label>
+                            </Button>
+                            <p className="text-xs text-muted-foreground">PNG, JPG up to 5MB. Recommended: 200x200px.</p>
+                          </div>
+                        </div>
 
-                             <label className="text-xs">Background</label>
-                             <input
-                               aria-label="Light background color"
-                               type="color"
-                               value={lightTheme.background}
-                               onChange={(e) => handleThemeColorChange('light', 'background', e.target.value)}
-                               className="w-full h-8 p-0 border rounded"
-                             />
+                        <div className="rounded-lg border border-border bg-background/30 p-4">
+                          <Label className="text-sm">Banner Image</Label>
+                          <div className="mt-4 space-y-4">
+                            {form.watch('banner') ? (
+                              <div className="relative">
+                                <Image
+                                  src={form.watch('banner') ?? ''}
+                                  alt="Shop banner"
+                                  width={1400}
+                                  height={360}
+                                  className="w-full h-44 object-cover rounded-xl border border-border"
+                                />
+                                <Button
+                                  type="button"
+                                  variant="destructive"
+                                  size="sm"
+                                  className="absolute top-2 right-2 w-7 h-7 p-0 rounded-full"
+                                  onClick={() => handleImageRemove('banner')}
+                                  disabled={isSaving}
+                                >
+                                  <X className="w-3 h-3" />
+                                </Button>
+                              </div>
+                            ) : (
+                              <div className="w-full h-44 bg-muted border-2 border-dashed border-border rounded-xl flex items-center justify-center">
+                                <ImageIcon className="w-12 h-12 text-muted-foreground" />
+                              </div>
+                            )}
 
-                             <label className="text-xs">Text</label>
-                             <input
-                               aria-label="Light text color"
-                               type="color"
-                               value={lightTheme.text}
-                               onChange={(e) => handleThemeColorChange('light', 'text', e.target.value)}
-                               className="w-full h-8 p-0 border rounded"
-                             />
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) handleImageUpload(file, 'banner');
+                              }}
+                              disabled={isSaving || isBannerUploading}
+                              className="hidden"
+                              id="banner-upload"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              disabled={isSaving || isBannerUploading}
+                              asChild
+                            >
+                              <label htmlFor="banner-upload" className="cursor-pointer">
+                                {isBannerUploading ? (
+                                  <>
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    Uploading...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Upload className="w-4 h-4 mr-2" />
+                                    Upload Banner
+                                  </>
+                                )}
+                              </label>
+                            </Button>
+                            <p className="text-xs text-muted-foreground">PNG, JPG up to 5MB. Recommended: 1200x400px.</p>
+                          </div>
+                        </div>
+                      </div>
 
-                             <label className="text-xs">Accent</label>
-                             <input
-                               aria-label="Light accent color"
-                               type="color"
-                               value={lightTheme.accent}
-                               onChange={(e) => handleThemeColorChange('light', 'accent', e.target.value)}
-                               className="w-full h-8 p-0 border rounded"
-                             />
-                           </div>
-
-                           <div className="mt-3 p-2 rounded" style={{background: lightTheme.background, color: lightTheme.text}}>
-                             <p className="text-sm">Preview: <span style={{color: lightTheme.primary}}>Primary</span> • <span style={{background: lightTheme.accent, padding: '2px 6px', borderRadius: 4}}>Accent</span></p>
-                           </div>
-                         </div>
-
-                         <div className="p-3 border rounded-md">
-                           <h3 className="text-sm font-semibold mb-2">Dark Theme</h3>
-                           <div className="grid grid-cols-2 gap-2 items-center">
-                             <label className="text-xs">Primary</label>
-                             <input
-                               aria-label="Dark primary color"
-                               type="color"
-                               value={darkTheme.primary}
-                               onChange={(e) => handleThemeColorChange('dark', 'primary', e.target.value)}
-                               className="w-full h-8 p-0 border rounded"
-                             />
-
-                             <label className="text-xs">Background</label>
-                             <input
-                               aria-label="Dark background color"
-                               type="color"
-                               value={darkTheme.background}
-                               onChange={(e) => handleThemeColorChange('dark', 'background', e.target.value)}
-                               className="w-full h-8 p-0 border rounded"
-                             />
-
-                             <label className="text-xs">Text</label>
-                             <input
-                               aria-label="Dark text color"
-                               type="color"
-                               value={darkTheme.text}
-                               onChange={(e) => handleThemeColorChange('dark', 'text', e.target.value)}
-                               className="w-full h-8 p-0 border rounded"
-                             />
-
-                             <label className="text-xs">Accent</label>
-                             <input
-                               aria-label="Dark accent color"
-                               type="color"
-                               value={darkTheme.accent}
-                               onChange={(e) => handleThemeColorChange('dark', 'accent', e.target.value)}
-                               className="w-full h-8 p-0 border rounded"
-                             />
-                           </div>
-
-                           <div className="mt-3 p-2 rounded" style={{background: darkTheme.background, color: darkTheme.text}}>
-                             <p className="text-sm">Preview: <span style={{color: darkTheme.primary}}>Primary</span> • <span style={{background: darkTheme.accent, padding: '2px 6px', borderRadius: 4}}>Accent</span></p>
-                           </div>
-                         </div>
-                       </div>
-
-                       {/* Advanced customizer kept */}
-                       <div>
-                         <Label>Advanced Theme Customization</Label>
-                         <p className="text-xs text-muted-foreground">Fine tune more theme tokens below.</p>
-                         <div className="mt-3">
-                           <ThemeCustomizer 
-                             lightTheme={lightTheme}
-                             darkTheme={darkTheme}
-                             hasThemeChanges={hasThemeChanges}
-                             resetThemeToDefaults={resetThemeToDefaults}
-                             handleThemeColorChange={handleThemeColorChange}
-                           />
-                         </div>
-                       </div>
-                     </div>
+                      <div className="space-y-3">
+                        <h3 className="text-sm font-semibold text-foreground">Theme Customization</h3>
+                        <p className="text-xs text-muted-foreground">Use this section for all theme controls.</p>
+                        <div className="rounded-lg border border-border bg-background/20 p-4">
+                          <ThemeCustomizer
+                            lightTheme={lightTheme}
+                            darkTheme={darkTheme}
+                            hasThemeChanges={hasThemeChanges}
+                            resetThemeToDefaults={resetThemeToDefaults}
+                            handleThemeColorChange={handleThemeColorChange}
+                          />
+                        </div>
+                      </div>
+                    </div>
                    </section>
                 )}
 
                 {/* Payments tab */}
                 {activeTab === 'payments' && (
-                  <section id="payments" className="bg-card/70 p-6 rounded-md">
+                  <section id="payments" className="bg-card/70 p-6 pt-0 rounded-md">
                     <div className="mb-3">
                       <h2 className="text-lg font-semibold flex items-center gap-2"><CreditCard className="w-5 h-5" /> Payments</h2>
                     </div>
 
-                    <div className="space-y-8">
-                      <div className="space-y-3">
-                        <h3 className="font-medium text-foreground">Stripe</h3>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      <div className="rounded-lg border border-border bg-background/30 p-4 space-y-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-md bg-[#635bff] text-white flex items-center justify-center font-semibold">
+                            S
+                          </div>
+                          <h3 className="font-medium text-foreground">Stripe</h3>
+                        </div>
+
                         {shop?.stripe_account_connected ? (
                           <div className="space-y-3">
                             <p className="text-sm text-muted-foreground">Stripe is connected.</p>
@@ -907,11 +836,16 @@ export default function AdminSettingsPage() {
                         )}
                       </div>
 
-                      <div className="space-y-3">
-                        <h3 className="font-medium text-foreground">Paystack</h3>
+                      <div className="rounded-lg border border-border bg-background/30 p-4 space-y-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-md bg-[#00c3f7] text-white flex items-center justify-center">
+                            <Landmark className="w-5 h-5" />
+                          </div>
+                          <h3 className="font-medium text-foreground">Paystack</h3>
+                        </div>
 
                         {shop?.paystack_account_connected ? (
-                          <div className="space-y-2">
+                          <div className="space-y-3">
                             {isPaystackLoading ? (
                               <p className="text-sm text-muted-foreground">Loading Paystack account details...</p>
                             ) : paystackSubAccount ? (
@@ -923,6 +857,80 @@ export default function AdminSettingsPage() {
                               <Button type="button" variant="outline" onClick={fetchPaystackSubAccount}>
                                 Refresh Paystack Details
                               </Button>
+                            )}
+
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => {
+                                setShowPaystackUpdateForm((prev) => !prev);
+                                if (paystackSubAccount?.account_number) {
+                                  paystackForm.setValue('accountNumber', paystackSubAccount.account_number);
+                                }
+                              }}
+                            >
+                              {showPaystackUpdateForm ? 'Cancel Update' : 'Update Paystack Account'}
+                            </Button>
+
+                            {showPaystackUpdateForm && (
+                              <div className="space-y-4 max-w-md">
+                                <div className="space-y-2">
+                                  <Label htmlFor="bank-search-update">Search Bank</Label>
+                                  <Input
+                                    id="bank-search-update"
+                                    placeholder="Type bank name or code"
+                                    value={bankSearch}
+                                    onChange={(e) => setBankSearch(e.target.value)}
+                                  />
+                                </div>
+
+                                <div className="space-y-2">
+                                  <Label>Choose Bank</Label>
+                                  <div className="max-h-44 overflow-y-auto rounded-md border border-border">
+                                    {filteredBanks.length > 0 ? (
+                                      filteredBanks.map((bank) => (
+                                        <button
+                                          key={bank.id}
+                                          type="button"
+                                          onClick={() => {
+                                            paystackForm.setValue('bankCode', bank.code, { shouldValidate: true });
+                                            setBankSearch(bank.name);
+                                          }}
+                                          className={`w-full px-3 py-2 text-left text-sm hover:bg-muted ${selectedBankCode === bank.code ? 'bg-muted' : ''}`}
+                                        >
+                                          <span className="font-medium">{bank.name}</span>
+                                        </button>
+                                      ))
+                                    ) : (
+                                      <p className="px-3 py-2 text-sm text-muted-foreground">No banks found.</p>
+                                    )}
+                                  </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                  <Label htmlFor="accountNumber-update">Account Number</Label>
+                                  <Input
+                                    id="accountNumber-update"
+                                    placeholder="0123456789"
+                                    {...paystackForm.register('accountNumber')}
+                                  />
+                                </div>
+
+                                <Button
+                                  type="button"
+                                  onClick={paystackForm.handleSubmit(handleUpdatePaystackAccount)}
+                                  disabled={isUpdatingPaystackAccount}
+                                >
+                                  {isUpdatingPaystackAccount ? (
+                                    <>
+                                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                      Updating...
+                                    </>
+                                  ) : (
+                                    'Save Paystack Update'
+                                  )}
+                                </Button>
+                              </div>
                             )}
                           </div>
                         ) : (

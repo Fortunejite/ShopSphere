@@ -22,7 +22,6 @@ import {
   ArrowLeft,
   Loader2
 } from 'lucide-react';
-import { CartItemWithProduct } from '@/models/Cart';
 import { ProductLoading } from '@/components/Loading';
 import { createOrderSchema } from '@/lib/schema/order';
 
@@ -30,6 +29,7 @@ import Image from 'next/image';
 import { formatCurrency } from '@/lib/currency';
 import { useAppSelector } from '@/hooks/redux.hook';
 import { useSession } from 'next-auth/react';
+import { CartItemWithProduct } from '@/types';
 
 const checkoutSchema = createOrderSchema.extend({
   use_billing_as_shipping: z.boolean().optional().default(false),

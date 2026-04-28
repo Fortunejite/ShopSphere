@@ -1,12 +1,12 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { clientErrorHandler } from '@/lib/errorHandler';
 import axios from 'axios';
-import { CategoryAttributes } from '@/models/Category';
+import { Category } from '@prisma/client';
 
 interface IInitialState {
   error: string | null;
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
-  categories: CategoryAttributes[];
+  categories: Category[];
 }
 
 // Thunks for handling async operations

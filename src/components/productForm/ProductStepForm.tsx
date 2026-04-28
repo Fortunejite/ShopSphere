@@ -27,7 +27,7 @@ import Variants from './VariantStep';
 import ImageStep from './ImageStep';
 import ShippingStep from './ShippingStep';
 import { useAppSelector } from '@/hooks/redux.hook';
-import { ProductVariant } from '@/models/Product';
+import { ProductVariant } from '@/types';
 
 export interface ProductFormData {
   name: string;

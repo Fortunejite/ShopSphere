@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Textarea } from '@/components/ui/textarea';
 import {
-  User,
+  User as UserIcon,
   Mail,
   Phone,
   MapPin,
@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import { PageLoading } from '@/components/Loading';
-import { UserAttributes } from '@/models/User';
+import { User } from '@prisma/client';
 
 interface EditableFields {
   username: string;
@@ -34,7 +34,7 @@ interface EditableFields {
   city: string;
 }
 
-type UserProfile = Omit<UserAttributes, 'password_hash'>;
+type UserProfile = Omit<User, 'password_hash'>;
 
 export default function ProfilePage() {
   const { status: authStatus } = useSession();
@@ -263,7 +263,7 @@ export default function ProfilePage() {
         <Card className="lg:col-span-1">
           <CardHeader className="text-center">
             <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-              <User className="w-10 h-10 text-muted-foreground" />
+              <UserIcon className="w-10 h-10 text-muted-foreground" />
             </div>
             <CardTitle className="text-xl">{profile.username || 'User'}</CardTitle>
             <CardDescription>{profile.email}</CardDescription>
@@ -310,7 +310,7 @@ export default function ProfilePage() {
             {/* Username */}
             <div className="space-y-2">
               <Label htmlFor="username" className="flex items-center">
-                <User className="w-4 h-4 mr-2" />
+                <UserIcon className="w-4 h-4 mr-2" />
                 Username
               </Label>
               <Input

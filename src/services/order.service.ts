@@ -279,7 +279,6 @@ class OrderService {
       final_amount: cart.total_amount,
       items: orderItems as unknown as Prisma.InputJsonValue,
       status: 'pending' as OrderStatus,
-      payment_status: 'pending' as const,
       shipping_address:
         validatedData.shipping_address as unknown as Prisma.InputJsonValue,
       notes: validatedData.notes,
@@ -313,6 +312,13 @@ class OrderService {
       throw {
         message: 'Order not found',
         status: 404,
+      };
+    }
+
+    if (order.status !== 'pending') {
+      throw {
+        message: 'Payment can only be initialized for pending orders',
+        status: 400,
       };
     }
 
