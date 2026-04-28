@@ -24,11 +24,11 @@ import {
   CreditCard
 } from 'lucide-react';
 import { ProductLoading } from '@/components/Loading';
-import { OrderWithProducts } from '@/models/Order';
 import { cn } from '@/lib/utils';
 import { formatCurrency } from '@/lib/currency';
 import { useAppSelector } from '@/hooks/redux.hook';
 import { useSession } from 'next-auth/react';
+import { RichOrder } from '@/types';
 
 export default function OrdersPage() {
   const { domain } = useParams();
@@ -37,7 +37,7 @@ export default function OrdersPage() {
   const router = useRouter();
   const shop = useAppSelector(state => state.shop.shop);
 
-  const [orders, setOrders] = useState<OrderWithProducts[]>([]);
+  const [orders, setOrders] = useState<RichOrder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -102,16 +102,6 @@ export default function OrdersPage() {
     };
     const IconComponent = icons[status as keyof typeof icons] || Clock;
     return <IconComponent className="w-3 h-3" />;
-  };
-
-  const getPaymentStatusColor = (status: string) => {
-    const colors = {
-      pending: 'bg-warning text-warning-foreground',
-      paid: 'bg-success text-success-foreground',
-      failed: 'bg-error text-error-foreground',
-      refunded: 'bg-muted text-muted-foreground'
-    };
-    return colors[status as keyof typeof colors] || 'bg-muted text-muted-foreground';
   };
 
   const filteredOrders = orders.filter(order =>
@@ -235,9 +225,6 @@ export default function OrdersPage() {
                               {getStatusIcon(order.status)}
                               {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                             </Badge>
-                            <Badge className={getPaymentStatusColor(order.payment_status)}>
-                              {order.payment_status.charAt(0).toUpperCase() + order.payment_status.slice(1)}
-                            </Badge>
                           </div>
                           <div className="flex items-center gap-4 text-sm text-muted-foreground">
                             <div className="flex items-center gap-1">
@@ -307,7 +294,7 @@ export default function OrdersPage() {
                         </Button>
                       )}
 
-                      {(order.status === 'pending' || order.status === 'confirmed') && (
+                      {(order.status === 'pending') && (
                         <Button
                           variant="outline"
                           size="sm"

@@ -1,5 +1,4 @@
-import { CartWithProducts, CartItemWithProduct } from '@/types';
-import { ProductVariant } from '@/models/Product';
+import { CartWithProducts, CartItemWithProduct, ProductVariant } from '@/types';
 
 const CART_STORAGE_KEY = 'shop_sphere_cart';
 

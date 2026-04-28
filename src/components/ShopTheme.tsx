@@ -1,4 +1,4 @@
-import { colorTheme } from '@/models/Shop';
+import { colorTheme } from '@/lib/customTheme';
 import { ShopWithOwner } from '@/types';
 
 interface ShopThemeProps {

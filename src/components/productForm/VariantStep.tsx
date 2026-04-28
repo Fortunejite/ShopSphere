@@ -1,9 +1,9 @@
-import { ProductVariant } from "@/models/Product";
 import { Label } from "@radix-ui/react-label";
 import { X } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { ProductFormData, UpdateFormData } from './ProductStepForm';
+import { ProductVariant } from "@/types";
 
 interface Props {
   formData: ProductFormData

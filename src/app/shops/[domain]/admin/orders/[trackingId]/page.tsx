@@ -28,17 +28,17 @@ import {
   DollarSign
 } from 'lucide-react';
 import { ProductLoading } from '@/components/Loading';
-import { OrderWithProducts } from '@/models/Order';
 import { cn } from '@/lib/utils';
 import { formatCurrency } from '@/lib/currency';
 import { useAppSelector } from '@/hooks/redux.hook';
+import { RichOrder } from '@/types';
 
 export default function AdminOrderDetailsPage() {
   const { domain, trackingId } = useParams();
   const router = useRouter();
   const shop = useAppSelector((s) => s.shop.shop);
   
-  const [order, setOrder] = useState<OrderWithProducts | null>(null);
+  const [order, setOrder] = useState<RichOrder | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [isEditingStatus, setIsEditingStatus] = useState(false);
@@ -123,16 +123,6 @@ export default function AdminOrderDetailsPage() {
     return <IconComponent className="w-4 h-4" />;
   };
 
-  const getPaymentStatusColor = (status: string) => {
-    const colors = {
-      pending: 'bg-warning/10 text-warning',
-      paid: 'bg-success/10 text-success',
-      failed: 'bg-error/10 text-error',
-      refunded: 'bg-muted/10 text-muted-foreground'
-    };
-    return colors[status as keyof typeof colors] || 'bg-muted/10 text-muted-foreground';
-  };
-
   const copyTrackingId = () => {
     if (order) {
       navigator.clipboard.writeText(order.tracking_id);
@@ -177,7 +167,7 @@ export default function AdminOrderDetailsPage() {
                 className="text-sm sm:text-base"
               >
                 <ArrowLeft className="w-4 h-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">Back to Cart</span>
+                <span className="hidden sm:inline">Back to Orders</span>
                 <span className="sm:hidden">Back</span>
               </Button>
               <div>
@@ -193,9 +183,6 @@ export default function AdminOrderDetailsPage() {
               <Badge className={cn('flex items-center gap-1', getStatusColor(order.status))}>
                 {getStatusIcon(order.status)}
                 {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-              </Badge>
-              <Badge className={getPaymentStatusColor(order.payment_status)}>
-                {order.payment_status.charAt(0).toUpperCase() + order.payment_status.slice(1)}
               </Badge>
               <Button
                 variant="outline"
@@ -223,7 +210,7 @@ export default function AdminOrderDetailsPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    disabled={order.payment_status === 'pending'}
+                    disabled={order.status === 'pending'}
                     onClick={() => setIsEditingStatus(!isEditingStatus)}
                   >
                     <Edit className="w-4 h-4 mr-2" />
@@ -243,12 +230,9 @@ export default function AdminOrderDetailsPage() {
                         onChange={(e) => setNewStatus(e.target.value)}
                         className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                       >
-                        <option value="confirmed">Confirmed</option>
-                        <option value="processing">Processing</option>
                         <option value="shipped">Shipped</option>
                         <option value="delivered">Delivered</option>
                         <option value="cancelled">Cancelled</option>
-                        <option value="refunded">Refunded</option>
                       </select>
                     </div>
                     <div>
@@ -418,18 +402,6 @@ export default function AdminOrderDetailsPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Status:</span>
-                  <Badge className={getPaymentStatusColor(order.payment_status)}>
-                    {order.payment_status.charAt(0).toUpperCase() + order.payment_status.slice(1)}
-                  </Badge>
-                </div>
-                {order.payment_method && (
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Method:</span>
-                    <span className="text-sm capitalize">{order.payment_method.replace('_', ' ')}</span>
-                  </div>
-                )}
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">Total Amount:</span>
                   <span className="font-medium">{formatCurrency(order.final_amount, shop!.currency)}</span>

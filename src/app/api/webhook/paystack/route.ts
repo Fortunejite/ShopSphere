@@ -3,18 +3,19 @@ import { paystackWebhookHandler, verifyPaystackSignature } from '@/services/pays
 import { NextResponse } from 'next/server';
 
 export const POST = errorHandler(async (req) => {
+  const body = await req.text();
   const isSignatureValid = verifyPaystackSignature(
-    await req.text(),
+    body,
     req.headers.get('x-paystack-signature'),
   );
   if (!isSignatureValid) {
     return NextResponse.json(
       { error: 'Invalid webhook signature' },
-      { status: 400 },
+      { status: 401 },
     );
   }
 
-  await paystackWebhookHandler(await req.json())
+  await paystackWebhookHandler(JSON.parse(body));
 
   return NextResponse.json({ received: true });
 });
