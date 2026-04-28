@@ -34,7 +34,6 @@ import Image from 'next/image';
 import { updateShop } from '@/redux/shopSlice';
 import { Bank, PaystackSubAccount } from '@/types';
 import ThemeCustomizer from '@/components/ThemeCustomizer';
-import { Toaster } from '@/components/ui/sonner';
 import { generateURL } from '@/lib/domain';
 import { colorTheme } from '@/lib/customTheme';
 
@@ -1023,9 +1022,6 @@ export default function AdminSettingsPage() {
            </main>
          </div>
        </div>
-
-      {/* Sonner Toaster */}
-      <Toaster richColors />
     </div>
   );
 }

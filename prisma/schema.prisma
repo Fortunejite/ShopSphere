@@ -194,3 +194,12 @@ model StripeEvent {
 
   @@map("stripe_events")
 }
+
+model PaystackEvent {
+  event_id    Int   @id
+  event_type  String
+  payload     Json
+  received_at DateTime @default(now())
+
+  @@map("paystack_event")
+}

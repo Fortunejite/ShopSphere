@@ -1,12 +1,15 @@
+import { prisma } from '@/lib/prisma';
 import OrderService from '@/services/order.service';
 import {
   ChargeSuccessData,
   PaystackSubaccount,
   PaystackWebhookEvent,
 } from '@/services/paystack/types';
+import { Prisma } from '@prisma/client';
 import crypto from 'crypto';
 
 // ─── Signature Verification ───────────────────────────────────────────────────
+const SECRET_KEY = process.env.PAYSTACK_WEBHOOK_SECRET as string;
 
 export function verifyPaystackSignature(
   rawBody: string,
@@ -14,9 +17,8 @@ export function verifyPaystackSignature(
 ): boolean {
   if (!signature) return false;
 
-  const secret = process.env.PAYSTACK_SECRET_KEY!;
   const hash = crypto
-    .createHmac('sha512', secret)
+    .createHmac('sha512', SECRET_KEY)
     .update(rawBody)
     .digest('hex');
 
@@ -47,7 +49,26 @@ async function handleChargeSuccess(data: ChargeSuccessData): Promise<void> {
   await OrderService.processPaidOrder(trackingId);
 }
 
-export const paystackWebhookHandler = (body: PaystackWebhookEvent) => {
+export const paystackWebhookHandler = async (body: PaystackWebhookEvent) => {
+  // check if event has been processed before
+  const existingEvent = await prisma.paystackEvent.findUnique({
+    where: { event_id: body.data.id },
+  });
+  if (existingEvent) {
+    console.log('Event already processed:', body.data.id);
+    return;
+  }
+
+  // store the event
+  await prisma.paystackEvent.create({
+    data: {
+      event_id: body.data.id,
+      event_type: body.event,
+      payload: body.data as unknown as Prisma.InputJsonValue,
+      received_at: new Date(),
+    },
+  });
+
   switch (body.event) {
     case 'charge.success':
       return handleChargeSuccess(body.data as ChargeSuccessData);

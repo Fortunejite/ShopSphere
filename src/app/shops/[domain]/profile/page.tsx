@@ -389,45 +389,6 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
       </div>
-
-      {/* Account Information */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Account Information</CardTitle>
-          <CardDescription>Additional details about your account</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h4 className="font-medium text-foreground mb-2">Account Created</h4>
-              <p className="text-muted-foreground flex items-center">
-                <Calendar className="w-4 h-4 mr-2" />
-                {new Date(profile.created_at || '').toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}
-              </p>
-            </div>
-            
-            <div>
-              <h4 className="font-medium text-foreground mb-2">Last Updated</h4>
-              <p className="text-muted-foreground flex items-center">
-                <Calendar className="w-4 h-4 mr-2" />
-                {new Date(profile.updated_at || '').toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }

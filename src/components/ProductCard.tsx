@@ -1,4 +1,4 @@
-import { Eye, ShoppingCart, Star, Heart, StarHalf, Loader2 } from 'lucide-react';
+import { Eye, ShoppingCart, Star, StarHalf, Loader2 } from 'lucide-react';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { Card, CardContent, CardFooter } from './ui/card';
@@ -277,9 +277,6 @@ const ProductCard = ({
               <Link href={`/products/${product.slug}`}>
                 <Eye className="w-4 h-4" />
               </Link>
-            </Button>
-            <Button variant="secondary" size="sm" className="bg-secondary/90 hover:bg-secondary text-secondary-foreground shadow-lg">
-              <Heart className="w-4 h-4" />
             </Button>
           </div>
         </div>

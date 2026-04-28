@@ -8,7 +8,6 @@ import {
   Home,
   Package,
   ShoppingCart,
-  Heart,
   User,
   Menu,
   LogIn,
@@ -113,14 +112,6 @@ const ShopNavbar = ({ shop, cart }: Props) => {
                   </Link>
                 </Button>
               </div>
-            )}
-
-            {/* Wishlist - Only for logged in users */}
-            {user && (
-              <Button variant="ghost" size="sm" className="hidden sm:flex">
-                <Heart className="w-4 h-4" />
-                <span className="sr-only">Wishlist</span>
-              </Button>
             )}
 
             {/* Cart */}
