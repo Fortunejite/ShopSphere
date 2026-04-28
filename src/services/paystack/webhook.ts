@@ -9,7 +9,7 @@ import { Prisma } from '@prisma/client';
 import crypto from 'crypto';
 
 // ─── Signature Verification ───────────────────────────────────────────────────
-const SECRET_KEY = process.env.PAYSTACK_WEBHOOK_SECRET as string;
+const SECRET_KEY = process.env.PAYSTACK_SECRET_KEY as string;
 
 export function verifyPaystackSignature(
   rawBody: string,
