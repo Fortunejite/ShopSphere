@@ -1,24 +1,40 @@
-import { Label } from "@radix-ui/react-label";
-import { X } from "lucide-react";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
+import { Plus, ShieldCheck, Star, X } from 'lucide-react';
+import { ProductVariant } from '@/types';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
 import { ProductFormData, UpdateFormData } from './ProductStepForm';
-import { ProductVariant } from "@/types";
 
 interface Props {
-  formData: ProductFormData
-  updateFormData: UpdateFormData
+  formData: ProductFormData;
+  updateFormData: UpdateFormData;
 }
 
 const Variants = ({ formData, updateFormData }: Props) => {
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      <div className="rounded-xl border bg-background/60 p-5 md:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h3 className="text-base font-semibold text-foreground">Product variants</h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              Create options like size, color, material, or bundle type.
+            </p>
+          </div>
+
+          <div className="text-xs text-muted-foreground">
+            {formData.variants.length} variant{formData.variants.length === 1 ? '' : 's'}
+          </div>
+        </div>
+      </div>
+
       <div className="flex justify-between items-center">
-        <h4 className="text-lg font-medium">Product Variants</h4>
+        <h4 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+          Variant List
+        </h4>
         <Button
           type="button"
-          variant="outline"
-          size="sm"
+          variant="default"
           onClick={() => {
             const newVariant: ProductVariant = {
               attributes: {},
@@ -26,13 +42,15 @@ const Variants = ({ formData, updateFormData }: Props) => {
             };
             updateFormData('variants', [...formData.variants, newVariant]);
           }}
+          className="gap-2"
         >
+          <Plus className="w-4 h-4" />
           Add Variant
         </Button>
       </div>
 
       {formData.variants.length === 0 ? (
-        <div className="text-center py-8 text-muted-foreground">
+        <div className="text-center py-10 text-muted-foreground border rounded-xl bg-muted/20">
           <p className="mb-2">No variants added yet.</p>
           <p className="text-sm">
             Variants allow you to sell the same product with different options
@@ -40,11 +58,11 @@ const Variants = ({ formData, updateFormData }: Props) => {
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-5">
           {formData.variants.map((variant, index) => (
-            <div key={index} className="border rounded-lg p-4 space-y-4">
+            <div key={index} className="border rounded-xl p-5 space-y-4 bg-background/50">
               <div className="flex justify-between items-center">
-                <h5 className="font-medium">Variant {index + 1}</h5>
+                <h5 className="font-semibold">Variant {index + 1}</h5>
                 <div className="flex gap-2">
                   <Button
                     type="button"
@@ -62,11 +80,15 @@ const Variants = ({ formData, updateFormData }: Props) => {
                       });
                       updateFormData('variants', updatedVariants);
                     }}
-                    className={
-                      variant.is_default ? 'bg-primary/10 border-primary/30' : ''
-                    }
+                    className={variant.is_default ? 'bg-primary/10 border-primary/30 text-primary' : ''}
                   >
-                    {variant.is_default ? 'Default' : 'Set as Default'}
+                    {variant.is_default ? (
+                      <span className="inline-flex items-center gap-1.5">
+                        <Star className="w-3.5 h-3.5" /> Default
+                      </span>
+                    ) : (
+                      'Set as Default'
+                    )}
                   </Button>
                   <Button
                     type="button"
@@ -82,19 +104,19 @@ const Variants = ({ formData, updateFormData }: Props) => {
                       }
                       updateFormData('variants', newVariants);
                     }}
+                    className="h-8 w-8 p-0"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-3.5 h-3.5" />
                   </Button>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label>Attributes (e.g., color: Red, size: Large)</Label>
-                  <div className="space-y-2 mt-1">
+              <div className="space-y-3">
+                <Label>Attributes (e.g. color: Red, size: Large)</Label>
+                <div className="space-y-2">
                     {Object.entries(variant.attributes).map(
                       ([key, value], attrIndex) => (
-                        <div key={attrIndex} className="flex gap-2">
+                        <div key={attrIndex} className="grid grid-cols-1 md:grid-cols-[1fr_1fr_auto] gap-2">
                           <Input
                             placeholder="Attribute (e.g., color)"
                             value={key}
@@ -138,6 +160,7 @@ const Variants = ({ formData, updateFormData }: Props) => {
                               };
                               updateFormData('variants', updatedVariants);
                             }}
+                            className="md:w-10"
                           >
                             <X className="w-3 h-3" />
                           </Button>
@@ -160,10 +183,11 @@ const Variants = ({ formData, updateFormData }: Props) => {
                         };
                         updateFormData('variants', updatedVariants);
                       }}
+                      className="gap-2"
                     >
+                      <Plus className="w-3.5 h-3.5" />
                       Add Attribute
                     </Button>
-                  </div>
                 </div>
               </div>
             </div>
@@ -173,9 +197,12 @@ const Variants = ({ formData, updateFormData }: Props) => {
 
       <div className="bg-info/10 border border-info/20 rounded-lg p-4">
         <p className="text-sm text-primary/80">
-          <strong>Note:</strong> Variants are optional. If you don&apos;t add
-          variants, the base price and stock from Step 2 will be used. One
-          variant must be marked as default if you add any variants.
+          <strong className="inline-flex items-center gap-1.5 mr-1">
+            <ShieldCheck className="w-4 h-4" /> Note:
+          </strong>
+          Variants are optional. If you don&apos;t add variants, the base price and
+          stock from Step 2 will be used. One variant must be marked as default
+          if you add any variants.
         </p>
       </div>
     </div>

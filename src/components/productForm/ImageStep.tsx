@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { Label } from '@radix-ui/react-label';
+import { Label } from '../ui/label';
 import { ImageOff, Upload, X, Loader2 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -40,114 +40,111 @@ const ImageStep = ({ formData, updateFormData, onUploadStateChange }: Props) => 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.thumbnails.length, thumbnailErrors.length]);
   return (
-    <div className="space-y-6">
-      <div>
-        <Label htmlFor="image">Main Product Image *</Label>
-        <div className="space-y-3 mt-1">
-          {/* File upload */}
-          <div className="flex flex-col gap-2">
-            <Input
-              id="image"
-              type="file"
-              accept="image/*"
-              onChange={async (e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  setIsUploadingMain(true);
-                  setUploadError('');
-                  setImageError(false);
-                  
-                  // Create temporary URL for immediate preview
-                  const tempUrl = URL.createObjectURL(file);
-                  updateFormData('image', tempUrl);
-                  
-                  try {
-                    // Upload the actual file
-                    const result = await uploadPhoto(file);
-                    
-                    if (result.success) {
-                      // Replace temporary URL with permanent URL
-                      updateFormData('image', result.url);
-                      // Clean up temporary URL
-                      URL.revokeObjectURL(tempUrl);
-                    } else {
-                      setUploadError(result.error || 'Failed to upload image');
-                      setImageError(true);
-                    }
-                  } catch {
-                    setUploadError('Upload failed. Please try again.');
+    <div className="space-y-8">
+      <div className="rounded-xl border bg-background/60 p-5 md:p-6 space-y-4">
+        <div>
+          <h3 className="text-base font-semibold text-foreground">Main image</h3>
+          <p className="text-sm text-muted-foreground mt-1">
+            Upload the primary image customers see first.
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="image">Main Product Image *</Label>
+          <Input
+            id="image"
+            type="file"
+            accept="image/*"
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                setIsUploadingMain(true);
+                setUploadError('');
+                setImageError(false);
+
+                // Create temporary URL for immediate preview
+                const tempUrl = URL.createObjectURL(file);
+                updateFormData('image', tempUrl);
+
+                try {
+                  // Upload the actual file
+                  const result = await uploadPhoto(file);
+
+                  if (result.success) {
+                    // Replace temporary URL with permanent URL
+                    updateFormData('image', result.url);
+                    // Clean up temporary URL
+                    URL.revokeObjectURL(tempUrl);
+                  } else {
+                    setUploadError(result.error || 'Failed to upload image');
                     setImageError(true);
-                  } finally {
-                    setIsUploadingMain(false);
                   }
+                } catch {
+                  setUploadError('Upload failed. Please try again.');
+                  setImageError(true);
+                } finally {
+                  setIsUploadingMain(false);
                 }
-              }}
-              className="w-full"
-              disabled={isUploadingMain}
-            />
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">
-                Upload an image file (JPG, PNG, WebP, etc.)
-              </p>
-              {isUploadingMain && (
-                <InlineLoading />
-              )}
-            </div>
-            {uploadError && (
-              <p className="text-sm text-error mt-1">{uploadError}</p>
+              }
+            }}
+            className="h-11"
+            disabled={isUploadingMain}
+          />
+          <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <p>Supported formats: JPG, PNG, WebP, GIF</p>
+            {isUploadingMain && <InlineLoading />}
+          </div>
+          {uploadError && <p className="text-sm text-error">{uploadError}</p>}
+        </div>
+
+        {formData.image && (
+          <div className="relative w-full h-56 sm:h-72 bg-muted/40 rounded-lg overflow-hidden border">
+            {!imageError ? (
+              <Image
+                src={formData.image}
+                alt="Product preview"
+                fill
+                className="object-cover"
+                onError={() => setImageError(true)}
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center text-muted-foreground h-full space-y-2">
+                <ImageOff className="w-10 h-10" />
+                <p className="text-sm text-center px-4">Failed to load selected image</p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    // Clean up object URL if it's a blob URL
+                    if (formData.image.startsWith('blob:')) {
+                      URL.revokeObjectURL(formData.image);
+                    }
+                    updateFormData('image', '');
+                    setImageError(false);
+                    setUploadError('');
+                  }}
+                >
+                  Remove Image
+                </Button>
+              </div>
             )}
           </div>
-
-          {/* Image preview */}
-          {formData.image && (
-            <div className="mt-3">
-              <div className="relative w-full h-48 bg-muted rounded-lg overflow-hidden flex items-center justify-center">
-                {!imageError ? (
-                  <Image
-                    src={formData.image}
-                    alt="Product preview"
-                    fill
-                    className="object-cover"
-                    onError={() => setImageError(true)}
-                  />
-                ) : (
-                  <div className="flex flex-col items-center justify-center text-muted-foreground space-y-2">
-                    <ImageOff className="w-12 h-12" />
-                    <p className="text-sm text-center px-4">
-                      Failed to load selected image
-                    </p>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        // Clean up object URL if it's a blob URL
-                        if (formData.image.startsWith('blob:')) {
-                          URL.revokeObjectURL(formData.image);
-                        }
-                        updateFormData('image', '');
-                        setImageError(false);
-                        setUploadError('');
-                      }}
-                      className="text-xs"
-                    >
-                      Remove Image
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
+        )}
       </div>
 
-      <div>
-        <Label>Additional Images (Thumbnails)</Label>
-        <div className="space-y-3 mt-2">
+      <div className="rounded-xl border bg-background/60 p-5 md:p-6 space-y-4">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h3 className="text-base font-semibold text-foreground">Gallery images</h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              Add up to 10 additional thumbnails for better product presentation.
+            </p>
+          </div>
           <Button
             type="button"
             variant="outline"
-            size="sm"
+            size="default"
             onClick={() => {
               const input = document.createElement('input');
               input.type = 'file';
@@ -169,7 +166,7 @@ const ImageStep = ({ formData, updateFormData, onUploadStateChange }: Props) => 
                     setUploadError('No available slots for new images');
                     return;
                   }
-                  
+
                   // Create temporary URLs for immediate preview
                   const newThumbnails = [...currentThumbnails];
                   const newErrors = [...thumbnailErrors];
@@ -211,7 +208,7 @@ const ImageStep = ({ formData, updateFormData, onUploadStateChange }: Props) => 
                     
                     updateFormData('thumbnails', finalThumbnails);
                     setThumbnailErrors(finalErrors);
-                    
+
                   } catch (error) {
                     console.error('Thumbnails upload failed:', error);
                     // Mark all new thumbnails as errored
@@ -229,7 +226,7 @@ const ImageStep = ({ formData, updateFormData, onUploadStateChange }: Props) => 
               input.click();
             }}
             disabled={formData.thumbnails.length >= 10 || isUploadingThumbnails}
-            className="w-full sm:w-auto"
+            className="shrink-0"
           >
             {isUploadingThumbnails ? (
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -242,88 +239,81 @@ const ImageStep = ({ formData, updateFormData, onUploadStateChange }: Props) => 
               ? 'Add Thumbnail Images'
               : `Add More Images (${formData.thumbnails.length}/10)`}
           </Button>
+        </div>
 
-          {formData.thumbnails.length > 0 && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-              {formData.thumbnails.map((thumbnail, index) => (
-                <div 
-                  key={`thumbnail-${index}`} 
-                  className="relative group"
-                  title={thumbnailErrors[index] ? 'Failed to upload this image' : `Thumbnail ${index + 1}`}
+        {formData.thumbnails.length > 0 && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            {formData.thumbnails.map((thumbnail, index) => (
+              <div
+                key={`thumbnail-${index}`}
+                className="relative group"
+                title={thumbnailErrors[index] ? 'Failed to upload this image' : `Thumbnail ${index + 1}`}
+              >
+                <div
+                  className={`aspect-square bg-muted/40 rounded-lg overflow-hidden border ${
+                    thumbnailErrors[index] ? 'border-error border-dashed' : ''
+                  }`}
                 >
-                  <div className={`aspect-square bg-muted rounded-lg overflow-hidden ${
-                    thumbnailErrors[index] ? 'border-2 border-error border-dashed' : ''
-                  }`}>
-                    {!thumbnailErrors[index] ? (
-                      <Image
-                        src={thumbnail}
-                        alt={`Thumbnail ${index + 1}`}
-                        fill
-                        className="object-cover"
-                        onError={() => {
-                          console.error(`Failed to load thumbnail ${index + 1}:`, thumbnail);
-                          const newErrors = [...thumbnailErrors];
-                          newErrors[index] = true;
-                          setThumbnailErrors(newErrors);
-                        }}
-                      />
-                    ) : (
-                      <div className="flex flex-col items-center justify-center h-full text-error p-2">
-                        <ImageOff className="w-6 h-6 mb-1" />
-                        <span className="text-xs text-center">
-                          Upload failed
-                        </span>
-                        <span className="text-xs text-center text-muted-foreground mt-1">
-                          Click × to remove
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  {/* Remove button */}
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="sm"
-                    className="absolute -top-2 -right-2 w-6 h-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={() => {
-                      const thumbnailToRemove = formData.thumbnails[index];
-                      
-                      // Clean up object URL if it's a blob URL
-                      if (thumbnailToRemove.startsWith('blob:')) {
-                        URL.revokeObjectURL(thumbnailToRemove);
-                      }
-                      
-                      const newThumbnails = formData.thumbnails.filter(
-                        (_, i) => i !== index,
-                      );
-                      updateFormData('thumbnails', newThumbnails);
-                      const newErrors = thumbnailErrors.filter(
-                        (_, i) => i !== index,
-                      );
-                      setThumbnailErrors(newErrors);
-                    }}
-                  >
-                    <X className="w-3 h-3" />
-                  </Button>
+                  {!thumbnailErrors[index] ? (
+                    <Image
+                      src={thumbnail}
+                      alt={`Thumbnail ${index + 1}`}
+                      fill
+                      className="object-cover"
+                      onError={() => {
+                        console.error(`Failed to load thumbnail ${index + 1}:`, thumbnail);
+                        const newErrors = [...thumbnailErrors];
+                        newErrors[index] = true;
+                        setThumbnailErrors(newErrors);
+                      }}
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center h-full text-error p-2">
+                      <ImageOff className="w-6 h-6 mb-1" />
+                      <span className="text-xs text-center">Upload failed</span>
+                      <span className="text-xs text-center text-muted-foreground mt-1">
+                        Remove and retry
+                      </span>
+                    </div>
+                  )}
                 </div>
-              ))}
-            </div>
-          )}
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  className="absolute -top-2 -right-2 w-6 h-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={() => {
+                    const thumbnailToRemove = formData.thumbnails[index];
 
-          <div className="text-sm text-muted-foreground space-y-1">
-            <p>You can upload up to 10 additional images. Supported formats: JPG, PNG, WebP, GIF.</p>
-            <p>Maximum file size: 10MB per image.</p>
-            {formData.thumbnails.length > 0 && (
-              <p className="text-primary">
-                {formData.thumbnails.length}/10 images uploaded
-                {thumbnailErrors.some(error => error) && (
-                  <span className="text-error ml-2">
-                    (Some uploads failed - hover over images to see details)
-                  </span>
-                )}
-              </p>
-            )}
+                    // Clean up object URL if it's a blob URL
+                    if (thumbnailToRemove.startsWith('blob:')) {
+                      URL.revokeObjectURL(thumbnailToRemove);
+                    }
+
+                    const newThumbnails = formData.thumbnails.filter((_, i) => i !== index);
+                    updateFormData('thumbnails', newThumbnails);
+                    const newErrors = thumbnailErrors.filter((_, i) => i !== index);
+                    setThumbnailErrors(newErrors);
+                  }}
+                >
+                  <X className="w-3 h-3" />
+                </Button>
+              </div>
+            ))}
           </div>
+        )}
+
+        <div className="text-sm text-muted-foreground space-y-1">
+          <p>You can upload up to 10 additional images.</p>
+          <p>Maximum file size: 10MB per image.</p>
+          {formData.thumbnails.length > 0 && (
+            <p className="text-primary">
+              {formData.thumbnails.length}/10 images uploaded
+              {thumbnailErrors.some((error) => error) && (
+                <span className="text-error ml-2">(Some uploads failed)</span>
+              )}
+            </p>
+          )}
         </div>
       </div>
     </div>
