@@ -1,9 +1,4 @@
-/**
- * Utility function for photo uploads
- * Currently returns a placeholder URL - to be implemented with actual upload logic later
- */
-
-import { deleteImage, uploadImage } from "@/services/firebase/storage";
+import { deleteMedia, uploadMedia } from "@/services/cloudflare/storage/client";
 
 export interface UploadResult {
   url: string;
@@ -16,7 +11,7 @@ export interface UploadResult {
  * @param file - The file to upload
  * @returns Promise with upload result
  */
-export async function uploadPhoto(file: File, prev?: string): Promise<UploadResult> {
+export async function uploadPhoto(file: File): Promise<UploadResult> {
   try {
     // Validate file first
     const validation = validatePhoto(file);
@@ -28,7 +23,7 @@ export async function uploadPhoto(file: File, prev?: string): Promise<UploadResu
       };
     }
 
-    const url = await uploadImage(file, prev);
+    const url = await uploadMedia(file, 'images');
     
     // Local test, convert file to data URL for testing
     // const dataUrl = await fileToDataUrl(file);
@@ -41,7 +36,7 @@ export async function uploadPhoto(file: File, prev?: string): Promise<UploadResu
     return {
       url: '',
       success: false,
-      error: error instanceof Error ? error.message : 'Upload failed'
+      error: error instanceof Error ? error.message : 'Image upload failed'
     };
   }
 }
@@ -73,14 +68,14 @@ export async function uploadMultiplePhotos(files: File[]): Promise<UploadResult[
     return files.map(() => ({
       url: '',
       success: false,
-      error: error instanceof Error ? error.message : 'Upload failed'
+      error: error instanceof Error ? error.message : 'Image upload failed'
     }));
   }
 }
 
-export async function deletePhoto(url: string): Promise<void> {
+export async function deletePhoto(key: string): Promise<void> {
   try {
-    await deleteImage(url);
+    await deleteMedia(key);
   } catch (error) {
     console.error('Error deleting photo:', error);
   }
