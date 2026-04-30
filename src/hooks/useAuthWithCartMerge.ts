@@ -83,7 +83,6 @@ export function useAuthWithCartMerge() {
       username: string;
       phone_number: string;
       address: string;
-      city: string;
     },
     redirectUrl: string = '/'
   ) => {

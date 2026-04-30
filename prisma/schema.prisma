@@ -40,7 +40,6 @@ model User {
   password_hash String
   role          UserRole @default(user)
   address       String
-  city          String
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -77,11 +76,6 @@ model Shop {
   email                   String
   phone                   String
   address                 String
-  city                    String
-  state                   String
-  postal_code             String
-  country                 String
-  free_shipping_threshold Float      @default(50)
   currency                String
   logo                    String?
   banner                  String?

@@ -420,13 +420,6 @@ export default function OrderDetailsPage() {
                   <div className="text-sm space-y-1">
                     <p className="font-medium">{order.shipping_address.name}</p>
                     <p>{order.shipping_address.address_line_1}</p>
-                    {order.shipping_address.address_line_2 && (
-                      <p>{order.shipping_address.address_line_2}</p>
-                    )}
-                    <p>
-                      {order.shipping_address.city}, {order.shipping_address.state} {order.shipping_address.postal_code}
-                    </p>
-                    <p>{order.shipping_address.country}</p>
                     <p className="text-muted-foreground mt-2">
                       Phone: {order.shipping_address.phone}
                     </p>

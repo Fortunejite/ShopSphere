@@ -29,7 +29,6 @@ export default function SignupPage() {
     username: '',
     phone_number: '',
     address: '',
-    city: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
@@ -233,24 +232,6 @@ export default function SignupPage() {
                 />
                 {errors.phone_number && (
                   <p className="text-sm text-error">{errors.phone_number}</p>
-                )}
-              </div>
-
-              {/* City Field */}
-              <div className="space-y-2">
-                <Label htmlFor="city">City</Label>
-                <Input
-                  id="city"
-                  name="city"
-                  type="text"
-                  placeholder="Enter your city"
-                  value={formData.city}
-                  onChange={handleInputChange}
-                  className={errors.city ? 'border-error focus:border-error' : ''}
-                  disabled={isLoading}
-                />
-                {errors.city && (
-                  <p className="text-sm text-error">{errors.city}</p>
                 )}
               </div>
 
