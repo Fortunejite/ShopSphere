@@ -5,11 +5,7 @@ import { Card, CardContent, CardFooter } from './ui/card';
 import Image from 'next/image';
 import Link from 'next/link';
 import { formatPrice } from '@/lib/currency';
-import {
-  addToCart,
-  itemInCart,
-  removeFromCart,
-} from '@/redux/cartSlice';
+import { addToCart, itemInCart, removeFromCart } from '@/redux/cartSlice';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux.hook';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -59,10 +55,12 @@ const ProductCard = ({
   const reduxState = useAppSelector((state) => state);
   const dispatch = useAppDispatch();
   const { shop } = reduxState.shop;
-  
+
   // Individual loading state for this product card
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingAction, setLoadingAction] = useState<'add' | 'remove' | null>(null);
+  const [loadingAction, setLoadingAction] = useState<'add' | 'remove' | null>(
+    null,
+  );
 
   const pricing = formatPrice(product.price, product.discount);
   const stockStatus = getStockStatus(product.stock_quantity);
@@ -86,7 +84,7 @@ const ProductCard = ({
           },
         }),
       );
-      
+
       // Check if it's a thunk action and wait for it
       if ('unwrap' in result) {
         await result.unwrap();
@@ -101,7 +99,7 @@ const ProductCard = ({
 
   const handleRemoveFromCart = async () => {
     if (!product || !shop?.domain) return;
-    
+
     setIsLoading(true);
     setLoadingAction('remove');
     try {
@@ -111,7 +109,7 @@ const ProductCard = ({
           product_id: product.id,
         }),
       );
-      
+
       // Check if it's a thunk action and wait for it
       if ('unwrap' in result) {
         await result.unwrap();
@@ -200,7 +198,12 @@ const ProductCard = ({
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" asChild className="flex-1 xs:flex-none">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    asChild
+                    className="flex-1 xs:flex-none"
+                  >
                     <Link href={`/products/${product.slug}`}>
                       <Eye className="w-4 h-4 mr-1" />
                       <span className="xs:inline">View</span>
@@ -222,15 +225,17 @@ const ProductCard = ({
                       <ShoppingCart className="w-4 h-4 mr-1 flex-shrink-0" />
                     )}
                     <span className="truncate">
-                      {product.stock_quantity === 0 
+                      {product.stock_quantity === 0
                         ? 'Out of Stock'
                         : product.variants.length > 0
-                        ? 'Select Options'
-                        : isLoading
-                        ? loadingAction === 'add' ? 'Adding...' : 'Removing...'
-                        : isInCart
-                        ? 'Remove'
-                      : 'Add to Cart'}
+                          ? 'Select Options'
+                          : isLoading
+                            ? loadingAction === 'add'
+                              ? 'Adding...'
+                              : 'Removing...'
+                            : isInCart
+                              ? 'Remove'
+                              : 'Add to Cart'}
                     </span>
                   </Button>
                 </div>
@@ -244,103 +249,90 @@ const ProductCard = ({
 
   return (
     <Card className="group hover:shadow-lg transition-all duration-200 overflow-hidden p-0">
-      <div className="relative aspect-square overflow-hidden">
-        {/* Mobile: Clickable overlay for entire image */}
-        <Link 
-          href={`/products/${product.slug}`}
-          className="absolute inset-0 z-10 md:hidden"
-          aria-label={`View ${product.name}`}
-        />
-        
-        <Image
-          src={product.image}
-          alt={product.name}
-          fill
-          className="object-cover group-hover:scale-105 transition-transform duration-200"
-        />
-        {product.discount > 0 && (
-          <Badge className="absolute top-2 left-2 bg-error text-error-foreground z-20">
-            -{product.discount}%
-          </Badge>
-        )}
-        {product.is_featured && (
-          <Badge className="absolute top-2 right-2 bg-secondary text-secondary-foreground z-20">
-            <Star className="w-3 h-3 mr-1" />
-            Featured
-          </Badge>
-        )}
-
-        {/* Desktop: Hover overlay with transparency */}
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-300 items-center justify-center opacity-0 group-hover:opacity-100 hidden md:flex backdrop-blur-sm">
-          <div className="flex gap-2">
-            <Button variant="secondary" size="sm" asChild className="bg-secondary/90 hover:bg-secondary text-secondary-foreground shadow-lg">
-              <Link href={`/products/${product.slug}`}>
-                <Eye className="w-4 h-4" />
-              </Link>
-            </Button>
-          </div>
+      <Link href={`/products/${product.slug}`}>
+        <div className="relative aspect-square overflow-hidden">
+          <Image
+            src={product.image}
+            alt={product.name}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-200"
+          />
+          {product.discount > 0 && (
+            <Badge className="absolute top-2 left-2 bg-error text-error-foreground z-20">
+              -{product.discount}%
+            </Badge>
+          )}
+          {product.is_featured && (
+            <Badge className="absolute top-2 right-2 bg-secondary text-secondary-foreground z-20">
+              <Star className="w-3 h-3 mr-1" />
+              Featured
+            </Badge>
+          )}
         </div>
-      </div>
 
-      <CardContent className="p-4">
-        <div className="space-y-2">
-          {/* Mobile: Clickable product name as additional navigation */}
-          <Link href={`/products/${product.slug}`} className="md:pointer-events-none">
+        <CardContent className="p-4">
+          <div className="space-y-2">
             <h3 className="font-semibold text-foreground line-clamp-2 min-h-10 hover:text-primary transition-colors md:hover:text-foreground cursor-pointer md:cursor-default">
               {product.name}
             </h3>
-          </Link>
 
-          {/* TODO: Add rating system */}
-          {/* {product.rating && (
+            {/* TODO: Add rating system */}
+            {/* {product.rating && (
               <div className="flex items-center gap-2">
                 {renderStars(product.rating)}
                 <span className="text-sm text-muted-foreground">({product.reviews_count || 0})</span>
               </div>
             )} */}
 
-          <div className="flex items-center justify-between">
-            <div>
-              <span className="text-lg font-bold text-foreground">
-                {pricing.discounted}
-              </span>
-              {product.discount > 0 && (
-                <span className="text-sm text-muted-foreground line-through ml-2">
-                  {pricing.original}
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="text-lg font-bold text-foreground">
+                  {pricing.discounted}
                 </span>
-              )}
+                {product.discount > 0 && (
+                  <span className="text-sm text-muted-foreground line-through ml-2">
+                    {pricing.original}
+                  </span>
+                )}
+              </div>
+              <Badge className={stockStatus.color}>{stockStatus.text}</Badge>
             </div>
-            <Badge className={stockStatus.color}>{stockStatus.text}</Badge>
           </div>
-        </div>
-      </CardContent>
+        </CardContent>
 
-      <CardFooter className="p-4 pt-0">
-        <Button
-          className="w-full"
-          onClick={
-            product.variants.length > 0
-              ? () => router.push(`/products/${product.slug}`)
-              : toggleCart
-          }
-          disabled={product.stock_quantity === 0 || isLoading}
-        >
-          {isLoading ? (
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-          ) : (
-            <ShoppingCart className="w-4 h-4 mr-2" />
-          )}
-          {product.variants.length > 0
-            ? 'Select Options'
-            : isLoading
-            ? loadingAction === 'add' ? 'Adding...' : 'Removing...'
-            : product.stock_quantity === 0
-            ? 'Out of Stock'
-            : isInCart
-            ? 'Remove from Cart'
-            : 'Add to Cart'}
-        </Button>
-      </CardFooter>
+        <CardFooter className="p-4 pt-0">
+          <Button
+            className="w-full"
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              if (product.variants.length > 0) {
+                router.push(`/products/${product.slug}`);
+              } else {
+                toggleCart();
+              }
+            }}
+            disabled={product.stock_quantity === 0 || isLoading}
+          >
+            {isLoading ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <ShoppingCart className="w-4 h-4 mr-2" />
+            )}
+            {product.variants.length > 0
+              ? 'Select Options'
+              : isLoading
+                ? loadingAction === 'add'
+                  ? 'Adding...'
+                  : 'Removing...'
+                : product.stock_quantity === 0
+                  ? 'Out of Stock'
+                  : isInCart
+                    ? 'Remove from Cart'
+                    : 'Add to Cart'}
+          </Button>
+        </CardFooter>
+      </Link>
     </Card>
   );
 };

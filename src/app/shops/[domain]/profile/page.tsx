@@ -31,7 +31,6 @@ interface EditableFields {
   username: string;
   phone_number: string;
   address: string;
-  city: string;
 }
 
 type UserProfile = Omit<User, 'password_hash'>;
@@ -53,7 +52,6 @@ export default function ProfilePage() {
     username: '',
     phone_number: '',
     address: '',
-    city: ''
   });
 
   useEffect(() => {
@@ -75,7 +73,6 @@ export default function ProfilePage() {
         username: profileData.username || '',
         phone_number: profileData.phone_number || '',
         address: profileData.address || '',
-        city: profileData.city || ''
       });
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -110,7 +107,6 @@ export default function ProfilePage() {
         username: profile.username || '',
         phone_number: profile.phone_number || '',
         address: profile.address || '',
-        city: profile.city || ''
       });
     }
   };
@@ -367,25 +363,6 @@ export default function ProfilePage() {
               )}
             </div>
 
-            {/* City */}
-            <div className="space-y-2">
-              <Label htmlFor="city" className="flex items-center">
-                <MapPin className="w-4 h-4 mr-2" />
-                City
-              </Label>
-              <Input
-                id="city"
-                type="text"
-                value={isEditing ? editData.city : profile.city || ''}
-                onChange={(e) => handleInputChange('city', e.target.value)}
-                disabled={!isEditing}
-                className={validationErrors.city ? 'border-error' : ''}
-                placeholder="Enter your city"
-              />
-              {validationErrors.city && (
-                <p className="text-xs text-error">{validationErrors.city}</p>
-              )}
-            </div>
           </CardContent>
         </Card>
       </div>

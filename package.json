@@ -10,6 +10,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1039.0",
+    "@aws-sdk/s3-request-presigner": "^3.1039.0",
     "@hookform/resolvers": "^5.2.2",
     "@prisma/adapter-pg": "^7.5.0",
     "@prisma/client": "^7.8.0",
@@ -25,7 +27,6 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dotenv": "^17.3.1",
-    "firebase": "^12.7.0",
     "lucide-react": "^0.555.0",
     "next": "15.3.8",
     "next-auth": "^5.0.0-beta.25",
@@ -41,6 +42,7 @@
     "sonner": "^2.0.7",
     "stripe": "^20.1.0",
     "tailwind-merge": "^3.4.0",
+    "uuid": "^14.0.0",
     "zod": "^3.25.76"
   },
   "devDependencies": {

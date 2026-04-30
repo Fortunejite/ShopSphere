@@ -25,9 +25,7 @@ export default function ProductsPage() {
   const { domain } = useParams();
   const searchParams = useSearchParams();
 
-  const { shop } = useAppSelector(state => state.shop);
-  const categoriesState = useAppSelector(state => state.category.categories);
-  const categories = categoriesState.filter(cat => cat.parent_id === shop!.category_id);
+  const categories = useAppSelector(state => state.category.categories);
   
   const [products, setProducts] = useState<ClientProduct[]>([]);
   const [isLoading, setIsLoading] = useState(true);

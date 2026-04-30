@@ -87,18 +87,12 @@ export default function AdminSettingsPage() {
       description: '',
       tagline: '',
       domain: '',
-      currency: 'USD',
+      currency: 'NGN',
       email: '',
       phone: '',
       address: '',
-      city: '',
-      state: '',
-      postal_code: '',
-      country: 'US',
-      free_shipping_threshold: 50,
       logo: '',
       banner: '',
-      category_id: 1, // Default category, will be updated when shop data loads
     }
   });
 
@@ -121,14 +115,8 @@ export default function AdminSettingsPage() {
         email: shop.email || '',
         phone: shop.phone || '',
         address: shop.address || '',
-        city: shop.city || '',
-        state: shop.state || '',
-        postal_code: shop.postal_code || '',
-        country: shop.country || 'US',
-        free_shipping_threshold: shop.free_shipping_threshold || 50,
         logo: shop.logo || '',
         banner: shop.banner || '',
-        category_id: shop.category_id || 1,
       });
       
       // Load theme data
@@ -587,44 +575,6 @@ export default function AdminSettingsPage() {
                            placeholder="123 Business St"
                          />
                        </div>
-
-                       <div className="grid grid-cols-2 gap-4">
-                         <div>
-                           <Label htmlFor="city">City</Label>
-                           <Input
-                             id="city"
-                             {...form.register('city')}
-                             placeholder="New York"
-                           />
-                         </div>
-                         <div>
-                           <Label htmlFor="state">State</Label>
-                           <Input
-                             id="state"
-                             {...form.register('state')}
-                             placeholder="NY"
-                           />
-                         </div>
-                       </div>
-
-                       <div className="grid grid-cols-2 gap-4">
-                         <div>
-                           <Label htmlFor="postal_code">Postal Code</Label>
-                           <Input
-                             id="postal_code"
-                             {...form.register('postal_code')}
-                             placeholder="10001"
-                           />
-                         </div>
-                         <div>
-                           <Label htmlFor="country">Country</Label>
-                           <Input
-                             id="country"
-                             {...form.register('country')}
-                             placeholder="United States"
-                           />
-                         </div>
-                       </div>
                      </div>
                    </section>
                 )}
@@ -932,7 +882,7 @@ export default function AdminSettingsPage() {
                               </div>
                             )}
                           </div>
-                        ) : (
+                        ) : shop?.currency === 'NGN' ? (
                           <div className="space-y-4 max-w-md">
                             <div className="space-y-2">
                               <Label htmlFor="bank-search">Search Bank</Label>
@@ -1000,7 +950,7 @@ export default function AdminSettingsPage() {
                               )}
                             </Button>
                           </div>
-                        )}
+                        ) : <></>}
                       </div>
                     </div>
                   </section>

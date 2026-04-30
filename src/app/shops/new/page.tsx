@@ -24,7 +24,6 @@ import { createShopSchema } from '@/lib/schema/shop';
 import { currencySymbols } from '@/lib/currency';
 import { z } from 'zod';
 import axios from 'axios';
-import { useAppSelector } from '@/hooks/redux.hook';
 import { uploadPhoto } from '@/lib/uploadPhoto';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
@@ -40,14 +39,12 @@ export default function NewShopPage() {
   const [formData, setFormData] = useState({
     name: '',
     domain: '',
-    category_id: undefined as number | undefined,
     description: '' as string | undefined,
     tagline: '' as string | undefined,
-    currency: 'USD',
+    currency: 'NGN',
     email: '',
     phone: '',
     address: '',
-    city: '',
     state: '',
     postal_code: '',
     country: '',
@@ -60,9 +57,6 @@ export default function NewShopPage() {
   const [domainCheckTimeout, setDomainCheckTimeout] = useState<NodeJS.Timeout | null>(null);
   const [isLogoUploading, setIsLogoUploading] = useState(false);
   const [isBannerUploading, setIsBannerUploading] = useState(false);
-
-  const categoriesState = useAppSelector(state => state.category.categories);
-  const categories = categoriesState.filter(cat => cat.parent_id === null);
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -311,26 +305,6 @@ export default function NewShopPage() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="category">Category</Label>
-                    <Select
-                      value={formData.category_id?.toString() || ""}
-                      onValueChange={(value) => handleSelectChange('category_id', value)}
-                      disabled={isSubmitting}
-                    >
-                      <SelectTrigger className={formErrors.category_id ? 'border-error' : ''}>
-                        <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map(category => (
-                          <SelectItem key={category.id} value={category.id.toString()}>
-                            {category.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {formErrors.category_id && <p className="text-sm text-error">{formErrors.category_id}</p>}
-                  </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="currency">Currency</Label>
@@ -554,14 +528,8 @@ export default function NewShopPage() {
                     />
                     {formErrors.phone && <p className="text-sm text-red-500">{formErrors.phone}</p>}
                   </div>
-                </div>
-              </div>
 
-              {/* Address Information */}
-              <div className="space-y-6">
-                <h3 className="text-lg font-medium border-b pb-2">Address Information</h3>
-                
-                <div className="space-y-2">
+                  <div className="space-y-2">
                   <Label htmlFor="address">Street Address</Label>
                   <Input
                     id="address"
@@ -574,63 +542,6 @@ export default function NewShopPage() {
                   />
                   {formErrors.address && <p className="text-sm text-red-500">{formErrors.address}</p>}
                 </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="city">City</Label>
-                    <Input
-                      id="city"
-                      name="city"
-                      placeholder="Enter city"
-                      value={formData.city}
-                      onChange={handleInputChange}
-                      className={formErrors.city ? 'border-red-500' : ''}
-                      disabled={isSubmitting}
-                    />
-                    {formErrors.city && <p className="text-sm text-red-500">{formErrors.city}</p>}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="state">State/Province</Label>
-                    <Input
-                      id="state"
-                      name="state"
-                      placeholder="Enter state or province"
-                      value={formData.state}
-                      onChange={handleInputChange}
-                      className={formErrors.state ? 'border-red-500' : ''}
-                      disabled={isSubmitting}
-                    />
-                    {formErrors.state && <p className="text-sm text-red-500">{formErrors.state}</p>}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="postal_code">Postal Code</Label>
-                    <Input
-                      id="postal_code"
-                      name="postal_code"
-                      placeholder="Enter postal code"
-                      value={formData.postal_code}
-                      onChange={handleInputChange}
-                      className={formErrors.postal_code ? 'border-red-500' : ''}
-                      disabled={isSubmitting}
-                    />
-                    {formErrors.postal_code && <p className="text-sm text-red-500">{formErrors.postal_code}</p>}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="country">Country</Label>
-                  <Input
-                    id="country"
-                    name="country"
-                    placeholder="Enter country"
-                    value={formData.country}
-                    onChange={handleInputChange}
-                    className={formErrors.country ? 'border-red-500' : ''}
-                    disabled={isSubmitting}
-                  />
-                  {formErrors.country && <p className="text-sm text-red-500">{formErrors.country}</p>}
                 </div>
               </div>
 

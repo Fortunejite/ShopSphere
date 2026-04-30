@@ -3,7 +3,6 @@ import { Prisma, Shop } from "@prisma/client";
 
 const includeShopRelations = {
   owner: { select: { email: true, username: true } },
-  category: true,
 };
 
 export const findById = async (id: Shop['id']) => {

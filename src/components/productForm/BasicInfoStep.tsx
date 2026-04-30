@@ -1,8 +1,10 @@
+import { useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { X } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 import { ProductFormData, UpdateFormData } from './ProductStepForm';
 
 interface Props {
@@ -13,103 +15,142 @@ interface Props {
 }
 
 const BasicInfoStep = ({ formData, updateFormData, categories }: Props) => {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredCategories = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase();
+    if (!query) return categories;
+    return categories.filter((category) =>
+      category.name.toLowerCase().includes(query),
+    );
+  }, [categories, searchTerm]);
+
   return (
-    <div className="space-y-6">
-      <div>
-        <Label htmlFor="name">Product Name *</Label>
-        <Input
-          id="name"
-          value={formData.name}
-          onChange={(e) => updateFormData('name', e.target.value)}
-          placeholder="Enter product name"
-          className="mt-1"
-        />
+    <div className="space-y-8">
+      <div className="rounded-xl border bg-background/60 p-5 md:p-6 space-y-4">
+        <div>
+          <h3 className="text-base font-semibold text-foreground">Product details</h3>
+          <p className="text-sm text-muted-foreground mt-1">
+            Add the core information customers see first.
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="name">Product Name *</Label>
+          <Input
+            id="name"
+            value={formData.name}
+            onChange={(e) => updateFormData('name', e.target.value)}
+            placeholder="e.g. Premium Cotton Hoodie"
+            className="h-11"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="description">Description</Label>
+          <Textarea
+            id="description"
+            value={formData.description}
+            onChange={(e) => updateFormData('description', e.target.value)}
+            placeholder="Describe your product, materials, fit, highlights, and what makes it unique..."
+            rows={6}
+            className="resize-y"
+          />
+        </div>
       </div>
 
-      <div>
-        <Label htmlFor="description">Description</Label>
-        <Textarea
-          id="description"
-          value={formData.description}
-          onChange={(e) => updateFormData('description', e.target.value)}
-          placeholder="Describe your product..."
-          rows={4}
-          className="mt-1"
-        />
-      </div>
+      <div className="rounded-xl border bg-background/60 p-5 md:p-6 space-y-4">
+        <div>
+          <h3 className="text-base font-semibold text-foreground">Categorization</h3>
+          <p className="text-sm text-muted-foreground mt-1">
+            Choose one or more categories to help customers discover this product.
+          </p>
+        </div>
 
-      <div>
-        <Label>Categories *</Label>
-        <div className="mt-2 space-y-2 max-h-48 overflow-y-auto border rounded-md p-3 bg-muted">
-          {categories && categories.length > 0 ? (
-            categories.map((category) => (
-              <div key={category.id} className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id={`category-${category.id}`}
-                  checked={formData.category_ids.includes(category.id)}
-                  onChange={(e) => {
-                    if (e.target.checked) {
-                      updateFormData('category_ids', [
-                        ...formData.category_ids,
-                        category.id,
-                      ]);
-                    } else {
+        <div className="space-y-2">
+          <Label htmlFor="category-search">Search categories</Label>
+          <div className="relative">
+            <Search className="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
+            <Input
+              id="category-search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search by category name"
+              className="pl-9 h-11"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2 max-h-56 overflow-y-auto border rounded-lg p-3 bg-muted/30">
+          {filteredCategories.length > 0 ? (
+            filteredCategories.map((category) => {
+              const isChecked = formData.category_ids.includes(category.id);
+              return (
+                <label
+                  key={category.id}
+                  htmlFor={`category-${category.id}`}
+                  className="flex items-center gap-3 rounded-md px-2 py-2 hover:bg-background cursor-pointer"
+                >
+                  <Checkbox
+                    id={`category-${category.id}`}
+                    checked={isChecked}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        updateFormData('category_ids', [
+                          ...formData.category_ids,
+                          category.id,
+                        ]);
+                        return;
+                      }
+
                       updateFormData(
                         'category_ids',
-                        formData.category_ids.filter(
-                          (id) => id !== category.id,
-                        ),
+                        formData.category_ids.filter((id) => id !== category.id),
                       );
-                    }
-                  }}
-                  className="rounded border-border text-primary focus:ring-primary"
-                />
-                <Label
-                  htmlFor={`category-${category.id}`}
-                  className="text-sm font-normal cursor-pointer flex-1"
-                >
-                  {category.name}
-                </Label>
-              </div>
-            ))
+                    }}
+                  />
+                  <span className="text-sm text-foreground">{category.name}</span>
+                </label>
+              );
+            })
           ) : (
             <div className="text-center py-4 text-muted-foreground text-sm">
-              No categories available
+              No categories match your search
             </div>
           )}
         </div>
 
-        {/* Selected categories display */}
         {formData.category_ids.length > 0 && (
-          <div className="mt-3">
+          <div>
             <p className="text-sm font-medium text-foreground mb-2">
-              Selected Categories ({formData.category_ids.length}):
+              Selected ({formData.category_ids.length})
             </p>
             <div className="flex flex-wrap gap-2">
               {formData.category_ids.map((id) => {
                 const category = categories.find((c) => c.id === id);
-                return category ? (
+                if (!category) return null;
+
+                return (
                   <Badge
                     key={id}
                     variant="secondary"
-                    className="flex items-center gap-1 text-xs"
+                    className="flex items-center gap-1.5 text-xs pr-1"
                   >
                     <span>{category.name}</span>
                     <button
-                      className="w-3 h-3 cursor-pointer hover:text-error ml-1"
-                      onClick={(e) => {
-                        e.stopPropagation();
+                      type="button"
+                      className="w-5 h-5 grid place-items-center rounded hover:bg-muted-foreground/15"
+                      onClick={() =>
                         updateFormData(
                           'category_ids',
                           formData.category_ids.filter((cId) => cId !== id),
-                        );
-                      }}
+                        )
+                      }
                     >
-                      <X className='w-3 h-3'/>
+                      <X className="w-3 h-3" />
                     </button>
                   </Badge>
-                ) : null;
+                );
               })}
             </div>
           </div>

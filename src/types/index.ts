@@ -1,7 +1,6 @@
 import { colorTheme } from '@/lib/customTheme';
 import {
   Cart,
-  Category,
   Order,
   Prisma,
   Product,
@@ -14,7 +13,6 @@ export interface ShopWithOwner extends Omit<
   'dark_theme' | 'light_theme'
 > {
   owner: User;
-  category: Category;
   light_theme: colorTheme;
   dark_theme: colorTheme;
 }
@@ -55,11 +53,6 @@ export interface AddressInfo {
   name: string;
   phone: string;
   address_line_1: string;
-  address_line_2?: string;
-  city: string;
-  state: string;
-  postal_code: string;
-  country: string;
 }
 
 export interface RichOrder extends Omit<Order, 'items' | 'shipping_address'> {

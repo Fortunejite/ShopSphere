@@ -39,7 +39,7 @@ class OrderService {
     const isOwner = order.user_id === user.id;
     const isShopOwner = shop.owner_id === user.id;
 
-    if (!isOwner || !isShopOwner) {
+    if (!isOwner && !isShopOwner) {
       throw {
         message: 'Access denied',
         status: 403,

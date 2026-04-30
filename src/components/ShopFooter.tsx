@@ -12,7 +12,6 @@ import {
   Instagram,
   Store,
   Shield,
-  Truck,
   Clock,
   Heart,
   Sun,
@@ -150,21 +149,12 @@ export default function ShopFooter({ shop }: ShopFooterProps) {
                   </a>
                 </div>
               )}
-              {(shop.address || shop.city || shop.state) && (
                 <div className="flex items-start space-x-3 text-sm">
                   <MapPin className="w-4 h-4 text-muted-foreground mt-0.5" />
                   <div className="text-muted-foreground">
                     {shop.address && <div>{shop.address}</div>}
-                    {(shop.city || shop.state) && (
-                      <div>
-                        {shop.city}{shop.city && shop.state && ', '}{shop.state}
-                        {shop.postal_code && ` ${shop.postal_code}`}
-                      </div>
-                    )}
-                    {shop.country && <div>{shop.country}</div>}
                   </div>
                 </div>
-              )}
             </div>
           </div>
 
@@ -175,15 +165,6 @@ export default function ShopFooter({ shop }: ShopFooterProps) {
               <div className="flex items-center space-x-3 text-sm">
                 <Shield className="w-4 h-4 text-success" />
                 <span className="text-muted-foreground">Secure Payment</span>
-              </div>
-              <div className="flex items-center space-x-3 text-sm">
-                <Truck className="w-4 h-4 text-info" />
-                <span className="text-muted-foreground">
-                  {shop.free_shipping_threshold 
-                    ? `Free shipping over ${shop.currency === 'USD' ? '$' : shop.currency}${shop.free_shipping_threshold}`
-                    : 'Fast Delivery'
-                  }
-                </span>
               </div>
               <div className="flex items-center space-x-3 text-sm">
                 <Clock className="w-4 h-4 text-warning" />

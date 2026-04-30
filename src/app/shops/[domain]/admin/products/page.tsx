@@ -83,9 +83,8 @@ export default function AdminProductsPage() {
 
 
 
-  const categoriesState = useAppSelector(state => state.category.categories);
+  const categories = useAppSelector(state => state.category.categories);
   const shop = useAppSelector(state => state.shop.shop);
-  const categories = categoriesState.filter(cat => cat.parent_id === shop!.category_id);
 
   const fetchProducts = useCallback(async () => {
     try {

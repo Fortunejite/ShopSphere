@@ -422,13 +422,6 @@ export default function AdminOrderDetailsPage() {
                   <div className="text-sm space-y-1">
                     <p className="font-medium">{order.shipping_address.name}</p>
                     <p>{order.shipping_address.address_line_1}</p>
-                    {order.shipping_address.address_line_2 && (
-                      <p>{order.shipping_address.address_line_2}</p>
-                    )}
-                    <p>
-                      {order.shipping_address.city}, {order.shipping_address.state} {order.shipping_address.postal_code}
-                    </p>
-                    <p>{order.shipping_address.country}</p>
                     <div className="flex items-center gap-1 mt-2 text-gray-600">
                       <Phone className="w-3 h-3" />
                       <span>{order.shipping_address.phone}</span>

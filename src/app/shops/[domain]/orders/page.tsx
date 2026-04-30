@@ -317,7 +317,7 @@ export default function OrdersPage() {
                         <Truck className="w-4 h-4" />
                         <span>Shipping to:</span>
                         <span>
-                          {order.shipping_address.name}, {order.shipping_address.city}, {order.shipping_address.state}
+                          {order.shipping_address.name}, {order.shipping_address.address_line_1}
                         </span>
                       </div>
                     </div>

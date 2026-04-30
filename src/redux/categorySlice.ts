@@ -10,11 +10,11 @@ interface IInitialState {
 }
 
 // Thunks for handling async operations
-export const fetchCategories = createAsyncThunk(
-  'category/fetchCategories',
-  async (_, { rejectWithValue }) => {
+export const fetchShopCategories = createAsyncThunk(
+  'category/fetchShopCategories',
+  async (domain: string, { rejectWithValue }) => {
     try {
-      const response = await axios.get('/api/categories');
+      const response = await axios.get(`/api/shops/${domain}/categories`);
       return response.data;
     } catch (error) {
       const errorMessage = clientErrorHandler(error);
@@ -36,14 +36,14 @@ const categorySlice = createSlice({
   extraReducers: (builder) => {
     // Handle fetchBrands
     builder
-      .addCase(fetchCategories.pending, (state) => {
+      .addCase(fetchShopCategories.pending, (state) => {
         state.status = 'loading';
       })
-      .addCase(fetchCategories.fulfilled, (state, action) => {
+      .addCase(fetchShopCategories.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.categories = action.payload;
       })
-      .addCase(fetchCategories.rejected, (state, action) => {
+      .addCase(fetchShopCategories.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload as string;
       });

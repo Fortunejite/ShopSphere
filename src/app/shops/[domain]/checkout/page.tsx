@@ -59,11 +59,6 @@ export default function CheckoutPage() {
         name: user?.username || '',
         phone: user?.phone_number || '',
         address_line_1: user?.address || '',
-        address_line_2: '',
-        city: user?.city || '',
-        state: '',
-        postal_code: '',
-        country: 'US',
       },
       payment_method: 'credit_card',
       notes: '',
@@ -246,57 +241,6 @@ export default function CheckoutPage() {
                       {form.formState.errors.shipping_address.address_line_1.message}
                     </p>
                   )}
-                </div>
-
-                <div>
-                  <Label htmlFor="shipping_address_2">Address Line 2</Label>
-                  <Input
-                    id="shipping_address_2"
-                    {...form.register('shipping_address.address_line_2')}
-                    placeholder="Apt, Suite, Unit, Building, Floor, etc."
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <Label htmlFor="shipping_city">City *</Label>
-                    <Input
-                      id="shipping_city"
-                      {...form.register('shipping_address.city')}
-                      placeholder="New York"
-                    />
-                    {form.formState.errors.shipping_address?.city && (
-                      <p className="text-sm text-error mt-1">
-                        {form.formState.errors.shipping_address.city.message}
-                      </p>
-                    )}
-                  </div>
-                  <div>
-                    <Label htmlFor="shipping_state">State *</Label>
-                    <Input
-                      id="shipping_state"
-                      {...form.register('shipping_address.state')}
-                      placeholder="NY"
-                    />
-                    {form.formState.errors.shipping_address?.state && (
-                      <p className="text-sm text-error mt-1">
-                        {form.formState.errors.shipping_address.state.message}
-                      </p>
-                    )}
-                  </div>
-                  <div>
-                    <Label htmlFor="shipping_postal_code">ZIP Code *</Label>
-                    <Input
-                      id="shipping_postal_code"
-                      {...form.register('shipping_address.postal_code')}
-                      placeholder="10001"
-                    />
-                    {form.formState.errors.shipping_address?.postal_code && (
-                      <p className="text-sm text-error mt-1">
-                        {form.formState.errors.shipping_address.postal_code.message}
-                      </p>
-                    )}
-                  </div>
                 </div>
               </CardContent>
             </Card>

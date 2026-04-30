@@ -30,7 +30,6 @@ const config: NextAuthConfig = {
         token.email = user.email;
         token.username = user.username;
         token.role = user.role;
-        token.city = user.city;
         token.address = user.address;
         token.phone_number = user.phone_number;
       }
@@ -43,7 +42,6 @@ const config: NextAuthConfig = {
         session.user.email = token.email || '';
         session.user.username = token.username;
         session.user.role = token.role;
-        session.user.city = token.city;
         session.user.address = token.address;
         session.user.phone_number = token.phone_number;
       }

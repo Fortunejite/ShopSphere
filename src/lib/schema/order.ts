@@ -5,11 +5,6 @@ export const addressSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   phone: z.string().min(1, 'Phone is required'),
   address_line_1: z.string().min(1, 'Address is required'),
-  address_line_2: z.string().optional(),
-  city: z.string().min(1, 'City is required'),
-  state: z.string().min(1, 'State is required'),
-  postal_code: z.string().min(1, 'Postal code is required'),
-  country: z.string().min(1, 'Country is required'),
 });
 
 // Create order schema

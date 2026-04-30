@@ -9,9 +9,11 @@ import {
   Package,
   DollarSign,
   Image as ImageIcon,
-  Settings,
+  Truck,
+  Grid3X3,
   AlertCircle,
   Loader2,
+  Check,
 } from 'lucide-react';
 import { z } from 'zod';
 import {
@@ -63,11 +65,11 @@ interface ProductStepFormProps {
 }
 
 const steps = [
-  { id: 1, title: 'Basic Information', icon: Package },
-  { id: 2, title: 'Pricing & Stock', icon: DollarSign },
-  { id: 3, title: 'Variants', icon: Settings },
-  { id: 4, title: 'Images', icon: ImageIcon },
-  { id: 5, title: 'Shipping', icon: Settings },
+  { id: 1, title: 'Basic Info', description: 'Product details', icon: Package },
+  { id: 2, title: 'Pricing', description: 'Price & stock', icon: DollarSign },
+  { id: 3, title: 'Variants', description: 'Options & SKUs', icon: Grid3X3 },
+  { id: 4, title: 'Images', description: 'Photos', icon: ImageIcon },
+  { id: 5, title: 'Shipping', description: 'Weight & dimensions', icon: Truck },
 ];
 
 export default function ProductStepForm({
@@ -103,9 +105,7 @@ export default function ProductStepForm({
   const [isValidating, setIsValidating] = useState(false);
   const [isImageUploading, setIsImageUploading] = useState(false);
 
-  const categoriesState = useAppSelector(state => state.category.categories);
-  const shop = useAppSelector(state => state.shop.shop);
-  const categories = categoriesState.filter(cat => cat.parent_id === shop!.category_id);
+  const categories = useAppSelector(state => state.category.categories);
 
   const updateFormData = <K extends keyof ProductFormData>(
     field: K,
@@ -251,129 +251,151 @@ export default function ProductStepForm({
   };
 
   return (
-    <div className="space-y-6 w-full max-w-none overflow-hidden">
-      {/* Step Indicator */}
-      <div className="flex items-center justify-center gap-2 sm:gap-4">
-        {steps.map((step, index) => {
-          const StepIcon = step.icon;
-          const isActive = currentStep === step.id;
-          const isCompleted = currentStep > step.id;
-
-          return (
-            <div key={step.id} className="flex items-center">
-              <div
-                className={`
-                flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 transition-colors
-                ${
-                  isActive
-                    ? 'border-primary bg-primary text-primary-foreground'
-                    : isCompleted
-                    ? 'border-success bg-success text-success-foreground'
-                    : 'border-border bg-background text-muted-foreground'
-                }
-              `}
-              >
-                <StepIcon className="w-4 h-4 sm:w-5 sm:h-5" />
-              </div>
-              {/* Hidden step title on mobile, visible on larger screens */}
-              <div className="ml-2 hidden lg:block">
-                <p
-                  className={`text-sm font-medium whitespace-nowrap ${
-                    isActive
-                      ? 'text-primary'
-                      : isCompleted
-                      ? 'text-success'
-                      : 'text-muted-foreground'
-                  }`}
-                >
-                  {step.title}
-                </p>
-              </div>
-              {index < steps.length - 1 && (
-                <div
-                  className={`
-                  w-8 sm:w-12 lg:w-16 h-px mx-2 sm:mx-4 
-                  ${isCompleted ? 'bg-success' : 'bg-muted'}
-                `}
-                />
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Error Display */}
-      {(error || stepErrors[currentStep]) && (
-        <Alert variant="destructive">
+    <div className="w-full max-w-6xl mx-auto">
+      {/* Main Error Alert */}
+      {error && (
+        <Alert variant="destructive" className="mb-6">
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            {error || stepErrors[currentStep]}
-          </AlertDescription>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
-      {/* Step Content */}
-      <div className="bg-background p-4 sm:p-6 rounded-lg border w-full overflow-hidden">
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold text-foreground">
-            {steps[currentStep - 1].title}
-          </h3>
-          <p className="text-sm text-muted-foreground mt-1">
-            Step {currentStep} of {steps.length}
-          </p>
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Sidebar - Steps Navigation */}
+        <div className="lg:col-span-1">
+          <div className="bg-card border rounded-xl p-4 sticky top-6 space-y-2">
+            <h3 className="text-sm font-bold text-foreground mb-4">Progress</h3>
+            {steps.map((step) => {
+              const isActive = currentStep === step.id;
+              const isCompleted = currentStep > step.id;
+
+              return (
+                <button
+                  key={step.id}
+                  onClick={() => setCurrentStep(step.id)}
+                  className={`
+                    w-full text-left px-3 py-3 rounded-lg transition-all duration-200
+                    flex items-start gap-3 border
+                    ${
+                      isActive
+                        ? 'bg-primary/10 border-primary text-primary'
+                        : isCompleted
+                        ? 'bg-success/10 border-success text-success hover:bg-success/15'
+                        : 'bg-muted/50 border-transparent hover:bg-muted'
+                    }
+                  `}
+                >
+                  <div className="flex-shrink-0 mt-0.5">
+                    {isCompleted ? (
+                      <Check className="w-5 h-5" />
+                    ) : isActive ? (
+                      <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-primary-foreground">
+                        {step.id}
+                      </div>
+                    ) : (
+                      <div className="w-5 h-5 rounded-full border-2 border-muted-foreground/30 flex items-center justify-center text-xs text-muted-foreground">
+                        {step.id}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold leading-tight">{step.title}</p>
+                    <p className="text-xs text-muted-foreground leading-tight mt-0.5">
+                      {step.description}
+                    </p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
-        <div className="w-full overflow-hidden">{renderStep()}</div>
-      </div>
+        {/* Main Content Area */}
+        <div className="lg:col-span-3">
+          {/* Step Header */}
+          <div className="mb-6">
+            <div className="flex items-center gap-3 mb-2">
+              {(() => {
+                const StepIcon = steps[currentStep - 1].icon;
+                return <StepIcon className="w-6 h-6 text-primary" />;
+              })()}
+              <h1 className="text-2xl font-bold text-foreground">
+                {steps[currentStep - 1].title}
+              </h1>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {steps[currentStep - 1].description} • Step {currentStep} of {steps.length}
+            </p>
+          </div>
 
-      {/* Navigation */}
-      <div className="flex justify-between">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handlePrevious}
-          disabled={currentStep === 1}
-        >
-          <ChevronLeft className="w-4 h-4 mr-2" />
-          Previous
-        </Button>
+          {/* Step Error */}
+          {stepErrors[currentStep] && (
+            <Alert variant="destructive" className="mb-6">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{stepErrors[currentStep]}</AlertDescription>
+            </Alert>
+          )}
 
-        {currentStep < steps.length ? (
-          <Button type="button" onClick={handleNext} disabled={isValidating || (currentStep === 4 && isImageUploading)}>
-            {isValidating ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Validating...
-              </>
-            ) : (currentStep === 4 && isImageUploading) ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Uploading Images...
-              </>
+          {/* Step Content */}
+          <div className="bg-card border rounded-xl p-6 md:p-8 mb-8">
+            <div className="w-full">{renderStep()}</div>
+          </div>
+
+          {/* Navigation Buttons */}
+          <div className="flex items-center justify-between gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handlePrevious}
+              disabled={currentStep === 1}
+              className="gap-2"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              <span className="hidden sm:inline">Previous</span>
+            </Button>
+
+            <div className="text-xs text-muted-foreground">
+              Step {currentStep} of {steps.length}
+            </div>
+
+            {currentStep < steps.length ? (
+              <Button 
+                type="button" 
+                onClick={handleNext} 
+                disabled={isValidating || (currentStep === 4 && isImageUploading)}
+                className="gap-2"
+              >
+                <span className="hidden sm:inline">Next</span>
+                {isValidating ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : currentStep === 4 && isImageUploading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <ChevronRight className="w-4 h-4" />
+                )}
+              </Button>
             ) : (
-              <>
-                Next
-                <ChevronRight className="w-4 h-4 ml-2" />
-              </>
+              <Button
+                type="button"
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className="gap-2 bg-primary hover:bg-primary/90"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span className="hidden sm:inline">Saving...</span>
+                  </>
+                ) : (
+                  <>
+                    <Check className="w-4 h-4" />
+                    <span className="hidden sm:inline">{submitLabel}</span>
+                  </>
+                )}
+              </Button>
             )}
-          </Button>
-        ) : (
-          <Button
-            type="button"
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-            className="bg-primary hover:bg-primary/90"
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              submitLabel
-            )}
-          </Button>
-        )}
+          </div>
+        </div>
       </div>
     </div>
   );

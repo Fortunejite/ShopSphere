@@ -22,7 +22,7 @@ import {
   AlertCircle,
   Star,
   Settings,
-  FileText
+  Layers3
 } from 'lucide-react';
 // import { ProductLoading } from '@/components/Loading';
 import { 
@@ -626,6 +626,13 @@ export default function AdminDashboardPage() {
                 </Button>
 
                 <Button asChild variant="outline" className="h-20 flex-col space-y-2">
+                  <Link href="/admin/categories">
+                    <Layers3 className="w-6 h-6" />
+                    <span className="text-sm">Categories</span>
+                  </Link>
+                </Button>
+
+                <Button asChild variant="outline" className="h-20 flex-col space-y-2">
                   <Link href="/admin/customers">
                     <Users className="w-6 h-6" />
                     <span className="text-sm">Customers</span>
@@ -643,13 +650,6 @@ export default function AdminDashboardPage() {
                   <Link href="/admin/settings">
                     <Settings className="w-6 h-6" />
                     <span className="text-sm">Settings</span>
-                  </Link>
-                </Button>
-
-                <Button asChild variant="outline" className="h-20 flex-col space-y-2">
-                  <Link href="/admin/reports">
-                    <FileText className="w-6 h-6" />
-                    <span className="text-sm">Reports</span>
                   </Link>
                 </Button>
               </div>
