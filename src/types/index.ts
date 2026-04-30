@@ -1,7 +1,6 @@
 import { colorTheme } from '@/lib/customTheme';
 import {
   Cart,
-  Category,
   Order,
   Prisma,
   Product,
@@ -14,7 +13,6 @@ export interface ShopWithOwner extends Omit<
   'dark_theme' | 'light_theme'
 > {
   owner: User;
-  category: Category;
   light_theme: colorTheme;
   dark_theme: colorTheme;
 }

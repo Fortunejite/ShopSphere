@@ -82,9 +82,8 @@ export default function ProductDetailsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState('');
 
-  const categoriesState = useAppSelector(state => state.category.categories);
+  const categories = useAppSelector(state => state.category.categories);
   const shop = useAppSelector(state => state.shop.shop);
-  const categories = categoriesState.filter(cat => cat.parent_id === shop!.category_id);
 
   useEffect(() => {
     fetchProductDetails();

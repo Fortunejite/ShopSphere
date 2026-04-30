@@ -87,7 +87,7 @@ export default function AdminSettingsPage() {
       description: '',
       tagline: '',
       domain: '',
-      currency: 'USD',
+      currency: 'NGN',
       email: '',
       phone: '',
       address: '',
@@ -98,7 +98,6 @@ export default function AdminSettingsPage() {
       free_shipping_threshold: 50,
       logo: '',
       banner: '',
-      category_id: 1, // Default category, will be updated when shop data loads
     }
   });
 
@@ -128,7 +127,6 @@ export default function AdminSettingsPage() {
         free_shipping_threshold: shop.free_shipping_threshold || 50,
         logo: shop.logo || '',
         banner: shop.banner || '',
-        category_id: shop.category_id || 1,
       });
       
       // Load theme data

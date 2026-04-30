@@ -24,7 +24,6 @@ import { createShopSchema } from '@/lib/schema/shop';
 import { currencySymbols } from '@/lib/currency';
 import { z } from 'zod';
 import axios from 'axios';
-import { useAppSelector } from '@/hooks/redux.hook';
 import { uploadPhoto } from '@/lib/uploadPhoto';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
@@ -40,10 +39,9 @@ export default function NewShopPage() {
   const [formData, setFormData] = useState({
     name: '',
     domain: '',
-    category_id: undefined as number | undefined,
     description: '' as string | undefined,
     tagline: '' as string | undefined,
-    currency: 'USD',
+    currency: 'NGN',
     email: '',
     phone: '',
     address: '',
@@ -60,9 +58,6 @@ export default function NewShopPage() {
   const [domainCheckTimeout, setDomainCheckTimeout] = useState<NodeJS.Timeout | null>(null);
   const [isLogoUploading, setIsLogoUploading] = useState(false);
   const [isBannerUploading, setIsBannerUploading] = useState(false);
-
-  const categoriesState = useAppSelector(state => state.category.categories);
-  const categories = categoriesState.filter(cat => cat.parent_id === null);
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -311,26 +306,6 @@ export default function NewShopPage() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="category">Category</Label>
-                    <Select
-                      value={formData.category_id?.toString() || ""}
-                      onValueChange={(value) => handleSelectChange('category_id', value)}
-                      disabled={isSubmitting}
-                    >
-                      <SelectTrigger className={formErrors.category_id ? 'border-error' : ''}>
-                        <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map(category => (
-                          <SelectItem key={category.id} value={category.id.toString()}>
-                            {category.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {formErrors.category_id && <p className="text-sm text-error">{formErrors.category_id}</p>}
-                  </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="currency">Currency</Label>

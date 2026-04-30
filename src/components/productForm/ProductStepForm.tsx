@@ -103,9 +103,7 @@ export default function ProductStepForm({
   const [isValidating, setIsValidating] = useState(false);
   const [isImageUploading, setIsImageUploading] = useState(false);
 
-  const categoriesState = useAppSelector(state => state.category.categories);
-  const shop = useAppSelector(state => state.shop.shop);
-  const categories = categoriesState.filter(cat => cat.parent_id === shop!.category_id);
+  const categories = useAppSelector(state => state.category.categories);
 
   const updateFormData = <K extends keyof ProductFormData>(
     field: K,

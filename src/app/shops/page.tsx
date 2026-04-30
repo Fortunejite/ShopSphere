@@ -5,27 +5,38 @@ import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Plus, 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  Plus,
   Search,
-  Trash2, 
-  Store, 
-  Globe, 
+  Trash2,
+  Store,
+  Globe,
   DollarSign,
   Package,
   Loader2,
   AlertCircle,
   CheckCircle2,
   ExternalLink,
-  Settings
+  Settings,
 } from 'lucide-react';
 import axios from 'axios';
-import { useAppSelector } from '@/hooks/redux.hook';
 import { ShopWithOwner } from '@/types';
 import { generateURL } from '@/lib/domain';
 import { useSession } from 'next-auth/react';
@@ -36,16 +47,12 @@ export default function ShopsPage() {
   const [shops, setShops] = useState<ShopWithOwner[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedShop, setSelectedShop] = useState<ShopWithOwner | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const router = useRouter();
-
-  const categoriesState = useAppSelector(state => state.category.categories);
-  const categories = categoriesState.filter(cat => cat.parent_id === null);
 
   useEffect(() => {
     const fetchShops = async () => {
@@ -77,20 +84,23 @@ export default function ShopsPage() {
     try {
       // API call to delete shop
       await axios.delete(`/api/shops/${selectedShop.domain}`);
-      
+
       // Update local state
-      setShops(prev => prev.filter(shop => shop.id !== selectedShop.id));
-      
+      setShops((prev) => prev.filter((shop) => shop.id !== selectedShop.id));
+
       setSuccess('Shop deleted successfully!');
       setIsDeleteOpen(false);
       setSelectedShop(null);
-      
+
       // Clear success message after 3 seconds
       setTimeout(() => setSuccess(''), 3000);
     } catch (error) {
       console.error('Error deleting shop:', error);
       if (axios.isAxiosError(error)) {
-        setError(error.response?.data?.message || 'Failed to delete shop. Please try again.');
+        setError(
+          error.response?.data?.message ||
+            'Failed to delete shop. Please try again.',
+        );
       } else {
         setError('Failed to delete shop. Please try again.');
       }
@@ -106,7 +116,7 @@ export default function ShopsPage() {
   };
 
   if (authStatus === 'loading') {
-    return null
+    return null;
   }
 
   if (authStatus === 'unauthenticated') {
@@ -115,12 +125,12 @@ export default function ShopsPage() {
   }
 
   // Filter shops based on search term and category
-  const filteredShops = shops.filter(shop => {
-    const matchesSearch = shop.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         shop.domain.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         shop.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || shop.category_id.toString() === selectedCategory;
-    return matchesSearch && matchesCategory;
+  const filteredShops = shops.filter((shop) => {
+    const matchesSearch =
+      shop.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      shop.domain.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      shop.description?.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesSearch;
   });
 
   return (
@@ -135,7 +145,7 @@ export default function ShopsPage() {
             </h1>
             <p className="text-neutral-600 mt-1">Manage your online stores</p>
           </div>
-          
+
           <Button asChild className="flex items-center gap-2">
             <Link href="/shops/new">
               <Plus className="w-4 h-4" />
@@ -148,7 +158,9 @@ export default function ShopsPage() {
         {success && (
           <Alert className="border-green-500 bg-green-50">
             <CheckCircle2 className="h-4 w-4 text-green-600" />
-            <AlertDescription className="text-green-700">{success}</AlertDescription>
+            <AlertDescription className="text-green-700">
+              {success}
+            </AlertDescription>
           </Alert>
         )}
 
@@ -164,20 +176,6 @@ export default function ShopsPage() {
                 className="pl-10"
               />
             </div>
-          </div>
-          
-          <div className="w-full sm:w-48">
-            <Select value={selectedCategory.toString()} onValueChange={setSelectedCategory}>
-              <SelectTrigger>
-                <SelectValue placeholder="All Categories" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                {categories.map(category => (
-                  <SelectItem key={category.id} value={category.id.toString()}>{category.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
         </div>
 
@@ -200,10 +198,9 @@ export default function ShopsPage() {
                   {shops.length === 0 ? 'No shops yet' : 'No shops found'}
                 </h3>
                 <p className="text-neutral-500 mt-1">
-                  {shops.length === 0 
+                  {shops.length === 0
                     ? 'Create your first shop to get started'
-                    : 'Try adjusting your search or filter criteria'
-                  }
+                    : 'Try adjusting your search or filter criteria'}
                 </p>
               </div>
               {shops.length === 0 && (
@@ -219,7 +216,10 @@ export default function ShopsPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredShops.map((shop) => (
-              <Card key={shop.id} className="group hover:shadow-lg transition-all duration-200 border-0 shadow-md bg-white">
+              <Card
+                key={shop.id}
+                className="group hover:shadow-lg transition-all duration-200 border-0 shadow-md bg-white"
+              >
                 <CardHeader className="pb-4">
                   <div className="flex items-start justify-between">
                     <div className="space-y-1 flex-1">
@@ -231,9 +231,6 @@ export default function ShopsPage() {
                         {shop.domain}
                       </CardDescription>
                     </div>
-                    <Badge variant="secondary" className="text-xs">
-                      {shop.category.name}
-                    </Badge>
                   </div>
                 </CardHeader>
 
@@ -241,7 +238,7 @@ export default function ShopsPage() {
                   <p className="text-sm text-neutral-600 line-clamp-2">
                     {shop.description}
                   </p>
-                  
+
                   <div className="flex items-center gap-4 text-sm text-neutral-500">
                     <div className="flex items-center gap-1">
                       <DollarSign className="w-3 h-3" />
@@ -249,22 +246,33 @@ export default function ShopsPage() {
                     </div>
                     <div className="flex items-center gap-1">
                       <Package className="w-3 h-3" />
-                      Created {shop.created_at ? new Date(shop.created_at).toLocaleDateString() : 'N/A'}
+                      Created{' '}
+                      {shop.created_at
+                        ? new Date(shop.created_at).toLocaleDateString()
+                        : 'N/A'}
                     </div>
                   </div>
                 </CardContent>
 
                 <CardFooter className="pt-4 flex items-center justify-between">
                   <Button variant="outline" size="sm" asChild>
-                    <Link href={generateURL(shop.domain)} target="_blank" className="flex items-center gap-1">
+                    <Link
+                      href={generateURL(shop.domain)}
+                      target="_blank"
+                      className="flex items-center gap-1"
+                    >
                       <ExternalLink className="w-3 h-3" />
                       Visit
                     </Link>
                   </Button>
-                  
+
                   <div className="flex items-center gap-1">
                     <Button variant="outline" size="sm" asChild>
-                      <Link href={`${generateURL(shop.domain)}/admin/settings`} target="_blank" className="flex items-center gap-1">
+                      <Link
+                        href={`${generateURL(shop.domain)}/admin/settings`}
+                        target="_blank"
+                        className="flex items-center gap-1"
+                      >
                         <Settings className="w-3 h-3" />
                         Settings
                       </Link>
@@ -290,17 +298,18 @@ export default function ShopsPage() {
             <DialogHeader>
               <DialogTitle>Delete Shop</DialogTitle>
               <DialogDescription>
-                Are you sure you want to delete &ldquo;{selectedShop?.name}&rdquo;? This action cannot be undone.
+                Are you sure you want to delete &ldquo;{selectedShop?.name}
+                &rdquo;? This action cannot be undone.
               </DialogDescription>
             </DialogHeader>
-            
+
             {error && (
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-            
+
             <DialogFooter>
               <Button
                 variant="outline"

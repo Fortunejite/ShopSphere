@@ -59,8 +59,7 @@ export default function ProductDetailsPage() {
   const [error, setError] = useState('');
 
   const { shop } = useAppSelector(state => state.shop);
-    const categoriesState = useAppSelector(state => state.category.categories);
-    const categories = categoriesState.filter(cat => cat.parent_id === shop!.category_id);
+  const categories = useAppSelector(state => state.category.categories);
   
   // Product interaction states
   const [selectedImage, setSelectedImage] = useState<string>('');

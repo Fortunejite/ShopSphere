@@ -24,8 +24,7 @@ import { ClientProduct } from '@/types';
 
 export default function ShopHomePage() {
   const { shop } = useAppSelector((s) => s.shop);
-  const categoriesState = useAppSelector(state => state.category.categories);
-  const categories = categoriesState.filter(cat => cat.parent_id === shop?.category_id);
+  const categories = useAppSelector(state => state.category.categories);
   
   const [products, setProducts] = useState<ClientProduct[]>([]);
   const [isLoading, setIsLoading] = useState(true);

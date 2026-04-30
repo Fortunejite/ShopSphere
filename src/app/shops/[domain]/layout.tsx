@@ -21,6 +21,7 @@ import ShopTheme from '@/components/ShopTheme';
 import { PageLoading } from '@/components/Loading';
 import { fetchCart, setCartAuthenticationStatus } from '@/redux/cartSlice';
 import { useSession } from 'next-auth/react';
+import { fetchShopCategories } from '@/redux/categorySlice';
 
 const ShopUnavailable = ({ shop }: { shop: ShopWithOwner }) => {
   return (
@@ -107,6 +108,7 @@ export default function HomeLayout({
   useEffect(() => {
     if (domain) {
       dispatch(fetchShop(domain as string));
+      dispatch(fetchShopCategories(domain as string));
     }
   }, [dispatch, domain]);
 

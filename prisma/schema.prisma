@@ -56,14 +56,12 @@ model Category {
   id         Int      @id @default(autoincrement())
   name       String   @unique
   slug       String   @unique
-  parent_id  Int?
+  shop_id    Int
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  parent   Category?  @relation("CategoryToCategory", fields: [parent_id], references: [id])
-  children Category[] @relation("CategoryToCategory")
   products Product[]
-  shops    Shop[]
+  shop     Shop      @relation(fields: [shop_id], references: [id])
 
   @@map("categories")
 }
@@ -75,7 +73,6 @@ model Shop {
   name                    String
   description             String?
   tagline                 String?
-  category_id             Int
   status                  ShopStatus @default(active)
   email                   String
   phone                   String
@@ -100,11 +97,11 @@ model Shop {
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
 
-  owner    User      @relation(fields: [owner_id], references: [id])
-  category Category  @relation(fields: [category_id], references: [id])
-  products Product[]
-  carts    Cart[]
-  orders   Order[]
+  owner      User       @relation(fields: [owner_id], references: [id])
+  categories Category[]
+  products   Product[]
+  carts      Cart[]
+  orders     Order[]
 
   @@map("shops")
 }
