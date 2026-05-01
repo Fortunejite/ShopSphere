@@ -69,7 +69,7 @@ async function handleChargeSuccess(data: ChargeSuccessData): Promise<void> {
     `Subaccount: ${subaccount.subaccount_code} (${subaccount.business_name})`,
   );
 
-  const amountOwnedByShop = data.fees_split?.subaccount || 0 / 100;
+  const amountOwnedByShop = (data.fees_split?.subaccount || 0) / 100;
   await increaseAccountBalance(subaccount.subaccount_code, {
     amount: amountOwnedByShop,
     currency: data.currency,
