@@ -7,6 +7,7 @@ import {
 } from '@/services/paystack/types';
 import { Prisma } from '@prisma/client';
 import crypto from 'crypto';
+import { increaseAccountBalance } from './shopAccount';
 
 // ─── Signature Verification ───────────────────────────────────────────────────
 const SECRET_KEY = process.env.PAYSTACK_SECRET_KEY as string;
@@ -67,6 +68,14 @@ async function handleChargeSuccess(data: ChargeSuccessData): Promise<void> {
   console.log(
     `Subaccount: ${subaccount.subaccount_code} (${subaccount.business_name})`,
   );
+
+  const amountOwnedByShop = data.fees_split?.subaccount || 0 / 100;
+  await increaseAccountBalance(subaccount.subaccount_code, {
+    amount: amountOwnedByShop,
+    currency: data.currency,
+    referenceId: data.reference,
+    trackingId
+  });
   await OrderService.processPaidOrder(trackingId);
   console.info('Paystack charge.success completed', {
     transactionId: data.id,

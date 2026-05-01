@@ -9,7 +9,6 @@ import { FolderPlus, Layers3, Loader2, Pencil, Search, Tag, Trash2, X, Check } f
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Toaster } from '@/components/ui/sonner';
 import { fetchShopCategories } from '@/redux/categorySlice';
 import { useAppDispatch } from '@/hooks/redux.hook';
 
@@ -320,8 +319,6 @@ export default function AdminCategoriesPage() {
 					)}
 				</section>
 			</div>
-
-			<Toaster richColors />
 		</div>
 	);
 }
