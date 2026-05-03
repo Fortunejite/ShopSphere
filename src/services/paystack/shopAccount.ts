@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import { PaystackTransactionType } from '@prisma/client';
+import { PaystackTransactionStatus, PaystackTransactionType } from '@prisma/client';
 
 export const increaseAccountBalance = async (
   accountId: string,
@@ -27,6 +27,7 @@ export const increaseAccountBalance = async (
         amount: data.amount,
         currency: data.currency,
         type: PaystackTransactionType.credit,
+        status: PaystackTransactionStatus.success,
         tracking_id: data.trackingId,
       },
     });

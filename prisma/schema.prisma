@@ -37,6 +37,12 @@ enum PaystackTransactionType {
   debit
 }
 
+enum PaystackTransactionStatus {
+  pending
+  success
+  failed
+}
+
 model User {
   id            Int      @id @default(autoincrement())
   email         String   @unique
@@ -204,15 +210,16 @@ model PaystackEvent {
 }
 
 model PaystackTransaction {
-  id           Int                     @id @default(autoincrement())
-  reference_id String?                 @unique
+  id           Int                       @id @default(autoincrement())
+  reference_id String?                   @unique
   account_id   String
-  amount       Decimal
+  amount       Decimal // in NGN
   currency     String
   type         PaystackTransactionType
-  tracking_id  String?                 @unique
-  created_at   DateTime                @default(now())
-  updated_at   DateTime                @updatedAt
+  status       PaystackTransactionStatus @default(success)
+  tracking_id  String?                   @unique
+  created_at   DateTime                  @default(now())
+  updated_at   DateTime                  @updatedAt
 
   shop  Shop   @relation(fields: [account_id], references: [paystack_account_id])
   order Order? @relation(fields: [tracking_id], references: [tracking_id])
