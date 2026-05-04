@@ -221,6 +221,10 @@ const generateThemeVariables = (theme: colorTheme, isDark: boolean = false) => {
   };
 };
 
+const isThemeEmpty = (theme: colorTheme) => {
+  return Object.values(theme).every(value => value === '' || value === null);
+};
+
 export default function ShopTheme({ shop }: ShopThemeProps) {
   // Default theme fallback in case shop themes are not defined
   const defaultLightTheme: colorTheme = {
@@ -261,8 +265,8 @@ export default function ShopTheme({ shop }: ShopThemeProps) {
     info: '#3b82f6'
   };
 
-  const lightTheme = shop.light_theme || defaultLightTheme;
-  const darkTheme = shop.dark_theme || defaultDarkTheme;
+  const lightTheme = shop.light_theme && !isThemeEmpty(shop.light_theme) ? shop.light_theme : defaultLightTheme;
+  const darkTheme = shop.dark_theme && !isThemeEmpty(shop.dark_theme) ? shop.dark_theme : defaultDarkTheme;
 
   const lightVars = generateThemeVariables(lightTheme, false);
   const darkVars = generateThemeVariables(darkTheme, true);
