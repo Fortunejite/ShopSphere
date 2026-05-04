@@ -95,7 +95,7 @@ async function handleTransferSuccess(data: TransferEventData): Promise<void> {
     data: {
       status: 'success',
     },
-  })
+  });
   console.info('Paystack transfer.success completed', {
     transferId: data.id,
     transferCode: data.transfer_code,
@@ -124,20 +124,22 @@ async function handleTransferFailed(data: TransferEventData): Promise<void> {
     };
   }
 
-  await prisma.paystackTransaction.update({
-    where: { reference_id: data.reference },
-    data: {
-      status: 'failed',
-    },
-  });
-
-  await prisma.shop.update({
-    where: { id: payout.shop.id },
-    data: {
-      paystack_account_balance: {
-        increment: payout.amount,
+  await prisma.$transaction(async (tx) => {
+    await tx.paystackTransaction.update({
+      where: { reference_id: data.reference },
+      data: {
+        status: 'failed',
       },
-    },
+    });
+
+    await tx.shop.update({
+      where: { id: payout.shop.id },
+      data: {
+        paystack_account_balance: {
+          increment: payout.amount,
+        },
+      },
+    });
   });
 
   console.info('Paystack transfer.failed completed', {
@@ -145,7 +147,6 @@ async function handleTransferFailed(data: TransferEventData): Promise<void> {
     transferCode: data.transfer_code,
   });
 }
-
 
 export const paystackWebhookHandler = async (body: PaystackWebhookEvent) => {
   console.info('Handling Paystack webhook event', {
@@ -186,6 +187,7 @@ export const paystackWebhookHandler = async (body: PaystackWebhookEvent) => {
     case 'transfer.success':
       return handleTransferSuccess(body.data as TransferEventData);
     case 'transfer.failed':
+    case 'transfer.reversed':
       return handleTransferFailed(body.data as TransferEventData);
     default:
       console.warn('Unhandled Paystack event type', {

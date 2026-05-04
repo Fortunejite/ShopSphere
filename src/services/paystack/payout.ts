@@ -97,29 +97,36 @@ export const runDailyPayoutsCron = async () => {
         );
         continue;
       }
+
+      await prisma.$transaction(async (tx) => {
+        await tx.paystackTransaction.create({
+          data: {
+            reference_id: reference,
+            amount: shop.paystack_account_balance.toNumber(),
+            currency: 'NGN',
+            type: 'debit',
+            status: 'pending',
+
+            shop: {
+              connect: { paystack_account_id: shop.paystack_account_id! },
+            },
+          },
+        });
+        await tx.shop.update({
+          where: { id: shop.id },
+          data: {
+            paystack_account_balance: 0,
+          },
+        });
+      });
+
       const { transferCode, status } = await initiateTransfer({
-        amount: shop.paystack_account_balance.toNumber() * 100, // Convert to kobo
+        amount: shop.paystack_account_balance
+          .mul(100)
+          .toDecimalPlaces(0)
+          .toNumber(), // Convert to kobo
         subaccount: shop.paystack_account_id!,
         reference,
-      });
-
-      await prisma.shop.update({
-        where: { id: shop.id },
-        data: {
-          paystack_account_balance: 0,
-        },
-      });
-
-      await prisma.paystackTransaction.create({
-        data: {
-          reference_id: reference,
-          amount: shop.paystack_account_balance.toNumber(),
-          currency: 'NGN',
-          type: 'debit',
-          status,
-
-          shop: { connect: { paystack_account_id: shop.paystack_account_id! } },
-        },
       });
 
       console.log(
