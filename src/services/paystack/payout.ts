@@ -60,7 +60,7 @@ export const runDailyPayoutsCron = async () => {
       paystack_account_balance: {
         gte: MINIMUM_PAYOUT_AMOUNT,
       },
-      is_active: true,
+      status: 'active',
     },
   });
 
