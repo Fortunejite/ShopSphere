@@ -12,6 +12,7 @@ import {
 import { update as shopUpdate } from '@/repositories/shop.repository';
 import { createStripeAccountLink } from './stripe/account';
 import { paystackCheckout } from './paystack/checkout';
+import { prisma } from '@/lib/prisma';
 
 interface CheckoutItemsParams {
   items: CartItemWithProduct[];
@@ -126,6 +127,75 @@ class PaymentService {
     }
 
     return url;
+  }
+
+  static async getPaystackHistory(
+    domain: Shop['domain'],
+    page: number,
+    limit: number,
+  ) {
+    const user = await authorizeUser();
+    const shop = await ShopService.getShopByDomain(domain);
+
+    if (shop.owner_id !== user.id) {
+      throw Object.assign(new Error('Access denied'), { status: 403 });
+    }
+
+    const skip = (page - 1) * limit;
+
+    if (!shop.paystack_account_connected || !shop.paystack_account_id) {
+      return {
+        transactions: [],
+        pagination: {
+          page,
+          limit,
+          total: 0,
+          totalPages: 1,
+          hasNext: false,
+          hasPrev: false,
+        },
+      };
+    }
+
+    const where = {
+      account_id: shop.paystack_account_id,
+    };
+
+    const [total, transactions] = await prisma.$transaction([
+      prisma.paystackTransaction.count({ where }),
+      prisma.paystackTransaction.findMany({
+        where,
+        orderBy: { created_at: 'desc' },
+        skip,
+        take: limit,
+        select: {
+          id: true,
+          reference_id: true,
+          tracking_id: true,
+          amount: true,
+          currency: true,
+          type: true,
+          status: true,
+          created_at: true,
+        },
+      }),
+    ]);
+
+    const totalPages = Math.max(1, Math.ceil(total / limit));
+    return {
+      transactions: transactions.map((transaction) => ({
+        ...transaction,
+        amount: Number(transaction.amount),
+      })),
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    };
   }
 }
 

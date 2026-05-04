@@ -30,15 +30,35 @@ import { useAppDispatch, useAppSelector } from '@/hooks/redux.hook';
 import { uploadPhoto } from '@/lib/uploadPhoto';
 import { accountConnectSchema } from '@/lib/schema/paystack';
 import { createShopSchema } from '@/lib/schema/shop';
+import { formatCurrency } from '@/lib/currency';
 import Image from 'next/image';
 import { updateShop } from '@/redux/shopSlice';
 import { Bank, PaystackSubAccount } from '@/types';
 import ThemeCustomizer from '@/components/ThemeCustomizer';
 import { generateURL } from '@/lib/domain';
 import { colorTheme } from '@/lib/customTheme';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 type ShopSettingsFormData = z.infer<typeof createShopSchema>;
 type PaystackConnectFormData = z.infer<typeof accountConnectSchema>;
+
+interface PaystackTransactionRow {
+  id: number;
+  reference_id: string | null;
+  tracking_id: string | null;
+  amount: number;
+  currency: string;
+  type: 'credit' | 'debit';
+  status: 'pending' | 'success' | 'failed';
+  created_at: string;
+}
 
 export default function AdminSettingsPage() {
   const { domain } = useParams();
@@ -58,6 +78,11 @@ export default function AdminSettingsPage() {
   const [bankSearch, setBankSearch] = useState('');
   const [paystackSubAccount, setPaystackSubAccount] = useState<PaystackSubAccount | null>(null);
   const [showPaystackUpdateForm, setShowPaystackUpdateForm] = useState(false);
+  const [transactions, setTransactions] = useState<PaystackTransactionRow[]>([]);
+  const [isTransactionsLoading, setIsTransactionsLoading] = useState(false);
+  const [transactionsPage, setTransactionsPage] = useState(1);
+  const [transactionsTotalPages, setTransactionsTotalPages] = useState(1);
+  const [transactionsTotal, setTransactionsTotal] = useState(0);
   
   // Theme state
   const [lightTheme, setLightTheme] = useState<colorTheme>({
@@ -316,6 +341,35 @@ export default function AdminSettingsPage() {
     }
   }, [shopDomain, paystackForm]);
 
+  const fetchPaystackTransactions = useCallback(
+    async (page: number) => {
+      if (!shopDomain) return;
+
+      try {
+        setIsTransactionsLoading(true);
+        const { data } = await axios.get(`/api/shops/${shopDomain}/admin/paystack/transactions`, {
+          params: {
+            page,
+            limit: 10,
+          },
+        });
+
+        setTransactions((data?.transactions ?? []) as PaystackTransactionRow[]);
+        setTransactionsTotalPages(data?.pagination?.totalPages ?? 1);
+        setTransactionsTotal(data?.pagination?.total ?? 0);
+      } catch (error) {
+        console.error('Error fetching Paystack transactions:', error);
+        setTransactions([]);
+        setTransactionsTotalPages(1);
+        setTransactionsTotal(0);
+        toast.error('Unable to load Paystack transactions.');
+      } finally {
+        setIsTransactionsLoading(false);
+      }
+    },
+    [shopDomain],
+  );
+
   const handleCreatePaystackAccount = async (data: PaystackConnectFormData) => {
     if (!shopDomain) return;
 
@@ -398,6 +452,20 @@ export default function AdminSettingsPage() {
     isPaystackLoading,
     fetchPaystackBanks,
     fetchPaystackSubAccount,
+  ]);
+
+  useEffect(() => {
+    if (activeTab !== 'payments' || !shopDomain || !shop?.paystack_account_connected) {
+      return;
+    }
+
+    fetchPaystackTransactions(transactionsPage);
+  }, [
+    activeTab,
+    shopDomain,
+    shop?.paystack_account_connected,
+    transactionsPage,
+    fetchPaystackTransactions,
   ]);
 
   if (isLoading) {
@@ -807,6 +875,89 @@ export default function AdminSettingsPage() {
                                 Refresh Paystack Details
                               </Button>
                             )}
+
+                            <div className="rounded-md border border-border bg-muted/30 p-3">
+                              <p className="text-xs text-muted-foreground">Current Balance</p>
+                              <p className="text-xl font-semibold text-foreground">
+                                {formatCurrency(Number(shop?.paystack_account_balance ?? 0), 'NGN')}
+                              </p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Next payout runs daily by 2:00 AM for balances of at least ₦10,000.
+                              </p>
+                            </div>
+
+                            <div className="space-y-2">
+                              <p className="text-sm font-medium text-foreground">Recent Transactions</p>
+                              <div className="rounded-md border border-border">
+                                {isTransactionsLoading ? (
+                                  <p className="text-sm text-muted-foreground p-3">Loading transactions...</p>
+                                ) : transactions.length === 0 ? (
+                                  <p className="text-sm text-muted-foreground p-3">No Paystack transactions yet.</p>
+                                ) : (
+                                  <Table>
+                                    <TableHeader>
+                                      <TableRow>
+                                        <TableHead>Date</TableHead>
+                                        <TableHead>Reference</TableHead>
+                                        <TableHead>Tracking ID</TableHead>
+                                        <TableHead>Type</TableHead>
+                                        <TableHead>Status</TableHead>
+                                        <TableHead className="text-right">Amount</TableHead>
+                                      </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                      {transactions.map((transaction) => (
+                                        <TableRow key={transaction.id}>
+                                          <TableCell>
+                                            {new Date(transaction.created_at).toLocaleString()}
+                                          </TableCell>
+                                          <TableCell>{transaction.reference_id ?? '-'}</TableCell>
+                                          <TableCell>{transaction.tracking_id ?? '-'}</TableCell>
+                                          <TableCell className="capitalize">{transaction.type}</TableCell>
+                                          <TableCell className="capitalize">{transaction.status}</TableCell>
+                                          <TableCell className="text-right">
+                                            {formatCurrency(Number(transaction.amount), transaction.currency || 'NGN')}
+                                          </TableCell>
+                                        </TableRow>
+                                      ))}
+                                    </TableBody>
+                                  </Table>
+                                )}
+                              </div>
+
+                              {transactionsTotalPages > 1 && (
+                                <div className="flex items-center justify-between">
+                                  <p className="text-xs text-muted-foreground">{transactionsTotal} transaction(s)</p>
+                                  <div className="flex items-center gap-2">
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => setTransactionsPage((prev) => Math.max(1, prev - 1))}
+                                      disabled={transactionsPage === 1 || isTransactionsLoading}
+                                    >
+                                      Previous
+                                    </Button>
+                                    <span className="text-xs text-muted-foreground">
+                                      Page {transactionsPage} of {transactionsTotalPages}
+                                    </span>
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() =>
+                                        setTransactionsPage((prev) => Math.min(transactionsTotalPages, prev + 1))
+                                      }
+                                      disabled={
+                                        transactionsPage === transactionsTotalPages || isTransactionsLoading
+                                      }
+                                    >
+                                      Next
+                                    </Button>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
 
                             <Button
                               type="button"

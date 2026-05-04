@@ -4,6 +4,7 @@ import {
   ChargeSuccessData,
   PaystackSubaccount,
   PaystackWebhookEvent,
+  TransferEventData,
 } from '@/services/paystack/types';
 import { Prisma } from '@prisma/client';
 import crypto from 'crypto';
@@ -74,12 +75,76 @@ async function handleChargeSuccess(data: ChargeSuccessData): Promise<void> {
     amount: amountOwnedByShop,
     currency: data.currency,
     referenceId: data.reference,
-    trackingId
+    trackingId,
   });
   await OrderService.processPaidOrder(trackingId);
   console.info('Paystack charge.success completed', {
     transactionId: data.id,
     trackingId,
+  });
+}
+
+async function handleTransferSuccess(data: TransferEventData): Promise<void> {
+  console.info('Processing Paystack transfer.success', {
+    transferId: data.id,
+    transferCode: data.transfer_code,
+  });
+
+  await prisma.paystackTransaction.update({
+    where: { reference_id: data.reference },
+    data: {
+      status: 'success',
+    },
+  });
+  console.info('Paystack transfer.success completed', {
+    transferId: data.id,
+    transferCode: data.transfer_code,
+  });
+}
+
+async function handleTransferFailed(data: TransferEventData): Promise<void> {
+  console.info('Processing Paystack transfer.failed', {
+    transferId: data.id,
+    transferCode: data.transfer_code,
+  });
+
+  const payout = await prisma.paystackTransaction.findUnique({
+    where: { reference_id: data.reference },
+    include: { shop: true },
+  });
+
+  if (!payout) {
+    console.error('Payout transaction not found for failed transfer', {
+      transferId: data.id,
+      reference: data.reference,
+    });
+    throw {
+      message: 'Payout transaction not found',
+      status: 404,
+    };
+  }
+
+  await prisma.$transaction(async (tx) => {
+    await tx.paystackTransaction.update({
+      where: { reference_id: data.reference },
+      data: {
+        status: 'failed',
+      },
+    });
+
+    await tx.shop.update({
+      where: { id: payout.shop.id },
+      data: {
+        paystack_account_balance: {
+          increment: payout.amount,
+        },
+      },
+    });
+  });
+
+  console.info('Paystack transfer.failed completed', {
+    transferId: data.id,
+    transferCode: data.transfer_code,
   });
 }
 
@@ -119,6 +184,11 @@ export const paystackWebhookHandler = async (body: PaystackWebhookEvent) => {
   switch (body.event) {
     case 'charge.success':
       return handleChargeSuccess(body.data as ChargeSuccessData);
+    case 'transfer.success':
+      return handleTransferSuccess(body.data as TransferEventData);
+    case 'transfer.failed':
+    case 'transfer.reversed':
+      return handleTransferFailed(body.data as TransferEventData);
     default:
       console.warn('Unhandled Paystack event type', {
         eventId: body.data.id,
