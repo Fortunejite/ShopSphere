@@ -62,7 +62,7 @@ export default function SignupPage() {
       if (response.data) {
         setSuccess(true);
         setTimeout(() => {
-          router.push('/');
+          router.push('/shops');
         }, 2000);
       }
     } catch (error) {
