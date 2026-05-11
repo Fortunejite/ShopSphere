@@ -197,92 +197,93 @@ export default function AdminSettingsPage() {
   };
 
   const resetThemeToDefaults = () => {
-    const defaultLight: colorTheme = {
-      // Core colors
-      primary: '#171717',
-      secondary: '#f5f5f5',
-      background: '#ffffff',
-      text: '#171717',
-      accent: '#f5f5f5',
-      
-      // Clear all optional colors to use defaults
-      primaryForeground: undefined,
-      secondaryForeground: undefined,
-      accentForeground: undefined,
-      card: undefined,
-      cardForeground: undefined,
-      popover: undefined,
-      popoverForeground: undefined,
-      muted: undefined,
-      mutedForeground: undefined,
-      border: undefined,
-      input: undefined,
-      ring: undefined,
-      destructive: undefined,
-      destructiveForeground: undefined,
-      success: undefined,
-      successForeground: undefined,
-      warning: undefined,
-      warningForeground: undefined,
-      error: undefined,
-      errorForeground: undefined,
-      info: undefined,
-      infoForeground: undefined,
-      sidebar: undefined,
-      sidebarForeground: undefined,
-      sidebarPrimary: undefined,
-      sidebarPrimaryForeground: undefined,
-      sidebarAccent: undefined,
-      sidebarAccentForeground: undefined,
-      sidebarBorder: undefined,
-      sidebarRing: undefined,
-    };
-    
-    const defaultDark: colorTheme = {
-      // Core colors
-      primary: '#f5f5f5',
-      secondary: '#404040',
-      background: '#171717',
-      text: '#f5f5f5',
-      accent: '#404040',
-      
-      // Clear all optional colors to use defaults
-      primaryForeground: undefined,
-      secondaryForeground: undefined,
-      accentForeground: undefined,
-      card: undefined,
-      cardForeground: undefined,
-      popover: undefined,
-      popoverForeground: undefined,
-      muted: undefined,
-      mutedForeground: undefined,
-      border: undefined,
-      input: undefined,
-      ring: undefined,
-      destructive: undefined,
-      destructiveForeground: undefined,
-      success: undefined,
-      successForeground: undefined,
-      warning: undefined,
-      warningForeground: undefined,
-      error: undefined,
-      errorForeground: undefined,
-      info: undefined,
-      infoForeground: undefined,
-      sidebar: undefined,
-      sidebarForeground: undefined,
-      sidebarPrimary: undefined,
-      sidebarPrimaryForeground: undefined,
-      sidebarAccent: undefined,
-      sidebarAccentForeground: undefined,
-      sidebarBorder: undefined,
-      sidebarRing: undefined,
-    };
-    
-    setLightTheme(defaultLight);
-    setDarkTheme(defaultDark);
-    setHasThemeChanges(true);
-  };
+const defaultLight: colorTheme = {
+// Core colors — ShopSphere “Meridian Commerce” theme
+primary:    'oklch(0.44 0.13 156)',  // deep emerald
+secondary:  'oklch(0.96 0.022 84)',  // soft gold-tint surface
+background: 'oklch(0.99 0.008 84)',  // warm ivory
+text:       'oklch(0.15 0.015 258)', // deep ink
+accent:     'oklch(0.95 0.045 84)',  // warm amber surface
+
+
+  // Clear all optional colors to use defaults
+  primaryForeground: undefined,
+  secondaryForeground: undefined,
+  accentForeground: undefined,
+  card: undefined,
+  cardForeground: undefined,
+  popover: undefined,
+  popoverForeground: undefined,
+  muted: undefined,
+  mutedForeground: undefined,
+  border: undefined,
+  input: undefined,
+  ring: undefined,
+  destructive: undefined,
+  destructiveForeground: undefined,
+  success: undefined,
+  successForeground: undefined,
+  warning: undefined,
+  warningForeground: undefined,
+  error: undefined,
+  errorForeground: undefined,
+  info: undefined,
+  infoForeground: undefined,
+  sidebar: undefined,
+  sidebarForeground: undefined,
+  sidebarPrimary: undefined,
+  sidebarPrimaryForeground: undefined,
+  sidebarAccent: undefined,
+  sidebarAccentForeground: undefined,
+  sidebarBorder: undefined,
+  sidebarRing: undefined,
+};
+
+const defaultDark: colorTheme = {
+  // Core colors — ShopSphere "Meridian Commerce" dark theme
+  primary:    'oklch(0.60 0.14 157)',  // lighter emerald for dark surfaces
+  secondary:  'oklch(0.22 0.018 258)', // dark neutral surface
+  background: 'oklch(0.12 0.018 258)', // ink navy
+  text:       'oklch(0.96 0.010 82)',  // warm cream
+  accent:     'oklch(0.28 0.04 84)',   // subtle dark amber fill
+
+  // Clear all optional colors to use defaults
+  primaryForeground: undefined,
+  secondaryForeground: undefined,
+  accentForeground: undefined,
+  card: undefined,
+  cardForeground: undefined,
+  popover: undefined,
+  popoverForeground: undefined,
+  muted: undefined,
+  mutedForeground: undefined,
+  border: undefined,
+  input: undefined,
+  ring: undefined,
+  destructive: undefined,
+  destructiveForeground: undefined,
+  success: undefined,
+  successForeground: undefined,
+  warning: undefined,
+  warningForeground: undefined,
+  error: undefined,
+  errorForeground: undefined,
+  info: undefined,
+  infoForeground: undefined,
+  sidebar: undefined,
+  sidebarForeground: undefined,
+  sidebarPrimary: undefined,
+  sidebarPrimaryForeground: undefined,
+  sidebarAccent: undefined,
+  sidebarAccentForeground: undefined,
+  sidebarBorder: undefined,
+  sidebarRing: undefined,
+};
+
+setLightTheme(defaultLight);
+setDarkTheme(defaultDark);
+setHasThemeChanges(true);
+};
 
   const onSubmit = async (data: ShopSettingsFormData) => {
     try {
