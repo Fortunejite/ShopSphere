@@ -7,95 +7,6 @@ interface ShopThemeProps {
 
 const convertColorToOklch = (color: string): string => {
   return color;
-  // If already in oklch format, return as is
-  // if (color.startsWith('oklch(')) return color;
-  
-  // // For hex colors, convert to oklch
-  // if (color.startsWith('#')) {
-  //   const hex = color.slice(1);
-    
-  //   // Handle 3-digit hex codes
-  //   let r, g, b;
-  //   if (hex.length === 3) {
-  //     r = parseInt(hex[0] + hex[0], 16) / 255;
-  //     g = parseInt(hex[1] + hex[1], 16) / 255;
-  //     b = parseInt(hex[2] + hex[2], 16) / 255;
-  //   } else if (hex.length === 6) {
-  //     r = parseInt(hex.slice(0, 2), 16) / 255;
-  //     g = parseInt(hex.slice(2, 4), 16) / 255;
-  //     b = parseInt(hex.slice(4, 6), 16) / 255;
-  //   } else {
-  //     return color; // Invalid hex format
-  //   }
-    
-  //   // Convert RGB to linear RGB
-  //   const toLinear = (c: number) => c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
-  //   const rLin = toLinear(r);
-  //   const gLin = toLinear(g);
-  //   const bLin = toLinear(b);
-    
-  //   // Calculate lightness (Y component in XYZ)
-  //   const lightness = 0.2126 * rLin + 0.7152 * gLin + 0.0722 * bLin;
-    
-  //   // Simple chroma calculation
-  //   const max = Math.max(r, g, b);
-  //   const min = Math.min(r, g, b);
-  //   const chroma = (max - min) * 0.5;
-    
-  //   // Hue calculation
-  //   let hue = 0;
-  //   if (chroma !== 0) {
-  //     if (max === r) {
-  //       hue = ((g - b) / (max - min)) % 6;
-  //     } else if (max === g) {
-  //       hue = (b - r) / (max - min) + 2;
-  //     } else {
-  //       hue = (r - g) / (max - min) + 4;
-  //     }
-  //     hue *= 60;
-  //     if (hue < 0) hue += 360;
-  //   }
-    
-  //   return `oklch(${lightness.toFixed(3)} ${chroma.toFixed(3)} ${hue.toFixed(1)})`;
-  // }
-  
-  // // For rgb/rgba colors
-  // if (color.startsWith('rgb')) {
-  //   const values = color.match(/\d+/g);
-  //   if (values && values.length >= 3) {
-  //     const r = parseInt(values[0]) / 255;
-  //     const g = parseInt(values[1]) / 255;
-  //     const b = parseInt(values[2]) / 255;
-      
-  //     const toLinear = (c: number) => c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
-  //     const rLin = toLinear(r);
-  //     const gLin = toLinear(g);
-  //     const bLin = toLinear(b);
-      
-  //     const lightness = 0.2126 * rLin + 0.7152 * gLin + 0.0722 * bLin;
-  //     const max = Math.max(r, g, b);
-  //     const min = Math.min(r, g, b);
-  //     const chroma = (max - min) * 0.5;
-      
-  //     let hue = 0;
-  //     if (chroma !== 0) {
-  //       if (max === r) {
-  //         hue = ((g - b) / (max - min)) % 6;
-  //       } else if (max === g) {
-  //         hue = (b - r) / (max - min) + 2;
-  //       } else {
-  //         hue = (r - g) / (max - min) + 4;
-  //       }
-  //       hue *= 60;
-  //       if (hue < 0) hue += 360;
-  //     }
-      
-  //     return `oklch(${lightness.toFixed(3)} ${chroma.toFixed(3)} ${hue.toFixed(1)})`;
-  //   }
-  // }
-  
-  // // Fallback to original color if conversion fails
-  // return color;
 };
 
 const generateThemeVariables = (theme: colorTheme, isDark: boolean = false) => {
@@ -105,15 +16,13 @@ const generateThemeVariables = (theme: colorTheme, isDark: boolean = false) => {
   const text = convertColorToOklch(theme.text);
   const accent = convertColorToOklch(theme.accent);
 
-  // Use provided foreground colors or calculate appropriate ones
-  const primaryForeground = theme.primaryForeground ? 
+  const primaryForeground = theme.primaryForeground ?
     convertColorToOklch(theme.primaryForeground) : background;
-  const secondaryForeground = theme.secondaryForeground ? 
+  const secondaryForeground = theme.secondaryForeground ?
     convertColorToOklch(theme.secondaryForeground) : text;
-  const accentForeground = theme.accentForeground ? 
+  const accentForeground = theme.accentForeground ?
     convertColorToOklch(theme.accentForeground) : text;
-  
-  // UI colors with fallbacks
+
   const card = theme.card ? convertColorToOklch(theme.card) : background;
   const cardForeground = theme.cardForeground ? convertColorToOklch(theme.cardForeground) : text;
   const popover = theme.popover ? convertColorToOklch(theme.popover) : background;
@@ -123,58 +32,55 @@ const generateThemeVariables = (theme: colorTheme, isDark: boolean = false) => {
   const border = theme.border ? convertColorToOklch(theme.border) : secondary;
   const input = theme.input ? convertColorToOklch(theme.input) : border;
   const ring = theme.ring ? convertColorToOklch(theme.ring) : primary;
-  
-  // Semantic colors with fallbacks
-  const destructive = theme.destructive ? convertColorToOklch(theme.destructive) : 
+
+  const destructive = theme.destructive ? convertColorToOklch(theme.destructive) :
     (isDark ? 'oklch(0.704 0.191 22.216)' : 'oklch(0.577 0.245 27.325)');
-  const destructiveForeground = theme.destructiveForeground ? 
+  const destructiveForeground = theme.destructiveForeground ?
     convertColorToOklch(theme.destructiveForeground) : 'oklch(0.985 0 0)';
-    
-  const success = theme.success ? convertColorToOklch(theme.success) : 
+
+  const success = theme.success ? convertColorToOklch(theme.success) :
     (isDark ? 'oklch(0.578 0.151 142.495)' : 'oklch(0.533 0.151 142.495)');
-  const successForeground = theme.successForeground ? 
+  const successForeground = theme.successForeground ?
     convertColorToOklch(theme.successForeground) : 'oklch(0.985 0 0)';
-    
-  const warning = theme.warning ? convertColorToOklch(theme.warning) : 
+
+  const warning = theme.warning ? convertColorToOklch(theme.warning) :
     (isDark ? 'oklch(0.769 0.188 70.08)' : 'oklch(0.828 0.189 84.429)');
-  const warningForeground = theme.warningForeground ? 
+  const warningForeground = theme.warningForeground ?
     convertColorToOklch(theme.warningForeground) : (isDark ? 'oklch(0.145 0 0)' : 'oklch(0.145 0 0)');
-    
+
   const error = theme.error ? convertColorToOklch(theme.error) : destructive;
-  const errorForeground = theme.errorForeground ? 
+  const errorForeground = theme.errorForeground ?
     convertColorToOklch(theme.errorForeground) : 'oklch(0.985 0 0)';
-    
-  const info = theme.info ? convertColorToOklch(theme.info) : 
+
+  const info = theme.info ? convertColorToOklch(theme.info) :
     (isDark ? 'oklch(0.696 0.17 162.48)' : 'oklch(0.6 0.118 184.704)');
-  const infoForeground = theme.infoForeground ? 
+  const infoForeground = theme.infoForeground ?
     convertColorToOklch(theme.infoForeground) : 'oklch(0.985 0 0)';
 
-  // Chart colors with fallbacks
-  const chart1 = theme.chart1 ? convertColorToOklch(theme.chart1) : 
+  const chart1 = theme.chart1 ? convertColorToOklch(theme.chart1) :
     (isDark ? 'oklch(0.488 0.243 264.376)' : 'oklch(0.646 0.222 41.116)');
   const chart2 = theme.chart2 ? convertColorToOklch(theme.chart2) : info;
-  const chart3 = theme.chart3 ? convertColorToOklch(theme.chart3) : 
+  const chart3 = theme.chart3 ? convertColorToOklch(theme.chart3) :
     (isDark ? 'oklch(0.769 0.188 70.08)' : 'oklch(0.398 0.07 227.392)');
   const chart4 = theme.chart4 ? convertColorToOklch(theme.chart4) : warning;
-  const chart5 = theme.chart5 ? convertColorToOklch(theme.chart5) : 
+  const chart5 = theme.chart5 ? convertColorToOklch(theme.chart5) :
     (isDark ? 'oklch(0.645 0.246 16.439)' : 'oklch(0.769 0.188 70.08)');
 
-  // Sidebar colors with fallbacks
-  const sidebar = theme.sidebar ? convertColorToOklch(theme.sidebar) : 
+  const sidebar = theme.sidebar ? convertColorToOklch(theme.sidebar) :
     (isDark ? 'oklch(0.205 0 0)' : 'oklch(0.985 0 0)');
-  const sidebarForeground = theme.sidebarForeground ? 
+  const sidebarForeground = theme.sidebarForeground ?
     convertColorToOklch(theme.sidebarForeground) : text;
-  const sidebarPrimary = theme.sidebarPrimary ? 
+  const sidebarPrimary = theme.sidebarPrimary ?
     convertColorToOklch(theme.sidebarPrimary) : primary;
-  const sidebarPrimaryForeground = theme.sidebarPrimaryForeground ? 
+  const sidebarPrimaryForeground = theme.sidebarPrimaryForeground ?
     convertColorToOklch(theme.sidebarPrimaryForeground) : primaryForeground;
-  const sidebarAccent = theme.sidebarAccent ? 
+  const sidebarAccent = theme.sidebarAccent ?
     convertColorToOklch(theme.sidebarAccent) : accent;
-  const sidebarAccentForeground = theme.sidebarAccentForeground ? 
+  const sidebarAccentForeground = theme.sidebarAccentForeground ?
     convertColorToOklch(theme.sidebarAccentForeground) : accentForeground;
-  const sidebarBorder = theme.sidebarBorder ? 
+  const sidebarBorder = theme.sidebarBorder ?
     convertColorToOklch(theme.sidebarBorder) : border;
-  const sidebarRing = theme.sidebarRing ? 
+  const sidebarRing = theme.sidebarRing ?
     convertColorToOklch(theme.sidebarRing) : ring;
 
   return {
@@ -226,43 +132,119 @@ const isThemeEmpty = (theme: colorTheme) => {
 };
 
 export default function ShopTheme({ shop }: ShopThemeProps) {
-  // Default theme fallback in case shop themes are not defined
+  // ── Default themes mirror the ShopSphere "Meridian Commerce" global theme.
+  //    Vendor-customised themes from the database override these when present.
+
   const defaultLightTheme: colorTheme = {
-    primary: '#171717',
-    secondary: '#f5f5f5',
-    background: '#ffffff',
-    text: '#171717',
-    accent: '#f5f5f5',
-    card: '#ffffff',
-    popover: '#ffffff',
-    muted: '#f5f5f5',
-    border: '#e5e5e5',
-    input: '#e5e5e5',
-    ring: '#171717',
-    destructive: '#dc2626',
-    success: '#16a34a',
-    warning: '#ea580c',
-    error: '#dc2626',
-    info: '#0ea5e9'
+    // Core
+    primary:    'oklch(0.44 0.13 156)',   // deep emerald
+    secondary:  'oklch(0.96 0.022 84)',   // soft gold-tint surface
+    background: 'oklch(0.99 0.008 84)',   // warm ivory
+    text:       'oklch(0.15 0.015 258)',  // deep ink
+    accent:     'oklch(0.95 0.045 84)',   // warm amber surface
+
+    // Foregrounds
+    primaryForeground:   'oklch(0.99 0 0)',
+    secondaryForeground: 'oklch(0.38 0.09 78)',
+    accentForeground:    'oklch(0.36 0.10 75)',
+
+    // Surfaces
+    card:             'oklch(1 0 0)',
+    cardForeground:   'oklch(0.15 0.015 258)',
+    popover:          'oklch(1 0 0)',
+    popoverForeground:'oklch(0.15 0.015 258)',
+    muted:            'oklch(0.96 0.007 84)',
+    mutedForeground:  'oklch(0.52 0.008 258)',
+
+    // Borders & inputs
+    border: 'oklch(0.90 0.009 84)',
+    input:  'oklch(0.90 0.009 84)',
+    ring:   'oklch(0.44 0.13 156)',
+
+    // Semantics
+    destructive:          'oklch(0.577 0.245 27.325)',
+    destructiveForeground:'oklch(0.985 0 0)',
+    success:              'oklch(0.50 0.14 156)',
+    successForeground:    'oklch(0.99 0 0)',
+    warning:              'oklch(0.74 0.16 82)',
+    warningForeground:    'oklch(0.15 0.015 258)',
+    error:                'oklch(0.577 0.245 27.325)',
+    errorForeground:      'oklch(0.985 0 0)',
+    info:                 'oklch(0.58 0.11 210)',
+    infoForeground:       'oklch(0.985 0 0)',
+
+    // Charts: Emerald · Amber · Teal · Burnt Orange · Plum
+    chart1: 'oklch(0.44 0.13 156)',
+    chart2: 'oklch(0.72 0.16 82)',
+    chart3: 'oklch(0.58 0.11 210)',
+    chart4: 'oklch(0.62 0.19 38)',
+    chart5: 'oklch(0.54 0.15 298)',
+
+    // Sidebar: deep forest green with amber active items
+    sidebar:                   'oklch(0.24 0.07 158)',
+    sidebarForeground:         'oklch(0.96 0.010 84)',
+    sidebarPrimary:            'oklch(0.72 0.16 82)',
+    sidebarPrimaryForeground:  'oklch(0.15 0.015 258)',
+    sidebarAccent:             'oklch(0.30 0.065 158)',
+    sidebarAccentForeground:   'oklch(0.94 0.010 84)',
+    sidebarBorder:             'oklch(0.32 0.055 158)',
+    sidebarRing:               'oklch(0.72 0.16 82)',
   };
 
   const defaultDarkTheme: colorTheme = {
-    primary: '#f5f5f5',
-    secondary: '#404040',
-    background: '#171717',
-    text: '#f5f5f5',
-    accent: '#404040',
-    card: '#262626',
-    popover: '#262626',
-    muted: '#404040',
-    border: '#404040',
-    input: '#404040',
-    ring: '#d4d4d4',
-    destructive: '#ef4444',
-    success: '#22c55e',
-    warning: '#f97316',
-    error: '#ef4444',
-    info: '#3b82f6'
+    // Core
+    primary:    'oklch(0.60 0.14 157)',   // lighter emerald for dark surfaces
+    secondary:  'oklch(0.22 0.018 258)',  // dark neutral surface
+    background: 'oklch(0.12 0.018 258)',  // ink navy
+    text:       'oklch(0.96 0.010 82)',   // warm cream
+    accent:     'oklch(0.28 0.04 84)',    // subtle dark amber fill
+
+    // Foregrounds
+    primaryForeground:   'oklch(0.99 0 0)',
+    secondaryForeground: 'oklch(0.84 0.008 82)',
+    accentForeground:    'oklch(0.90 0.020 82)',
+
+    // Surfaces
+    card:             'oklch(0.17 0.018 258)',
+    cardForeground:   'oklch(0.96 0.010 82)',
+    popover:          'oklch(0.19 0.016 258)',
+    popoverForeground:'oklch(0.96 0.010 82)',
+    muted:            'oklch(0.21 0.016 258)',
+    mutedForeground:  'oklch(0.60 0.008 82)',
+
+    // Borders & inputs
+    border: 'oklch(1 0 0 / 10%)',
+    input:  'oklch(1 0 0 / 14%)',
+    ring:   'oklch(0.60 0.14 157)',
+
+    // Semantics
+    destructive:          'oklch(0.704 0.191 22.216)',
+    destructiveForeground:'oklch(0.985 0 0)',
+    success:              'oklch(0.60 0.13 157)',
+    successForeground:    'oklch(0.99 0 0)',
+    warning:              'oklch(0.72 0.15 82)',
+    warningForeground:    'oklch(0.12 0.018 258)',
+    error:                'oklch(0.704 0.191 22.216)',
+    errorForeground:      'oklch(0.985 0 0)',
+    info:                 'oklch(0.62 0.11 205)',
+    infoForeground:       'oklch(0.985 0 0)',
+
+    // Charts: brightened for dark backgrounds
+    chart1: 'oklch(0.60 0.14 157)',
+    chart2: 'oklch(0.70 0.15 82)',
+    chart3: 'oklch(0.62 0.12 205)',
+    chart4: 'oklch(0.66 0.19 38)',
+    chart5: 'oklch(0.60 0.15 298)',
+
+    // Sidebar: deeper than page background
+    sidebar:                  'oklch(0.10 0.020 258)',
+    sidebarForeground:        'oklch(0.94 0.010 82)',
+    sidebarPrimary:           'oklch(0.60 0.14 157)',
+    sidebarPrimaryForeground: 'oklch(0.99 0 0)',
+    sidebarAccent:            'oklch(0.17 0.018 258)',
+    sidebarAccentForeground:  'oklch(0.84 0.008 82)',
+    sidebarBorder:            'oklch(1 0 0 / 8%)',
+    sidebarRing:              'oklch(0.60 0.14 157)',
   };
 
   const lightTheme = shop.light_theme && !isThemeEmpty(shop.light_theme) ? shop.light_theme : defaultLightTheme;
