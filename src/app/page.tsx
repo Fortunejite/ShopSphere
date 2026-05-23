@@ -10,7 +10,6 @@ import {
   Check,
   Star,
   Store,
-  TrendingUp,
   Globe,
   Shield,
   Zap,
@@ -36,7 +35,7 @@ const features = [
     icon: <CreditCard className="w-5 h-5" />,
     title: "Dual Payment Gateway",
     description:
-      "Paystack handles Nigerian bank payouts. Stripe Connect handles international transactions. The platform routes each sale automatically — no setup from you.",
+      "Regional payout rails and Stripe Connect handle payments across markets. The platform routes each sale automatically — no setup from you.",
   },
   {
     icon: <Palette className="w-5 h-5" />,
@@ -81,7 +80,7 @@ const steps = [
     number: "03",
     title: "Share and start selling",
     description:
-      "Send customers to your link. ShopSphere handles payments, commission deduction, and payouts to your bank account automatically.",
+      "Send customers to your link. ShopSphere handles payments, commission deduction, and payouts automatically.",
   },
 ];
 
@@ -89,7 +88,7 @@ const comparisonRows = [
   { feature: "Branded storefront URL",        jumia: false, shopify: true,  sphere: true  },
   { feature: "Your own subdomain",            jumia: false, shopify: true,  sphere: true  },
   { feature: "No monthly subscription",       jumia: true,  shopify: false, sphere: true  },
-  { feature: "Paystack naira payouts",         jumia: false, shopify: false, sphere: true  },
+  { feature: "Regional and global payouts",   jumia: false, shopify: true,  sphere: true  },
   { feature: "Stripe international payouts",  jumia: false, shopify: true,  sphere: true  },
   { feature: "No-code store customization",   jumia: false, shopify: true,  sphere: true  },
   { feature: "Commission-only model",         jumia: false, shopify: false, sphere: true  },
@@ -97,25 +96,25 @@ const comparisonRows = [
 
 const testimonials = [
   {
-    name: "Amaka Eze",
+    name: "Ava Brooks",
     role: "Food & Catering Vendor",
-    company: "Amaka's Kitchen, Warri",
+    company: "Brooks Kitchen, Austin",
     content:
-      "Before ShopSphere I was just another listing buried under hundreds of sellers on Jumia. Now customers go directly to amakas.shopsphere.ng and they know it is my brand. Repeat orders tripled in three months.",
+      "Before ShopSphere I was just another listing buried under marketplace noise. Now customers go directly to amakas.shopsphere.ng and they know it is my brand. Repeat orders tripled in three months.",
     rating: 5,
   },
   {
-    name: "Chukwuemeka Obi",
+    name: "Jordan Patel",
     role: "Electronics Retailer",
-    company: "TechHub Delta, Asaba",
+    company: "Northstar Electronics, Toronto",
     content:
-      "The Paystack integration means my customers pay in naira and the money goes straight to my Access Bank account. No foreign subscriptions eating into my margin. I pay nothing unless I sell.",
+      "The payments stack means my customers pay in local currency and the money goes straight to my account. No foreign subscriptions eating into my margin. I pay nothing unless I sell.",
     rating: 5,
   },
   {
-    name: "Ngozi Adeleke",
+    name: "Mina Laurent",
     role: "Fashion & Accessories",
-    company: "Ngozi Collections, Effurun",
+    company: "Laurent Studio, Paris",
     content:
       "I set up my store in one afternoon without calling anyone for help. The customization panel let me match my storefront to my brand colors exactly. My customers think I hired a web developer.",
     rating: 5,
@@ -189,15 +188,11 @@ const HomePage = () => {
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/6 rounded-full blur-3xl -translate-y-1/3 translate-x-1/3 pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-accent/50 rounded-full blur-3xl translate-y-1/3 -translate-x-1/4 pointer-events-none" />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-16">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
 
             {/* Left: copy */}
             <div>
-              <Badge className="mb-5 bg-primary/10 text-primary border-primary/20 hover:bg-primary/15 gap-1.5">
-                <MapPin className="w-3 h-3" />
-                Built for Nigerian SMEs
-              </Badge>
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground leading-[1.1] mb-6">
                 Your store.{" "}
@@ -207,9 +202,9 @@ const HomePage = () => {
               </h1>
 
               <p className="text-lg text-muted-foreground mb-8 leading-relaxed max-w-lg">
-                ShopSphere gives Nigerian vendors a branded subdomain storefront, a no-code
-                customization engine, and a payment system that pays directly into your Nigerian
-                bank account — with zero upfront cost. You pay only when you sell.
+                ShopSphere gives independent sellers a branded subdomain storefront, a no-code
+                customization engine, and a payment system that routes money into the right
+                account — with zero upfront cost. You pay only when you sell.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 mb-10">
@@ -226,9 +221,9 @@ const HomePage = () => {
 
               <div className="flex flex-wrap gap-x-6 gap-y-3 text-sm text-muted-foreground">
                 {[
-                  "₦0 setup cost",
+                  "$0 setup cost",
                   "Commission on sales only",
-                  "Paystack + Stripe built in",
+                  "Regional rails + Stripe built in",
                   "Live in under 5 minutes",
                 ].map((item) => (
                   <div key={item} className="flex items-center gap-2">
@@ -252,7 +247,7 @@ const HomePage = () => {
                   </div>
                   <div className="flex-1 bg-background rounded-md px-3 py-1.5 text-xs text-muted-foreground font-mono flex items-center gap-1.5">
                     <Shield className="w-3 h-3 text-primary" />
-                    ngozi.shopsphere.ng
+                      atlas.shopsphere.com
                   </div>
                   <Badge className="text-xs bg-primary/10 text-primary border-primary/20 py-0 px-2">Live</Badge>
                 </div>
@@ -261,8 +256,8 @@ const HomePage = () => {
                 <div className="px-5 py-4 border-b border-border" style={{ background: "var(--ss-gradient-primary)" }}>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-primary-foreground/60 text-xs mb-0.5 uppercase tracking-wider">Ngozi Collections</p>
-                      <h3 className="text-primary-foreground font-semibold text-sm">Fashion & Accessories · Effurun</h3>
+                        <p className="text-primary-foreground/60 text-xs mb-0.5 uppercase tracking-wider">Atlas Studio</p>
+                      <h3 className="text-primary-foreground font-semibold text-sm">Lifestyle Store · Online</h3>
                     </div>
                     <div className="w-9 h-9 rounded-xl bg-primary-foreground/15 flex items-center justify-center">
                       <Store className="w-4 h-4 text-primary-foreground" />
@@ -274,9 +269,9 @@ const HomePage = () => {
                 <div className="p-5">
                   <div className="grid grid-cols-3 gap-3 mb-4">
                     {[
-                      { name: "Ankara Blouse",  price: "₦8,500" },
-                      { name: "Beaded Bag",     price: "₦12,000" },
-                      { name: "Wax Print Set",  price: "₦22,000" },
+                      { name: "Everyday Blouse",  price: "$85" },
+                      { name: "Studio Bag",       price: "$120" },
+                      { name: "Signature Set",    price: "$220" },
                     ].map((product) => (
                       <div key={product.name} className="rounded-xl overflow-hidden border border-border bg-background">
                         <div className="h-16 bg-accent/40" />
@@ -293,31 +288,6 @@ const HomePage = () => {
                   </div>
                 </div>
               </div>
-
-              {/* Floating: payment received */}
-              <div className="absolute -bottom-5 -right-4 bg-card border border-border rounded-2xl shadow-xl px-4 py-3 flex items-center gap-3">
-                <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
-                  style={{ background: "var(--ss-paystack)" }}
-                >
-                  <CreditCard className="w-4 h-4 text-white" />
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-foreground leading-none mb-1">₦8,500 received</p>
-                  <p className="text-xs text-muted-foreground leading-none">via Paystack · GTBank</p>
-                </div>
-              </div>
-
-              {/* Floating: traffic stat */}
-              <div className="absolute -top-5 -left-4 bg-card border border-border rounded-2xl shadow-xl px-4 py-3 flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                  <TrendingUp className="w-4 h-4 text-primary" />
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-foreground leading-none mb-1">+240% this month</p>
-                  <p className="text-xs text-muted-foreground leading-none">store traffic</p>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -328,7 +298,7 @@ const HomePage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {[
-              { number: "₦0",           label: "To open your store" },
+              { number: "$0",           label: "To open your store" },
               { number: "2",            label: "Payment gateways" },
               { number: "< 5 min",      label: "To go live" },
               { number: "1 commission", label: "No hidden fees" },
@@ -348,11 +318,11 @@ const HomePage = () => {
           <div className="text-center mb-16">
             <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">Platform features</Badge>
             <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
-              Everything a Nigerian vendor needs
+              Everything a modern seller needs
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              ShopSphere is built specifically around the barriers that keep Nigerian SMEs out
-              of digital commerce — cost, technical complexity, and payment infrastructure.
+              ShopSphere is built around the barriers that keep independent sellers out of
+              digital commerce — cost, technical complexity, and payment infrastructure.
             </p>
           </div>
 
@@ -387,20 +357,20 @@ const HomePage = () => {
                 One platform. Two gateways. Zero configuration.
               </h2>
               <p className="text-muted-foreground mb-8 leading-relaxed">
-                Stripe Connect excludes Nigerian bank accounts for direct payouts. Paystack does
-                not fully serve international vendors. ShopSphere solves both — automatically
-                routing each transaction through the correct gateway without the vendor touching
-                a single setting.
+                Different sellers need different payout rails. Stripe Connect supports global
+                transactions, while regional payment rails cover local transfers where available.
+                ShopSphere solves both — automatically routing each transaction through the
+                correct gateway without the vendor touching a single setting.
               </p>
               <div className="space-y-5">
                 {[
                   {
-                    label: "Nigerian vendors",
-                    detail: "Paid directly into your Nigerian bank account via Paystack — naira, zero conversion losses.",
+                    label: "Regional sellers",
+                    detail: "Paid directly into supported local accounts via regional rails — no manual routing.",
                   },
                   {
-                    label: "International vendors",
-                    detail: "Stripe Connect handles global payouts across 40+ countries with full compliance.",
+                    label: "Global sellers",
+                    detail: "Stripe Connect handles payouts across markets with full compliance.",
                   },
                   {
                     label: "Automatic routing",
@@ -424,30 +394,30 @@ const HomePage = () => {
 
             {/* Right: gateway cards */}
             <div className="flex flex-col gap-4">
-              {/* Paystack */}
+              {/* Regional rails */}
               <div className="bg-card rounded-2xl border border-border p-6 shadow-md">
                 <div className="flex items-center gap-3 mb-5">
                   <div
                     className="w-10 h-10 rounded-xl flex items-center justify-center"
-                    style={{ background: "var(--ss-paystack)" }}
+                    style={{ background: "var(--ss-stripe)" }}
                   >
                     <CreditCard className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <p className="font-semibold text-foreground text-sm">Paystack</p>
-                    <p className="text-xs text-muted-foreground">Nigerian vendors</p>
+                    <p className="font-semibold text-foreground text-sm">Regional payout rails</p>
+                    <p className="text-xs text-muted-foreground">Local and cross-border transfers</p>
                   </div>
                   <Badge className="ml-auto bg-primary/10 text-primary border-primary/20 text-xs">Active</Badge>
                 </div>
                 <div className="space-y-2.5">
                   {[
-                    ["Bank transfer",    "GTBank, Access, Zenith…"],
+                    ["Bank transfer",    "Supported local banks"],
                     ["USSD payments",    "Supported"],
-                    ["Naira payouts",    "✓ Direct to account"],
+                    ["Local currency payouts",    "✓ Direct to account"],
                   ].map(([label, value]) => (
                     <div key={label} className="flex justify-between text-sm">
                       <span className="text-muted-foreground">{label}</span>
-                      <span className={label === "Naira payouts" ? "text-primary font-medium" : "text-foreground font-medium"}>
+                      <span className={label === "Local currency payouts" ? "text-primary font-medium" : "text-foreground font-medium"}>
                         {value}
                       </span>
                     </div>
@@ -466,7 +436,7 @@ const HomePage = () => {
                   </div>
                   <div>
                     <p className="font-semibold text-foreground text-sm">Stripe Connect</p>
-                    <p className="text-xs text-muted-foreground">International vendors</p>
+                      <p className="text-xs text-muted-foreground">Global vendors</p>
                   </div>
                   <Badge className="ml-auto bg-primary/10 text-primary border-primary/20 text-xs">Active</Badge>
                 </div>
@@ -548,8 +518,8 @@ const HomePage = () => {
               Not just another marketplace
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Existing platforms leave Nigerian vendors choosing between visibility without
-              identity, or independence without affordability. ShopSphere removes that trade-off.
+              Existing platforms leave sellers choosing between visibility without identity, or
+              independence without affordability. ShopSphere removes that trade-off.
             </p>
           </div>
 
@@ -596,10 +566,10 @@ const HomePage = () => {
           <div className="text-center mb-16">
             <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">Vendor stories</Badge>
             <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
-              Nigerian vendors building real businesses
+              Sellers building real businesses
             </h2>
             <p className="text-lg text-muted-foreground">
-              From Warri to Asaba, ShopSphere is powering the next generation of Delta State commerce.
+              From local shops to cross-border brands, ShopSphere is powering the next generation of commerce.
             </p>
           </div>
 
@@ -671,9 +641,7 @@ const HomePage = () => {
             </Button>
             <Button
               size="lg"
-              variant="outline"
               asChild
-              className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
             >
               <Link href="/login">I already have an account</Link>
             </Button>
@@ -698,12 +666,12 @@ const HomePage = () => {
                 <span className="text-lg font-semibold">ShopSphere</span>
               </div>
               <p className="text-background/55 text-sm leading-relaxed mb-4">
-                The e-commerce platform built for Nigerian SMEs — branded storefronts,
+                The e-commerce platform built for independent sellers — branded storefronts,
                 dual payment infrastructure, zero upfront cost.
               </p>
               <div className="flex items-center gap-1.5 text-xs text-background/35">
                 <MapPin className="w-3 h-3" />
-                Delta State, Nigeria
+                Global remote team
               </div>
             </div>
 
@@ -740,7 +708,7 @@ const HomePage = () => {
 
           <div className="border-t border-background/10 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-background/35 text-sm">
-              © 2025 ShopSphere. Built for Nigerian small and medium enterprises.
+              © 2025 ShopSphere. Built for independent sellers worldwide.
             </p>
             <div className="flex items-center gap-3 text-xs text-background/35">
               <div className="flex items-center gap-1.5">
