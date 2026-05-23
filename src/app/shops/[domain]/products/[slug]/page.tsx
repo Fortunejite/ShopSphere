@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   ArrowLeft,
   Star,
@@ -716,152 +715,60 @@ export default function ProductDetailsPage() {
           </div>
         </div>
 
-        {/* Product Details Tabs */}
-        <div className="mt-12">
-          <Tabs defaultValue="description" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="description">Description</TabsTrigger>
-              <TabsTrigger value="specifications">Specifications</TabsTrigger>
-              <TabsTrigger value="shipping">Shipping</TabsTrigger>
-              {/* <TabsTrigger value="reviews">Reviews ({reviews.length})</TabsTrigger> */}
-            </TabsList>
+        {/* Product Details (sequential) */}
+        <div className="mt-12 space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Product Description</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {product.description ? (
+                <div className="prose max-w-none">
+                  <p className="text-foreground leading-relaxed">{product.description}</p>
+                </div>
+              ) : (
+                <p className="text-muted-foreground italic">No description available for this product.</p>
+              )}
+            </CardContent>
+          </Card>
 
-            <TabsContent value="description" className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Product Description</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {product.description ? (
-                    <div className="prose max-w-none">
-                      <p className="text-foreground leading-relaxed">{product.description}</p>
-                    </div>
-                  ) : (
-                    <p className="text-muted-foreground italic">No description available for this product.</p>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="specifications" className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Product Specifications</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="font-medium">Weight:</span>
-                        <span>{product.weight} kg</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="font-medium">Dimensions:</span>
-                        <span>{product.length} × {product.width} × {product.height} cm</span>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="font-medium">Availability:</span>
-                        <span className={currentStock > 0 ? 'text-success' : 'text-error'}>
-                          {currentStock > 0 ? 'In Stock' : 'Out of Stock'}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="font-medium">Category:</span>
-                        <span>{productCategories.map(c => c.name).join(', ') || 'Uncategorized'}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="font-medium">Added:</span>
-                        <span>{new Date(product.created_at!).toLocaleDateString()}</span>
-                      </div>
-                    </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Product Specifications</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="font-medium">Weight:</span>
+                    <span>{product.weight} kg</span>
                   </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="shipping" className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Shipping Information</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <h4 className="font-medium mb-2">Standard Shipping</h4>
-                      <p className="text-sm text-muted-foreground mb-1">5-7 business days</p>
-                      <p className="text-sm font-medium">Free on orders over $50</p>
-                    </div>
-                    <div>
-                      <h4 className="font-medium mb-2">Express Shipping</h4>
-                      <p className="text-sm text-muted-foreground mb-1">2-3 business days</p>
-                      <p className="text-sm font-medium">$9.99</p>
-                    </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium">Dimensions:</span>
+                    <span>{product.length} × {product.width} × {product.height} cm</span>
                   </div>
-                  
-                  <div className="border-t pt-4">
-                    <h4 className="font-medium mb-2">Package Details</h4>
-                    <div className="text-sm text-muted-foreground space-y-1">
-                      <p>Weight: {product.weight} kg</p>
-                      <p>Dimensions: {product.length} × {product.width} × {product.height} cm</p>
-                      <p>This product ships from our warehouse within 1-2 business days.</p>
-                    </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="font-medium">Availability:</span>
+                    <span className={currentStock > 0 ? 'text-success' : 'text-error'}>
+                      {currentStock > 0 ? 'In Stock' : 'Out of Stock'}
+                    </span>
                   </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* <TabsContent value="reviews" className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Customer Reviews</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {reviews.length > 0 ? (
-                    <div className="space-y-6">
-                      {reviews.map(review => (
-                        <div key={review.id} className="border-b last:border-b-0 pb-6 last:pb-0">
-                          <div className="flex items-start justify-between mb-3">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center">
-                                <User className="w-5 h-5 text-muted-foreground" />
-                              </div>
-                              <div>
-                                <div className="flex items-center gap-2">
-                                  <h4 className="font-medium">{review.user_name}</h4>
-                                  {review.verified_purchase && (
-                                    <Badge variant="secondary" className="text-xs">
-                                      <Verified className="w-3 h-3 mr-1" />
-                                      Verified Purchase
-                                    </Badge>
-                                  )}
-                                </div>
-                                <div className="flex items-center gap-2 mt-1">
-                                  {renderStars(review.rating)}
-                                  <span className="text-sm text-muted-foreground">
-                                    {new Date(review.created_at).toLocaleDateString()}
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          <p className="text-foreground">{review.comment}</p>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 text-muted-foreground">
-                      <MessageCircle className="w-12 h-12 mx-auto mb-3 text-muted" />
-                      <p>No reviews yet</p>
-                      <p className="text-sm">Be the first to review this product!</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent> */}
-          </Tabs>
+                  <div className="flex justify-between">
+                    <span className="font-medium">Category:</span>
+                    <span>{productCategories.map(c => c.name).join(', ') || 'Uncategorized'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium">Added:</span>
+                    <span>{new Date(product.created_at!).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
+
       </div>
     </div>
   );

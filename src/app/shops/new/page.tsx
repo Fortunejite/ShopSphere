@@ -41,14 +41,13 @@ export default function NewShopPage() {
     domain: '',
     description: '' as string | undefined,
     tagline: '' as string | undefined,
-    currency: 'NGN',
+    currency: 'USD',
     email: '',
     phone: '',
     address: '',
     state: '',
     postal_code: '',
     country: '',
-    free_shipping_threshold: undefined as number | undefined,
     logo: '',
     banner: '',
   });
@@ -213,21 +212,23 @@ export default function NewShopPage() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="bg-white border-b">
-        <div className="max-w-4xl mx-auto px-6 py-6">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" asChild>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-5 sm:py-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-4">
+            <Button variant="ghost" size="sm" asChild className="w-fit px-0 sm:px-3">
               <Link href="/shops">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Shops
               </Link>
             </Button>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+            <div className="flex items-start gap-3 sm:items-center">
+              <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
                 <Store className="w-6 h-6 text-primary" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Create New Shop</h1>
-                <p className="text-muted-foreground">Fill in the details to create your online store</p>
+                <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Create New Shop</h1>
+                <p className="text-sm sm:text-base text-muted-foreground max-w-xl">
+                  Fill in the details to create your online store.
+                </p>
               </div>
             </div>
           </div>
@@ -236,7 +237,7 @@ export default function NewShopPage() {
 
       {/* Success Message */}
       {success && (
-        <div className="max-w-4xl mx-auto px-6 pt-6">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-4 sm:pt-6">
           <Alert className="border-success bg-success/10">
             <CheckCircle2 className="h-4 w-4 text-success" />
             <AlertDescription className="text-success/80">{success}</AlertDescription>
@@ -245,13 +246,13 @@ export default function NewShopPage() {
       )}
 
       {/* Form */}
-      <div className="max-w-4xl mx-auto px-6 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <Card>
-          <CardHeader>
+          <CardHeader className="px-4 sm:px-6 py-5 sm:py-6">
             <CardTitle>Shop Information</CardTitle>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-8">
+          <CardContent className="px-4 sm:px-6 pb-6 sm:pb-8">
+            <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
               {error && (
                 <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
@@ -279,21 +280,21 @@ export default function NewShopPage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="domain">Domain</Label>
-                  <div className="relative">
+                  <div className="relative flex flex-col gap-2 sm:block">
                     <Input
                       id="domain"
                       name="domain"
                       placeholder="Enter your shop domain (e.g., myshop)"
                       value={formData.domain}
                       onChange={handleInputChange}
-                      className={`${formErrors.domain ? 'border-error' : formData.domain && !formErrors.domain && !isDomainChecking ? 'border-success' : ''} pr-40`}
+                      className={`${formErrors.domain ? 'border-error' : formData.domain && !formErrors.domain && !isDomainChecking ? 'border-success' : ''} pr-4 sm:pr-40`}
                       disabled={isSubmitting}
                     />
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground sm:absolute sm:right-3 sm:top-1/2 sm:-translate-y-1/2 sm:text-sm">
                       {isDomainChecking && (
                         <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
                       )}
-                      <span className="text-sm text-muted-foreground pointer-events-none">
+                      <span className="pointer-events-none break-all sm:whitespace-nowrap">
                         .{process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'localhost:3000'}
                       </span>
                     </div>
@@ -363,13 +364,13 @@ export default function NewShopPage() {
                   <Label>Shop Logo (Optional)</Label>
                   <div className="space-y-4">
                     {formData.logo ? (
-                      <div className="relative inline-block">
+                      <div className="relative w-full max-w-40 sm:max-w-48">
                         <Image
                           src={formData.logo}
                           alt="Shop logo"
                           width={120}
                           height={120}
-                          className="w-30 h-30 object-cover rounded-lg border-2 border-gray-200"
+                          className="h-32 w-32 sm:h-36 sm:w-36 object-cover rounded-lg border-2 border-gray-200"
                         />
                         <Button
                           type="button"
@@ -383,7 +384,7 @@ export default function NewShopPage() {
                         </Button>
                       </div>
                     ) : (
-                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors">
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 sm:p-8 text-center hover:border-gray-400 transition-colors">
                         <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-3" />
                         <p className="text-sm text-gray-600 mb-3">Upload your shop logo</p>
                         <input
@@ -402,6 +403,7 @@ export default function NewShopPage() {
                           variant="outline"
                           disabled={isSubmitting || isLogoUploading}
                           asChild
+                          className="w-full sm:w-auto"
                         >
                           <label htmlFor="logo-upload" className="cursor-pointer">
                             {isLogoUploading ? (
@@ -431,13 +433,13 @@ export default function NewShopPage() {
                   <Label>Shop Banner (Optional)</Label>
                   <div className="space-y-4">
                     {formData.banner ? (
-                      <div className="relative inline-block">
+                      <div className="relative w-full">
                         <Image
                           src={formData.banner}
                           alt="Shop banner"
                           width={400}
                           height={150}
-                          className="w-full max-w-md h-32 object-cover rounded-lg border-2 border-gray-200"
+                          className="w-full h-32 sm:h-36 object-cover rounded-lg border-2 border-gray-200"
                         />
                         <Button
                           type="button"
@@ -451,7 +453,7 @@ export default function NewShopPage() {
                         </Button>
                       </div>
                     ) : (
-                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors">
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 sm:p-8 text-center hover:border-gray-400 transition-colors">
                         <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-3" />
                         <p className="text-sm text-gray-600 mb-3">Upload your shop banner</p>
                         <input
@@ -470,6 +472,7 @@ export default function NewShopPage() {
                           variant="outline"
                           disabled={isSubmitting || isBannerUploading}
                           asChild
+                          className="w-full sm:w-auto"
                         >
                           <label htmlFor="banner-upload" className="cursor-pointer">
                             {isBannerUploading ? (
@@ -529,54 +532,28 @@ export default function NewShopPage() {
                     {formErrors.phone && <p className="text-sm text-red-500">{formErrors.phone}</p>}
                   </div>
 
-                  <div className="space-y-2">
-                  <Label htmlFor="address">Street Address</Label>
-                  <Input
-                    id="address"
-                    name="address"
-                    placeholder="Enter your street address"
-                    value={formData.address}
-                    onChange={handleInputChange}
-                    className={formErrors.address ? 'border-red-500' : ''}
-                    disabled={isSubmitting}
-                  />
-                  {formErrors.address && <p className="text-sm text-red-500">{formErrors.address}</p>}
-                </div>
-                </div>
-              </div>
-
-              {/* Shipping Settings */}
-              <div className="space-y-6">
-                <h3 className="text-lg font-medium border-b pb-2">Shipping Settings</h3>
-                <div className="space-y-2">
-                  <Label htmlFor="free_shipping_threshold">Free Shipping Threshold (Optional)</Label>
-                  <Input
-                    id="free_shipping_threshold"
-                    name="free_shipping_threshold"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    placeholder="Enter minimum amount for free shipping"
-                    value={formData.free_shipping_threshold || ''}
-                    onChange={handleInputChange}
-                    className={formErrors.free_shipping_threshold ? 'border-red-500' : ''}
-                    disabled={isSubmitting}
-                  />
-                  {formErrors.free_shipping_threshold && (
-                    <p className="text-sm text-red-500">{formErrors.free_shipping_threshold}</p>
-                  )}
-                  <p className="text-sm text-gray-500">
-                    Orders above this amount will qualify for free shipping. Leave empty to disable free shipping.
-                  </p>
+                  <div className="space-y-2 md:col-span-2">
+                    <Label htmlFor="address">Street Address</Label>
+                    <Input
+                      id="address"
+                      name="address"
+                      placeholder="Enter your street address"
+                      value={formData.address}
+                      onChange={handleInputChange}
+                      className={formErrors.address ? 'border-red-500' : ''}
+                      disabled={isSubmitting}
+                    />
+                    {formErrors.address && <p className="text-sm text-red-500">{formErrors.address}</p>}
+                  </div>
                 </div>
               </div>
 
               {/* Submit Button */}
-              <div className="flex items-center justify-end gap-4 pt-6 border-t">
-                <Button type="button" variant="outline" asChild disabled={isSubmitting}>
+              <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:items-center sm:justify-end sm:gap-4 sm:pt-6 sm:border-t">
+                <Button type="button" variant="outline" asChild disabled={isSubmitting} className="w-full sm:w-auto">
                   <Link href="/shops">Cancel</Link>
                 </Button>
-                <Button type="submit" disabled={isSubmitting || isLogoUploading || isBannerUploading} className="min-w-32">
+                <Button type="submit" disabled={isSubmitting || isLogoUploading || isBannerUploading} className="w-full sm:w-auto sm:min-w-32">
                   {isLogoUploading || isBannerUploading ? 'Uploading Image...' :
                   isSubmitting ? (
                     <>

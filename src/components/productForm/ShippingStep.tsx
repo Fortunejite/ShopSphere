@@ -11,7 +11,7 @@ interface Props {
 const ShippingStep = ({ formData, updateFormData }: Props) => {
   return (
     <div className="space-y-8">
-      <div className="rounded-xl border bg-background/60 p-5 md:p-6 space-y-5">
+      <section className="space-y-5 pb-6 border-b border-border/60">
         <div>
           <h3 className="text-base font-semibold text-foreground">Package details</h3>
           <p className="text-sm text-muted-foreground mt-1">
@@ -32,9 +32,9 @@ const ShippingStep = ({ formData, updateFormData }: Props) => {
             className="h-11"
           />
         </div>
-      </div>
+      </section>
 
-      <div className="rounded-xl border bg-background/60 p-5 md:p-6 space-y-5">
+      <section className="space-y-5">
         <div>
           <h3 className="text-base font-semibold text-foreground">Dimensions (cm)</h3>
           <p className="text-sm text-muted-foreground mt-1">
@@ -85,11 +85,11 @@ const ShippingStep = ({ formData, updateFormData }: Props) => {
             />
           </div>
         </div>
-      </div>
+      </section>
 
       <div className="flex items-start gap-3 rounded-lg border border-info/25 bg-info/10 p-4">
         <Info className="w-4 h-4 text-info mt-0.5" />
-        <p className="text-sm text-primary/80">
+        <p className="text-sm text-info/80">
           These dimensions and weight will be used to calculate shipping costs
           for your customers. Make sure they are accurate to provide the best
           shipping experience.

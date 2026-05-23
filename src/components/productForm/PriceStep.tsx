@@ -20,7 +20,7 @@ const PricingAndStockForm = ({ formData, updateFormData }: Props) => {
 
   return (
     <div className="space-y-8">
-      <div className="rounded-xl border bg-background/60 p-5 md:p-6 space-y-5">
+      <section className="space-y-5 pb-6 border-b border-border/60">
         <div>
           <h3 className="text-base font-semibold text-foreground">Pricing</h3>
           <p className="text-sm text-muted-foreground mt-1">
@@ -58,7 +58,7 @@ const PricingAndStockForm = ({ formData, updateFormData }: Props) => {
           </div>
         </div>
 
-        <div className="rounded-lg border bg-muted/30 p-4 space-y-2">
+        <div className="space-y-2 border-t pt-4">
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Base price</span>
             <span className="font-medium">{formatCurrency(basePrice, currency)}</span>
@@ -75,9 +75,9 @@ const PricingAndStockForm = ({ formData, updateFormData }: Props) => {
             </span>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className="rounded-xl border bg-background/60 p-5 md:p-6 space-y-5">
+      <section className="space-y-5">
         <div>
           <h3 className="text-base font-semibold text-foreground">Inventory</h3>
           <p className="text-sm text-muted-foreground mt-1">
@@ -117,7 +117,7 @@ const PricingAndStockForm = ({ formData, updateFormData }: Props) => {
             onCheckedChange={(checked) => updateFormData('is_featured', !!checked)}
           />
         </label>
-      </div>
+      </section>
     </div>
   );
 };

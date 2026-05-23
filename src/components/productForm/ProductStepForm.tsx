@@ -263,7 +263,7 @@ export default function ProductStepForm({
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Sidebar - Steps Navigation */}
         <div className="lg:col-span-1">
-          <div className="bg-card border rounded-xl p-4 sticky top-6 space-y-2">
+          <div className="bg-card border rounded-xl p-4 lg:sticky lg:top-6 space-y-2">
             <h3 className="text-sm font-bold text-foreground mb-4">Progress</h3>
             {steps.map((step) => {
               const isActive = currentStep === step.id;
@@ -285,7 +285,7 @@ export default function ProductStepForm({
                     }
                   `}
                 >
-                  <div className="flex-shrink-0 mt-0.5">
+                  <div className="shrink-0 mt-0.5">
                     {isCompleted ? (
                       <Check className="w-5 h-5" />
                     ) : isActive ? (

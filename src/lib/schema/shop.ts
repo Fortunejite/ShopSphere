@@ -8,11 +8,11 @@ const optionalColorValidation = colorValidation.optional();
 
 export const colorThemeSchema = z.object({
   // Core colors (required)
-  primary: colorValidation,
-  secondary: colorValidation,
-  background: colorValidation,
-  text: colorValidation,
-  accent: colorValidation,
+  primary: optionalColorValidation,
+  secondary: optionalColorValidation,
+  background: optionalColorValidation,
+  text: optionalColorValidation,
+  accent: optionalColorValidation,
   
   // Core foreground colors
   primaryForeground: optionalColorValidation,
