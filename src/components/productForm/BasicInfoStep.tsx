@@ -27,7 +27,7 @@ const BasicInfoStep = ({ formData, updateFormData, categories }: Props) => {
 
   return (
     <div className="space-y-8">
-      <div className="rounded-xl border bg-background/60 p-5 md:p-6 space-y-4">
+      <section className="space-y-4 pb-6 border-b border-border/60">
         <div>
           <h3 className="text-base font-semibold text-foreground">Product details</h3>
           <p className="text-sm text-muted-foreground mt-1">
@@ -57,9 +57,9 @@ const BasicInfoStep = ({ formData, updateFormData, categories }: Props) => {
             className="resize-y"
           />
         </div>
-      </div>
+      </section>
 
-      <div className="rounded-xl border bg-background/60 p-5 md:p-6 space-y-4">
+      <section className="space-y-4">
         <div>
           <h3 className="text-base font-semibold text-foreground">Categorization</h3>
           <p className="text-sm text-muted-foreground mt-1">
@@ -89,7 +89,7 @@ const BasicInfoStep = ({ formData, updateFormData, categories }: Props) => {
                 <label
                   key={category.id}
                   htmlFor={`category-${category.id}`}
-                  className="flex items-center gap-3 rounded-md px-2 py-2 hover:bg-background cursor-pointer"
+                  className="flex items-center gap-3 rounded-md px-2 py-2 hover:bg-muted/10 cursor-pointer"
                 >
                   <Checkbox
                     id={`category-${category.id}`}
@@ -121,7 +121,7 @@ const BasicInfoStep = ({ formData, updateFormData, categories }: Props) => {
         </div>
 
         {formData.category_ids.length > 0 && (
-          <div>
+          <div className="pt-2">
             <p className="text-sm font-medium text-foreground mb-2">
               Selected ({formData.category_ids.length})
             </p>
@@ -155,7 +155,7 @@ const BasicInfoStep = ({ formData, updateFormData, categories }: Props) => {
             </div>
           </div>
         )}
-      </div>
+      </section>
     </div>
   );
 };

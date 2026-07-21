@@ -192,16 +192,16 @@ export default function AdminProductsPage() {
   }, [searchTerm, selectedStatus, selectedCategory, sortBy, sortOrder]);
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-neutral-50 to-neutral-100 p-4 md:p-6">
+    <div className="min-h-screen bg-background p-4 md:p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-neutral-900 flex items-center gap-2">
-              <Package className="w-8 h-8 text-neutral-700" />
+            <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
+              <Package className="w-8 h-8 text-muted-foreground" />
               Products Management
             </h1>
-            <p className="text-neutral-600 mt-1">Manage your shop&apos;s product catalog</p>
+            <p className="text-muted-foreground mt-1">Manage your shop&apos;s product catalog</p>
           </div>
           
           <Button asChild className="flex items-center gap-2">
@@ -221,11 +221,11 @@ export default function AdminProductsPage() {
         )}
 
         {/* Filters */}
-        <div className="bg-white p-4 rounded-lg shadow-sm border space-y-4">
+        <div className="bg-card p-4 rounded-lg shadow-sm border space-y-4">
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 w-4 h-4" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                 <Input
                   placeholder="Search products..."
                   value={searchTerm}
@@ -291,14 +291,14 @@ export default function AdminProductsPage() {
         ) : products.length === 0 ? (
           <div className="text-center py-12">
             <div className="space-y-4">
-              <div className="w-16 h-16 bg-neutral-100 rounded-full flex items-center justify-center mx-auto">
-                <Package className="w-8 h-8 text-neutral-400" />
+              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto">
+                <Package className="w-8 h-8 text-muted-foreground" />
               </div>
               <div>
-                <h3 className="text-lg font-medium text-neutral-900">
+                <h3 className="text-lg font-medium text-foreground">
                   No products found
                 </h3>
-                <p className="text-neutral-500 mt-1">
+                <p className="text-muted-foreground mt-1">
                   {searchTerm || selectedStatus !== 'all' || selectedCategory !== 'all'
                     ? 'Try adjusting your search or filter criteria'
                     : 'Create your first product to get started'
@@ -318,7 +318,7 @@ export default function AdminProductsPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {products.map((product) => (
-              <Card key={product.id} className="group hover:shadow-lg transition-all duration-200 border-0 shadow-md bg-white">
+              <Card key={product.id} className="group hover:shadow-lg transition-all duration-200 border-0 shadow-md bg-card">
                 <CardHeader className="p-0">
                   <div className="relative aspect-square overflow-hidden rounded-t-lg">
                     <Image

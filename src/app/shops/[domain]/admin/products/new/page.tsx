@@ -69,19 +69,19 @@ export default function NewProductPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-linear-to-br from-neutral-50 to-neutral-100 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="w-full max-w-md bg-card">
           <CardContent className="pt-6">
             <div className="text-center space-y-4">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-                <CheckCircle2 className="w-8 h-8 text-green-600" />
+              <div className="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center mx-auto">
+                <CheckCircle2 className="w-8 h-8 text-success" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-neutral-900">Product Created Successfully!</h2>
-                <p className="text-neutral-600 mt-1">You will be redirected shortly...</p>
+                <h2 className="text-xl font-semibold text-foreground">Product Created Successfully!</h2>
+                <p className="text-muted-foreground mt-1">You will be redirected shortly...</p>
               </div>
               <div className="flex justify-center">
-                <Loader2 className="w-5 h-5 animate-spin text-neutral-500" />
+                <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
               </div>
             </div>
           </CardContent>
@@ -91,7 +91,7 @@ export default function NewProductPage() {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-neutral-50 to-neutral-100 p-4 md:p-6">
+    <div className="min-h-screen bg-background p-4 md:p-6">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center gap-4">
@@ -104,11 +104,11 @@ export default function NewProductPage() {
         </div>
 
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-neutral-900 flex items-center justify-center gap-2">
-            <Package className="w-8 h-8 text-neutral-700" />
+          <h1 className="text-3xl font-bold text-foreground flex items-center justify-center gap-2">
+            <Package className="w-8 h-8 text-muted-foreground" />
             Create New Product
           </h1>
-          <p className="text-neutral-600">Add a new product to your shop catalog</p>
+          <p className="text-muted-foreground">Add a new product to your shop catalog</p>
         </div>
 
         {/* Success Message */}
@@ -120,7 +120,7 @@ export default function NewProductPage() {
         )}
 
         {/* Main Form */}
-        <Card className="bg-white shadow-lg border-0">
+        <Card className="bg-card shadow-lg border-0">
           <CardHeader>
             <CardTitle className="text-xl">Product Information</CardTitle>
           </CardHeader>
