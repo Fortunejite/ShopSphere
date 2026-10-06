@@ -195,6 +195,71 @@ class StatsService {
     };
   }
 
+  static async getRevenueChartData(domain: Shop['domain'], days: number = 30) {
+    const shop = await ShopService.getShopByDomain(domain);
+    const user = await authorizeUser();
+
+    if (shop.owner_id !== user.id) {
+      throw { message: 'Access denied', status: 403 };
+    }
+
+    const since = new Date();
+    since.setDate(since.getDate() - days);
+    since.setHours(0, 0, 0, 0);
+
+    const excludeFromRevenue = ['cancelled', 'pending'] as ('cancelled' | 'pending')[];
+
+    const orders = await prisma.order.findMany({
+      where: {
+        shop_id: shop.id,
+        status: { notIn: excludeFromRevenue },
+        created_at: { gte: since },
+      },
+      select: { created_at: true, final_amount: true, total_amount: true },
+      orderBy: { created_at: 'asc' },
+    });
+
+    // Group by date
+    const revenueByDate: Record<string, number> = {};
+    for (let i = 0; i < days; i++) {
+      const d = new Date(since);
+      d.setDate(d.getDate() + i);
+      const key = d.toISOString().split('T')[0];
+      revenueByDate[key] = 0;
+    }
+
+    orders.forEach((order) => {
+      const key = order.created_at.toISOString().split('T')[0];
+      if (key in revenueByDate) {
+        revenueByDate[key] += order.final_amount;
+      }
+    });
+
+    return Object.entries(revenueByDate).map(([date, revenue]) => ({
+      date,
+      revenue: Math.round(revenue * 100) / 100,
+    }));
+  }
+
+  static async getOrderStatusBreakdown(domain: Shop['domain']) {
+    const shop = await ShopService.getShopByDomain(domain);
+    const user = await authorizeUser();
+
+    if (shop.owner_id !== user.id) {
+      throw { message: 'Access denied', status: 403 };
+    }
+
+    const statuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'] as const;
+
+    const counts = await prisma.$transaction(
+      statuses.map((status) =>
+        prisma.order.count({ where: { shop_id: shop.id, status } })
+      )
+    );
+
+    return statuses.map((status, i) => ({ status, count: counts[i] }));
+  }
+
   static async getOrderStats(shopId: Shop['id']) {
     const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
