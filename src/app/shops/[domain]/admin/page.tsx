@@ -259,7 +259,7 @@ export default function AdminDashboardPage() {
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <Button asChild variant="outline" size="sm">
-                <Link href={`/shops/${domain}/admin/products/new`}>
+                <Link href={`/admin/products/new`}>
                   <Plus className="w-4 h-4 mr-2" /> Add Product
                 </Link>
               </Button>
@@ -267,7 +267,7 @@ export default function AdminDashboardPage() {
                 <RefreshCw className="w-4 h-4 mr-2" /> Refresh
               </Button>
               <Button asChild variant="outline" size="sm">
-                <Link href={`/shops/${domain}/admin/settings`}>
+                <Link href={`/admin/settings`}>
                   <Settings className="w-4 h-4 mr-2" /> Settings
                 </Link>
               </Button>
@@ -412,7 +412,7 @@ export default function AdminDashboardPage() {
                     </div>
                   </div>
                   <Button size="sm" variant="outline" asChild className="flex-shrink-0">
-                    <Link href={`/shops/${domain}/admin/orders?status=processing`}>View</Link>
+                    <Link href={`/admin/orders?status=processing`}>View</Link>
                   </Button>
                 </CardContent>
               </Card>
@@ -428,7 +428,7 @@ export default function AdminDashboardPage() {
                     </div>
                   </div>
                   <Button size="sm" variant="outline" asChild className="flex-shrink-0">
-                    <Link href={`/shops/${domain}/admin/products?filter=low_stock`}>View</Link>
+                    <Link href={`/admin/products?filter=low_stock`}>View</Link>
                   </Button>
                 </CardContent>
               </Card>
@@ -438,13 +438,13 @@ export default function AdminDashboardPage() {
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Quick Actions</p>
                 <div className="flex flex-wrap gap-2">
                   <Button asChild variant="outline" size="sm" className="text-xs">
-                    <Link href={`/shops/${domain}/admin/products/new`}><Plus className="w-3 h-3 mr-1" /> Product</Link>
+                    <Link href={`/admin/products/new`}><Plus className="w-3 h-3 mr-1" /> Product</Link>
                   </Button>
                   <Button asChild variant="outline" size="sm" className="text-xs">
-                    <Link href={`/shops/${domain}/admin/orders`}><Package className="w-3 h-3 mr-1" /> Orders</Link>
+                    <Link href={`/admin/orders`}><Package className="w-3 h-3 mr-1" /> Orders</Link>
                   </Button>
                   <Button asChild variant="outline" size="sm" className="text-xs">
-                    <Link href={`/shops/${domain}/admin/analytics`}><BarChart3 className="w-3 h-3 mr-1" /> Analytics</Link>
+                    <Link href={`/admin/analytics`}><BarChart3 className="w-3 h-3 mr-1" /> Analytics</Link>
                   </Button>
                 </div>
               </CardContent>
@@ -576,7 +576,7 @@ export default function AdminDashboardPage() {
                     <p className="text-xs text-muted-foreground mt-0.5">Last {recentOrders.length} transactions</p>
                   </div>
                   <Button variant="outline" size="sm" asChild>
-                    <Link href={`/shops/${domain}/admin/orders`}><Eye className="w-3.5 h-3.5 mr-1.5" />View All</Link>
+                    <Link href={`/admin/orders`}><Eye className="w-3.5 h-3.5 mr-1.5" />View All</Link>
                   </Button>
                 </div>
               </CardHeader>
@@ -612,7 +612,7 @@ export default function AdminDashboardPage() {
                           </Badge>
                           <Button variant="ghost" size="sm" asChild
                             className="opacity-0 group-hover:opacity-100 transition-opacity p-1 h-auto flex-shrink-0">
-                            <Link href={`/shops/${domain}/admin/orders/${order.tracking_id}`}>
+                            <Link href={`/admin/orders/${order.tracking_id}`}>
                               <Eye className="w-3.5 h-3.5" />
                             </Link>
                           </Button>
@@ -641,7 +641,7 @@ export default function AdminDashboardPage() {
                     <p className="text-xs text-muted-foreground mt-0.5">Units sold</p>
                   </div>
                   <Button variant="outline" size="sm" asChild>
-                    <Link href={`/shops/${domain}/admin/products`}><Package className="w-3.5 h-3.5 mr-1.5" />All Products</Link>
+                    <Link href={`/admin/products`}><Package className="w-3.5 h-3.5 mr-1.5" />All Products</Link>
                   </Button>
                 </div>
               </CardHeader>
