@@ -12,7 +12,6 @@ import {
   Clock,
   X,
   Users,
-  DollarSign,
   Edit,
   Save,
 } from 'lucide-react';
@@ -34,18 +33,16 @@ export default function OrderCard({
 }) {
   const shop = useAppSelector(state => state.shop.shop);
   const [isEditingStatus, setIsEditingStatus] = useState(false);
-  const [newStatus, setNewStatus] = useState<'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded'>(order.status);
+  const [newStatus, setNewStatus] = useState<'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled'>(order.status);
   const [adminNotes, setAdminNotes] = useState(order.admin_notes || '');
   
   const getStatusColor = (status: string) => {
     const colors = {
       pending: 'bg-warning text-warning-foreground',
-      confirmed: 'bg-info text-info-foreground',
       processing: 'bg-secondary text-secondary-foreground',
       shipped: 'bg-info text-info-foreground',
       delivered: 'bg-success text-success-foreground',
       cancelled: 'bg-error text-error-foreground',
-      refunded: 'bg-muted text-muted-foreground'
     };
     return colors[status as keyof typeof colors] || 'bg-muted text-muted-foreground';
   };
@@ -53,12 +50,10 @@ export default function OrderCard({
   const getStatusIcon = (status: string) => {
     const icons = {
       pending: Clock,
-      confirmed: CheckCircle,
       processing: Package,
       shipped: Truck,
       delivered: CheckCircle,
       cancelled: X,
-      refunded: DollarSign
     };
     const IconComponent = icons[status as keyof typeof icons] || Clock;
     return <IconComponent className="w-3 h-3" />;
@@ -93,12 +88,10 @@ export default function OrderCard({
                         onChange={(e) => setNewStatus(e.target.value as typeof newStatus)}
                         className="px-2 py-1 border border-border rounded text-sm bg-background text-foreground"
                       >
-                        <option value="confirmed">Confirmed</option>
                         <option value="processing">Processing</option>
                         <option value="shipped">Shipped</option>
                         <option value="delivered">Delivered</option>
                         <option value="cancelled">Cancelled</option>
-                        <option value="refunded">Refunded</option>
                       </select>
                     )}
                   </div>

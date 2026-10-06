@@ -137,3 +137,55 @@ export function AdminToolsSkeleton() {
     </Card>
   );
 }
+
+export function RevenueChartSkeleton() {
+  return (
+    <Card className="col-span-full">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div className="h-5 bg-muted rounded w-32 animate-pulse"></div>
+          <div className="flex gap-2">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="w-10 h-7 bg-muted rounded animate-pulse"></div>
+            ))}
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="h-64 bg-muted/50 rounded-lg animate-pulse flex items-end px-4 pb-4 gap-1">
+          {Array.from({ length: 30 }).map((_, i) => (
+            <div
+              key={i}
+              className="flex-1 bg-muted rounded-t animate-pulse"
+              style={{ height: `${20 + Math.random() * 60}%` }}
+            />
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+export function OrderStatusChartSkeleton() {
+  return (
+    <Card>
+      <CardHeader>
+        <div className="h-5 bg-muted rounded w-40 animate-pulse"></div>
+      </CardHeader>
+      <CardContent>
+        <div className="flex items-center justify-center">
+          <div className="w-48 h-48 rounded-full bg-muted animate-pulse"></div>
+        </div>
+        <div className="mt-4 space-y-2">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-muted animate-pulse"></div>
+              <div className="h-3 bg-muted rounded flex-1 animate-pulse"></div>
+              <div className="h-3 bg-muted rounded w-8 animate-pulse"></div>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
