@@ -32,17 +32,6 @@ enum OrderStatus {
   cancelled // Order has been cancelled
 }
 
-enum PaystackTransactionType {
-  credit
-  debit
-}
-
-enum PaystackTransactionStatus {
-  pending
-  success
-  failed
-}
-
 model User {
   id            Int      @id @default(autoincrement())
   email         String   @unique
@@ -96,7 +85,6 @@ model Shop {
 
   paystack_account_id        String? @unique
   paystack_account_connected Boolean @default(false)
-  paystack_account_balance   Decimal @default(0)
 
   light_theme Json?
   dark_theme  Json?
@@ -108,7 +96,6 @@ model Shop {
   products             Product[]
   carts                Cart[]
   orders               Order[]
-  paystackTransactions PaystackTransaction[]
 
   @@map("shops")
 }
@@ -183,7 +170,6 @@ model Order {
 
   user                User                 @relation(fields: [user_id], references: [id])
   shop                Shop                 @relation(fields: [shop_id], references: [id])
-  paystackTransaction PaystackTransaction?
 
   @@index([user_id])
   @@index([shop_id])
@@ -207,22 +193,4 @@ model PaystackEvent {
   received_at DateTime @default(now())
 
   @@map("paystack_event")
-}
-
-model PaystackTransaction {
-  id           Int                       @id @default(autoincrement())
-  reference_id String?                   @unique
-  account_id   String
-  amount       Decimal // in NGN
-  currency     String
-  type         PaystackTransactionType
-  status       PaystackTransactionStatus @default(success)
-  tracking_id  String?                   @unique
-  created_at   DateTime                  @default(now())
-  updated_at   DateTime                  @updatedAt
-
-  shop  Shop   @relation(fields: [account_id], references: [paystack_account_id])
-  order Order? @relation(fields: [tracking_id], references: [tracking_id])
-
-  @@map("paystack_transactions")
 }
