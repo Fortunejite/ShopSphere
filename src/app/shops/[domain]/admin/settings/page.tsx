@@ -49,15 +49,15 @@ import {
 type ShopSettingsFormData = z.infer<typeof createShopSchema>;
 type PaystackConnectFormData = z.infer<typeof accountConnectSchema>;
 
-interface PaystackTransactionRow {
+interface SettlementRow {
   id: number;
-  reference_id: string | null;
-  tracking_id: string | null;
-  amount: number;
-  currency: string;
-  type: 'credit' | 'debit';
-  status: 'pending' | 'success' | 'failed';
-  created_at: string;
+  settlement_date: string;
+  total_amount: number;     // in kobo
+  total_processed: number;
+  total_fees: number;
+  status: string;
+  subaccount_code: string;
+  business_name: string;
 }
 
 export default function AdminSettingsPage() {
@@ -78,11 +78,16 @@ export default function AdminSettingsPage() {
   const [bankSearch, setBankSearch] = useState('');
   const [paystackSubAccount, setPaystackSubAccount] = useState<PaystackSubAccount | null>(null);
   const [showPaystackUpdateForm, setShowPaystackUpdateForm] = useState(false);
-  const [transactions, setTransactions] = useState<PaystackTransactionRow[]>([]);
-  const [isTransactionsLoading, setIsTransactionsLoading] = useState(false);
-  const [transactionsPage, setTransactionsPage] = useState(1);
-  const [transactionsTotalPages, setTransactionsTotalPages] = useState(1);
-  const [transactionsTotal, setTransactionsTotal] = useState(0);
+  const [settlements, setSettlements] = useState<SettlementRow[]>([]);
+  const [isSettlementsLoading, setIsSettlementsLoading] = useState(false);
+  const [settlementsPage, setSettlementsPage] = useState(1);
+  const [settlementsTotalPages, setSettlementsTotalPages] = useState(1);
+  const [settlementsTotal, setSettlementsTotal] = useState(0);
+  const [settingsSummary, setSettingsSummary] = useState<{
+    subaccount_code: string;
+    account_number: string;
+    settlement_bank: string;
+  } | null>(null);
   
   // Theme state
   const [lightTheme, setLightTheme] = useState<colorTheme>({
@@ -342,30 +347,35 @@ setHasThemeChanges(true);
     }
   }, [shopDomain, paystackForm]);
 
-  const fetchPaystackTransactions = useCallback(
+  const fetchPaystackSettlements = useCallback(
     async (page: number) => {
       if (!shopDomain) return;
 
       try {
-        setIsTransactionsLoading(true);
-        const { data } = await axios.get(`/api/shops/${shopDomain}/admin/paystack/transactions`, {
-          params: {
-            page,
-            limit: 10,
-          },
-        });
+        setIsSettlementsLoading(true);
+        const { data } = await axios.get(
+          `/api/shops/${shopDomain}/admin/paystack/settlements`,
+          { params: { page, perPage: 10 } },
+        );
 
-        setTransactions((data?.transactions ?? []) as PaystackTransactionRow[]);
-        setTransactionsTotalPages(data?.pagination?.totalPages ?? 1);
-        setTransactionsTotal(data?.pagination?.total ?? 0);
+        setSettlements((data?.settlements ?? []) as SettlementRow[]);
+        setSettlementsTotalPages(data?.meta?.pageCount ?? 1);
+        setSettlementsTotal(data?.meta?.total ?? 0);
+        if (data?.account_number || data?.settlement_bank) {
+          setSettingsSummary({
+            subaccount_code: data.subaccount_code ?? '',
+            account_number: data.account_number ?? '',
+            settlement_bank: data.settlement_bank ?? '',
+          });
+        }
       } catch (error) {
-        console.error('Error fetching Paystack transactions:', error);
-        setTransactions([]);
-        setTransactionsTotalPages(1);
-        setTransactionsTotal(0);
-        toast.error('Unable to load Paystack transactions.');
+        console.error('Error fetching Paystack settlements:', error);
+        setSettlements([]);
+        setSettlementsTotalPages(1);
+        setSettlementsTotal(0);
+        toast.error('Unable to load Paystack settlements.');
       } finally {
-        setIsTransactionsLoading(false);
+        setIsSettlementsLoading(false);
       }
     },
     [shopDomain],
@@ -460,13 +470,13 @@ setHasThemeChanges(true);
       return;
     }
 
-    fetchPaystackTransactions(transactionsPage);
+    fetchPaystackSettlements(settlementsPage);
   }, [
     activeTab,
     shopDomain,
     shop?.paystack_account_connected,
-    transactionsPage,
-    fetchPaystackTransactions,
+    settlementsPage,
+    fetchPaystackSettlements,
   ]);
 
   if (isLoading) {
@@ -863,61 +873,122 @@ setHasThemeChanges(true);
                         </div>
 
                         {shop?.paystack_account_connected ? (
-                          <div className="space-y-3">
+                          <div className="space-y-4">
+                            {/* Sub-account info */}
                             {isPaystackLoading ? (
                               <p className="text-sm text-muted-foreground">Loading Paystack account details...</p>
-                            ) : paystackSubAccount ? (
-                              <div className="space-y-1 text-sm">
-                                <p><span className="text-muted-foreground">Account Number:</span> {paystackSubAccount.account_number}</p>
-                                <p><span className="text-muted-foreground">Settlement Bank:</span> {paystackSubAccount.settlement_bank}</p>
+                            ) : (paystackSubAccount || settingsSummary) ? (
+                              <div className="rounded-md bg-muted/40 border border-border p-3 space-y-1 text-sm">
+                                <p>
+                                  <span className="text-muted-foreground">Account Number: </span>
+                                  <span className="font-medium">
+                                    {paystackSubAccount?.account_number || settingsSummary?.account_number || '—'}
+                                  </span>
+                                </p>
+                                <p>
+                                  <span className="text-muted-foreground">Settlement Bank: </span>
+                                  <span className="font-medium">
+                                    {paystackSubAccount?.settlement_bank || settingsSummary?.settlement_bank || '—'}
+                                  </span>
+                                </p>
                               </div>
                             ) : (
-                              <Button type="button" variant="outline" onClick={fetchPaystackSubAccount}>
-                                Refresh Paystack Details
+                              <Button type="button" variant="outline" size="sm" onClick={fetchPaystackSubAccount}>
+                                Refresh Account Details
                               </Button>
                             )}
 
-                            <div className="rounded-md border border-border bg-muted/30 p-3">
-                              <p className="text-xs text-muted-foreground">Current Balance</p>
-                              <p className="text-xl font-semibold text-foreground">
-                                {formatCurrency(Number(shop?.paystack_account_balance ?? 0), 'NGN')}
-                              </p>
-                              <p className="text-xs text-muted-foreground mt-1">
-                                Next payout runs daily by 2:00 AM for balances of at least ₦10,000.
-                              </p>
-                            </div>
+                            {/* Settlements summary stats */}
+                            {!isSettlementsLoading && settlements.length > 0 && (() => {
+                              const totalPaid = settlements.reduce((s, r) => s + r.total_amount, 0);
+                              const totalFees = settlements.reduce((s, r) => s + r.total_fees, 0);
+                              const successCount = settlements.filter((r) => r.status === 'success').length;
+                              return (
+                                <div className="grid grid-cols-3 gap-3">
+                                  <div className="rounded-md bg-muted/40 border border-border p-3 text-center">
+                                    <p className="text-xs text-muted-foreground mb-1">Total Settled</p>
+                                    <p className="font-semibold text-sm">{formatCurrency(totalPaid / 100, 'NGN')}</p>
+                                  </div>
+                                  <div className="rounded-md bg-muted/40 border border-border p-3 text-center">
+                                    <p className="text-xs text-muted-foreground mb-1">Total Fees</p>
+                                    <p className="font-semibold text-sm">{formatCurrency(totalFees / 100, 'NGN')}</p>
+                                  </div>
+                                  <div className="rounded-md bg-muted/40 border border-border p-3 text-center">
+                                    <p className="text-xs text-muted-foreground mb-1">Successful</p>
+                                    <p className="font-semibold text-sm">{successCount} / {settlements.length}</p>
+                                  </div>
+                                </div>
+                              );
+                            })()}
 
+                            {/* Settlements table */}
                             <div className="space-y-2">
-                              <p className="text-sm font-medium text-foreground">Recent Transactions</p>
-                              <div className="rounded-md border border-border">
-                                {isTransactionsLoading ? (
-                                  <p className="text-sm text-muted-foreground p-3">Loading transactions...</p>
-                                ) : transactions.length === 0 ? (
-                                  <p className="text-sm text-muted-foreground p-3">No Paystack transactions yet.</p>
+                              <div className="flex items-center justify-between">
+                                <p className="text-sm font-medium text-foreground">Settlements</p>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => fetchPaystackSettlements(settlementsPage)}
+                                  disabled={isSettlementsLoading}
+                                >
+                                  {isSettlementsLoading ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                  ) : 'Refresh'}
+                                </Button>
+                              </div>
+                              <div className="rounded-md border border-border overflow-hidden">
+                                {isSettlementsLoading ? (
+                                  <p className="text-sm text-muted-foreground p-3">Loading settlements...</p>
+                                ) : settlements.length === 0 ? (
+                                  <div className="p-6 text-center">
+                                    <p className="text-sm text-muted-foreground">No settlements yet.</p>
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                      Settlements appear after Paystack processes your sales (usually T+1 business day).
+                                    </p>
+                                  </div>
                                 ) : (
                                   <Table>
                                     <TableHeader>
                                       <TableRow>
-                                        <TableHead>Date</TableHead>
-                                        <TableHead>Reference</TableHead>
-                                        <TableHead>Tracking ID</TableHead>
-                                        <TableHead>Type</TableHead>
+                                        <TableHead>Settlement Date</TableHead>
                                         <TableHead>Status</TableHead>
                                         <TableHead className="text-right">Amount</TableHead>
+                                        <TableHead className="text-right">Fees</TableHead>
+                                        <TableHead className="text-right">Processed</TableHead>
                                       </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                      {transactions.map((transaction) => (
-                                        <TableRow key={transaction.id}>
-                                          <TableCell>
-                                            {new Date(transaction.created_at).toLocaleString()}
+                                      {settlements.map((s) => (
+                                        <TableRow key={s.id}>
+                                          <TableCell className="text-sm">
+                                            {new Date(s.settlement_date).toLocaleDateString(undefined, {
+                                              year: 'numeric',
+                                              month: 'short',
+                                              day: 'numeric',
+                                            })}
                                           </TableCell>
-                                          <TableCell>{transaction.reference_id ?? '-'}</TableCell>
-                                          <TableCell>{transaction.tracking_id ?? '-'}</TableCell>
-                                          <TableCell className="capitalize">{transaction.type}</TableCell>
-                                          <TableCell className="capitalize">{transaction.status}</TableCell>
-                                          <TableCell className="text-right">
-                                            {formatCurrency(Number(transaction.amount), transaction.currency || 'NGN')}
+                                          <TableCell>
+                                            <span
+                                              className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                                                s.status === 'success'
+                                                  ? 'bg-success/15 text-success'
+                                                  : s.status === 'pending'
+                                                  ? 'bg-warning/15 text-warning'
+                                                  : 'bg-error/15 text-error'
+                                              }`}
+                                            >
+                                              {s.status.charAt(0).toUpperCase() + s.status.slice(1)}
+                                            </span>
+                                          </TableCell>
+                                          <TableCell className="text-right font-medium">
+                                            {formatCurrency(s.total_amount / 100, 'NGN')}
+                                          </TableCell>
+                                          <TableCell className="text-right text-muted-foreground">
+                                            {formatCurrency(s.total_fees / 100, 'NGN')}
+                                          </TableCell>
+                                          <TableCell className="text-right text-muted-foreground">
+                                            {formatCurrency(s.total_processed / 100, 'NGN')}
                                           </TableCell>
                                         </TableRow>
                                       ))}
@@ -926,31 +997,35 @@ setHasThemeChanges(true);
                                 )}
                               </div>
 
-                              {transactionsTotalPages > 1 && (
-                                <div className="flex items-center justify-between">
-                                  <p className="text-xs text-muted-foreground">{transactionsTotal} transaction(s)</p>
+                              {settlementsTotalPages > 1 && (
+                                <div className="flex items-center justify-between pt-1">
+                                  <p className="text-xs text-muted-foreground">
+                                    {settlementsTotal} settlement(s)
+                                  </p>
                                   <div className="flex items-center gap-2">
                                     <Button
                                       type="button"
                                       variant="outline"
                                       size="sm"
-                                      onClick={() => setTransactionsPage((prev) => Math.max(1, prev - 1))}
-                                      disabled={transactionsPage === 1 || isTransactionsLoading}
+                                      onClick={() => setSettlementsPage((prev) => Math.max(1, prev - 1))}
+                                      disabled={settlementsPage === 1 || isSettlementsLoading}
                                     >
                                       Previous
                                     </Button>
                                     <span className="text-xs text-muted-foreground">
-                                      Page {transactionsPage} of {transactionsTotalPages}
+                                      Page {settlementsPage} of {settlementsTotalPages}
                                     </span>
                                     <Button
                                       type="button"
                                       variant="outline"
                                       size="sm"
                                       onClick={() =>
-                                        setTransactionsPage((prev) => Math.min(transactionsTotalPages, prev + 1))
+                                        setSettlementsPage((prev) =>
+                                          Math.min(settlementsTotalPages, prev + 1)
+                                        )
                                       }
                                       disabled={
-                                        transactionsPage === transactionsTotalPages || isTransactionsLoading
+                                        settlementsPage === settlementsTotalPages || isSettlementsLoading
                                       }
                                     >
                                       Next

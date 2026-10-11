@@ -1,2 +1,1 @@
 export const PLATFORM_FEE_PERCENTAGE = 2.5;
-export const MINIMUM_PAYOUT_AMOUNT = 10000;
